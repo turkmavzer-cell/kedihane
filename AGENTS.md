@@ -16,7 +16,6 @@
 ## 2. Geliştirme, Test ve Araç Komutları
 - **Emprime & Serigrafi Renk Ayrımı:** `python tools/emprime/bolge_am.py` (AM tram 45 LPI, 508 PPI), `tools/emprime/tramsiz.py` (düz spot), `tools/emprime/kalite_kontrol.py`
 - **Photoshop Multichannel PSD Otomasyonu:** `tools/photoshop/psd_olustur_tek_adim.jsx` (ExtendScript)
-- **Tasarım ve Tipografi:** `tools/tasarim/kavisli_yazi_top.py` (Pillow tabanlı kavisli/dairesel yazı motoru)
 - **PSD Katman Ayırma Araçları:** `tools/psd_worker/` (Node.js) ve `tools/katman/` (Python)
 - **Web App Test & Doğrulama:** `python tools/webapp_testing/with_server.py` (arka plan test sunucusu)
 - **Repo Kalite ve Gizlilik Denetimi:** `python tools/denetim.py` (Sarman denetim ve ihlal tarama betiği)

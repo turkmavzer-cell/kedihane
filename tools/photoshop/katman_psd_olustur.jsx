@@ -5,7 +5,7 @@ app.preferences.rulerUnits = Units.PIXELS;
 var root = new File($.fileName).parent;
 var jf = new File(root.fsName + "/katmanlar.json"); jf.encoding = "UTF-8"; jf.open("r");
 var meta = eval("(" + jf.read() + ")"); jf.close();
-var doc = app.documents.add(meta.W, meta.H, meta.ppi, "Katmanli_Yazi_Top", NewDocumentMode.RGB, DocumentFill.WHITE);
+var doc = app.documents.add(meta.W, meta.H, meta.ppi, "Katmanli", NewDocumentMode.RGB, DocumentFill.WHITE);
 doc.activeLayer.name = "Zemin (beyaz)";
 for (var i = 0; i < meta.layers.length; i++) {
   var L = meta.layers[i];

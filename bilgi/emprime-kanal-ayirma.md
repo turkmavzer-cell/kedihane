@@ -14,7 +14,7 @@
 | [G. İş Akışı: Tek Aşamalı vs İki Aşamalı Yöntem](#g-iş-akışı-tek-aşamalı-vs-iki-aşamalı-yöntem) | L91-L105 | bolge_am.py vs hibrit2.py adım adım yürütme |
 | [H. Kalite Kontrol ve Hata Ölçümü](#h-kalite-kontrol-ve-hata-ölçümü) | L109-L118 | ΔE ≤ 12, kenar pürüzlülüğü ≤ 0.03 ve kalite_kontrol.py |
 | [I. Kaynaklar ve Literatür](#i-kaynaklar-ve-literatür) | L122-L134 | MYK, Ryonet, Fresener, Anatol ve ISO-13660 standartları |
-| [J. Onaylı Örnekten Çalışma Stili (654 Stili)](#j-onaylı-örnekten-çalışma-stili-654-stili) | L138-L142 | Ton dilimli spot kanallar, sert alt taban ve şablon mantığı |
+| [J. Tonlu Nesne ve Alt Taban Çalışma Stili](#j-tonlu-nesne-ve-alt-taban-çalışma-stili) | L138-L142 | Ton dilimli spot kanallar, sert alt taban ve şablon mantığı |
 | [K. Önerilen Boru Hattı ve Ön Analiz Karar Eşikleri](#k-önerilen-boru-hattı-ve-ön-analiz-karar-eşikleri) | L146-L198 | 5 adımlı Python pipeline kodu ve analiz.py karar eşikleri |
 | [L. Photoshop JSX Otomasyon Araçları](#l-photoshop-jsx-otomasyon-araçları) | L202-L209 | psd_olustur_tek_adim.jsx ile tek tıkla Multichannel PSD |
 | [M. Sınama Sonuçları (Sentetik 2000×2000 px, 508 PPI)](#m-sınama-sonuçları-sentetik-20002000-px-508-ppi) | L213-L228 | Raggedness, sahte saçak, choke ve dither sentetik test tablosu |
@@ -135,7 +135,7 @@ Her işin başında kullanıcıya hangi yöntemin uygulanacağı sorulur:
 
 ---
 
-## J. Onaylı Örnekten Çalışma Stili (654 Stili)
+## J. Tonlu Nesne ve Alt Taban Çalışma Stili
 
 1. **Ton Dilimli Spot Kanal:** Tonlu nesneler tek kanala sıkıştırılmaz; sert gövde / orta ton / açık ton dilimleri olarak basılır.
 2. **Sert Alt Taban:** Koyu tişörtte alt taban tonlu değil, tüm baskı elemanlarının sert birleşim silüetidir.
@@ -204,9 +204,9 @@ def save_1bit(ink, path, ppi=508):           # film mantigi: basilacak yer SIYAH
 1. **Tek Adımda Multichannel PSD Üretimi:**
    - Script: `tools/photoshop/psd_olustur_tek_adim.jsx`
    - İşlev: Film klasöründeki 1-bit filmleri okur, Photoshop'ta Multichannel Spot Color belgesine dönüştürür, her kanala doğru Lab/RGB rengini atar ve PSD olarak kaydeder.
-2. **Koyu Tişört Simülasyonu:**
-   - Script: `tools/photoshop/koyu_tisort_photoshop.jsx`
-   - İşlev: Siyah tişört zeminini simüle ederek alt baskı beyazı ve üst renklerin örtücülüğünü test eder.
+2. **Kanal Birleştirme ve Renk Atama:**
+   - Script: `tools/photoshop/film_klasoru_multichannel.jsx` + `film_renk_ata.jsx`
+   - İşlev: Set klasöründeki filmleri tek Multichannel belgede toplar, ardından renkleri `kanallar_hibrit.json`'dan Spot Color olarak atar.
 
 ---
 

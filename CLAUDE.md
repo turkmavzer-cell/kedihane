@@ -233,6 +233,7 @@ ayrıntılar konu dosyalarında).
 - `MEMORY.md` en fazla 100 satır; konu dosyaları en fazla 150 satır.
 - **Alfabetik Alt Başlıklar:** Her ajanın hafızasında ve konu dosyalarında dersler ve yöntemler sektör/iş bazında alfabetik sıra (`A-Z`) ile düzenlenir. Ajanlar kendilerini güncellerken doğrudan ilgili alfabetik alt başlığın altına ekler; yoksa alfabetik sırayı bozmadan yeni bir alt başlık açar.
 - Kişisel sağlık, finans, müşteri bilgisi ve gizli bilgiler hafızaya yazılmaz.
+- **Görsel işleri:** İşlenen görsele özgü bilgi (ölçü, koordinat, renk değeri, katman/nesne adı, desen tarifi, o görsele yazılmış betik) repoya yazılmaz. Yöntem (`bilgi/`, araçlar, hafıza) yalnız Cihan sonucu "iyi" veya "kötü" dediğinde güncellenir: iyi → yöntem korunur, gerekirse "doğrulandı" notu; kötü → hatalı adım düzeltilir. Değerlendirme yoksa yönteme dokunulmaz.
 - Hafıza o an çalışılan repoya yazılır. Proje işleri proje reposuna,
   proje dışı işler Kedihane'ye.
 - Kedihane'ye proje, müşteri, marka veya sosyal medya hesap adı, telefon numarası, fiyat, sipariş ayrıntısı ve projeye özgü bilgi asla yazılmaz; yalnızca projeden bağımsız genel dersler ve metodolojiler yazılır. Gerçek müşteri adları, kişisel telefon numaraları, adresler ve özel sipariş mesajları asla repoya yazılmaz. Bağlantı şablonlarında yalnız `{{WHATSAPP_LINK}}` gibi yer tutucular kullanılır; rehberlerde yalnızca `bilgi/` altındaki genel iş akışı dokümanları yer alabilir.

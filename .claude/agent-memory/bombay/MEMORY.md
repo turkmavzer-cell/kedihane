@@ -8,7 +8,7 @@ Yeni dersler doğrudan ilgili alt başlığın altına eklenir; alt başlık yok
 
 ### Algoritmalar ve Optimizasyon
 - 2026-10-19: Mürekkep renkleri biliniyorsa alfayı palet izdüşümüyle hesapla (α=⟨c−b,Fk−b⟩/|Fk−b|²); Color to Alpha en küçük alfayı seçtiği için düz mürekkepte α<1 kalır.
-- 2026-10-20: Kısıtlı en küçük kareler (w≥0, Σw=1) için alt küme sayımı + ceza yöntemi 3–4 mürekkepte hızlı ve kararlı; kod `bilgi/katman-ayirma.md` Bölüm 9.
+- 2026-10-20: Kısıtlı en küçük kareler (w≥0, Σw=1) için alt küme sayımı + ceza yöntemi 3–4 mürekkepte hızlı ve kararlı; kod `bilgi/katman-ayirma.md` B ve H bölümleri.
 - 2026-10-20: Kontur oturtma yarıçapını morfolojik konturdan değil geçişin %50 noktalarından ölç.
 
 ### Görüntü İşleme ve PSD

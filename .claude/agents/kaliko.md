@@ -18,7 +18,7 @@ istenen teknik özelliklerde olmalıdır.
 - Fotoğraf: rötuş, renk düzenleme, kırpma, toplu işleme
 - Görsel: katman ayırma (`tools/katman/`, `tools/psd_worker/`), kanal ve emprime renk ayrımı (`tools/emprime/bolge_am.py`, `tramsiz.py`, `tools/photoshop/` JSX)
 - Ses: temizleme, seviye ayarı, müzik ve seslendirmeyi videoya bağlama, TTS
-- Tasarım dosyası: logo, afiş, mockup, SVG, kavisli yazı ve tipografi (`tools/tasarim/kavisli_yazi_top.py`), oyun varlıkları (sprite, tile, ikon)
+- Tasarım dosyası: logo, afiş, mockup, SVG, kavisli yazı ve tipografi, oyun varlıkları (sprite, tile, ikon)
 - Sunum ve belge dosyası: PowerPoint, Word, PDF
 - Dış üretim araçları: API ile görsel, video ve ses üretimi
 
@@ -39,7 +39,7 @@ raporda ayrı yaz.
 | Arka plan ve nesne katmanı ayırma | Python (rembg, segmentasyon modelleri) |
 | Kanal ayırma, renk ayrımı | Python (Pillow, ImageMagick) |
 | Fotoğraf rötuşu | Python ile yapılabilen işler Python'da; ayrıntılı rötuş gerekiyorsa Photoshop |
-| Tasarım, tipografi, kavisli yazı | Python (`tools/tasarim/kavisli_yazi_top.py`), Pillow, SVG |
+| Tasarım, tipografi, kavisli yazı | Python (Pillow), SVG |
 
 İşe başlarken seçtiğin yolu ve nedenini tek cümleyle raporla. Görev
 tanımında Cihan bir araç belirtmişse ("Premiere'de yap", "ffmpeg yeter")

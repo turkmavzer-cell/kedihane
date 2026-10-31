@@ -13,11 +13,11 @@ description: Kaliko için Photoshop katman ayırma (psd_worker), emprime renk ay
 | :--- | :--- | :--- |
 | [E. Emprime ve Tekstil Kanal Ayırma](#e-emprime-ve-tekstil-kanal-ayırma) | tools/emprime/, tools/photoshop/ ve bilgi/emprime-kanal-ayirma.md | L24-L44 |
 | [G. Görsel Düzeltme, Rötuş ve Otomatik Dekupe (Rembg)](#g-görsel-düzeltme-rötuş-ve-otomatik-dekupe-rembg) | Non-destructive rötuş, danielgatis/rembg CLI/Python BiRefNet/ISNet otomatik dekupe | L48-L113 |
-| [K. Katman Ayırma ve PSD Worker Aracı](#k-katman-ayırma-ve-psd-worker-aracı) | tools/psd_worker/, tools/katman/ Python/JSX, bilgi/katman-ayirma.md | L117-L153 |
-| [R. React ile Programatik Video Üretimi (Remotion)](#r-react-ile-programatik-video-üretimi-remotion) | remotion-dev/remotion mimarisi, Composition, spring/interpolate, CLI render komutları | L157-L235 |
-| [S. Ses Klonlama ve Dublaj (OpenVoice V2 & MeloTTS)](#s-ses-klonlama-ve-dublaj-openvoice-v2--melotts) | myshell-ai/OpenVoice V2 ve MeloTTS ile çok dilli ve duygusal ses klonlama | L239-L295 |
-| [T. Tasarım, Sinematik Kamera ve Reasoning Brief Mimarisi (Ankara & Kaliko)](#t-tasarım-sinematik-kamera-ve-reasoning-brief-mimarisi-ankara--kaliko) | Reasoning Brief, sinematik optik/lens, katman-dostu prompt, Kling/Veo stabilite ve TEXT_INTEGRATION | L299-L335 |
-| [V. Video/Ses Analizi (FFmpeg) ve Vektörleştirme (VTracer)](#v-videoses-analizi-ffmpeg-ve-vektörleştirme-vtracer) | ffprobe, ebur128 LUFS ve visioncortex/vtracer | L339-L415 |
+| [K. Katman Ayırma ve PSD Worker Aracı](#k-katman-ayırma-ve-psd-worker-aracı) | tools/psd_worker/, tools/katman/ Python/JSX, bilgi/katman-ayirma.md | L117-L140 |
+| [R. React ile Programatik Video Üretimi (Remotion)](#r-react-ile-programatik-video-üretimi-remotion) | remotion-dev/remotion mimarisi, Composition, spring/interpolate, CLI render komutları | L144-L222 |
+| [S. Ses Klonlama ve Dublaj (OpenVoice V2 & MeloTTS)](#s-ses-klonlama-ve-dublaj-openvoice-v2--melotts) | myshell-ai/OpenVoice V2 ve MeloTTS ile çok dilli ve duygusal ses klonlama | L226-L282 |
+| [T. Tasarım, Sinematik Kamera ve Reasoning Brief Mimarisi (Ankara & Kaliko)](#t-tasarım-sinematik-kamera-ve-reasoning-brief-mimarisi-ankara--kaliko) | Reasoning Brief, sinematik optik/lens, katman-dostu prompt, Kling/Veo stabilite ve TEXT_INTEGRATION | L286-L322 |
+| [V. Video/Ses Analizi (FFmpeg) ve Vektörleştirme (VTracer)](#v-videoses-analizi-ffmpeg-ve-vektörleştirme-vtracer) | ffprobe, ebur128 LUFS ve visioncortex/vtracer | L326-L402 |
 
 ---
 
@@ -41,7 +41,7 @@ Bu konunun tam teknik detayları, Photoshop Curves değerleri ve film çıkış 
 - **Önizlemeden Film Ayrımı (`onizlemeden_ayir.py`):** `python tools/emprime/onizlemeden_ayir.py onayli_onizleme.png cikti_klasoru acik cikti/onizleme_palet.json`
 - **Tramsız Düz Spot Ayrım (`tramsiz.py`):** `python tools/emprime/tramsiz.py girdi.jpg cikti_klasoru`
 - **Ayrım Kalite Kontrolü (`kalite_kontrol.py`):** `python tools/emprime/kalite_kontrol.py cikti_klasoru kaynak.png` (dE <= 12, pürüzlülük <= 0.03)
-- **Photoshop Multichannel PSD Üretimi (`tools/photoshop/`):** `psd_olustur_tek_adim.jsx` ve `koyu_tisort_photoshop.jsx` ile otomatik PSD üretimi.
+- **Photoshop Multichannel PSD Üretimi (`tools/photoshop/`):** `psd_olustur_tek_adim.jsx` ile `kanallar_hibrit.json`'dan otomatik PSD üretimi.
 
 ---
 
@@ -118,35 +118,22 @@ with open('portre.jpg', 'rb') as i:
 
 Kedihane çalışma alanında `tools/psd_worker/` dizini altında görselleri ve Photoshop PSD dosyalarını otomasyonla katmanlarına ayıran Node.js araçları hazır bulunmaktadır.
 
-### 1. PSD Worker Araçları ve Kullanım Komutları
-Araçlar `ag-psd` kütüphanesi üzerine kuruludur; bağımsız görselden katmanlı PSD ve şeffaf PNG çıktıları üretir ya da mevcut PSD'lerin katmanlarını ayırıp küçük resim (thumbnail) oluşturur. Tüm araçlar `--input` ve `--output` argümanlarıyla çalışır:
+### 1. PSD Worker Aracı
+`tools/psd_worker/make_thumbs.js` katman veya görsel klasöründen hızlı küçük resim (thumbnail) üretir (`canvas`):
 
 ```bash
-# PSD Worker çalışma dizini
 cd tools/psd_worker
-
-# 1. Standart Katman Ayırma: Görseli veya PSD'yi katmanlarına bölüp şeffaf PNG'lere döker
-node separate_layers.js --input "../../girdi/tasarim.psd" --output "../../cikti/katmanlar/"
-
-# 2. Renk Değiştirilebilir Katmanları Ayırma (Tekstil ve e-ticaret mockupları için katmanlı PSD+PNG)
-node separate_color_replaceable.js --input "../../girdi/mockup.psd" --output "../../cikti/renkli/"
-
-# 3. Gemini / Multimodal Uyumlu Katman Ayrımı (Analiz için optimize katmanlı PSD ve PNG çıktısı)
-node separate_gemini_layers.js --input "../../girdi/tasarim.psd" --output "../../cikti/gemini_input/"
-
-# 4. Hızlı Küçük Resim (Thumbnail) Üretimi
 node make_thumbs.js --input "../../cikti/katmanlar/" --size 300
 ```
 
-### 2. İleri Düzey Matematiksel Katman Ayırma Araçları (`tools/katman/` ve `tools/tasarim/`)
+Görsele özel katman ayırma betiği yazılırsa repoya eklenmez (`CLAUDE.md` Bölüm 14, Görsel işleri).
+
+### 2. İleri Düzey Matematiksel Katman Ayırma Araçları (`tools/katman/`)
 Kedihane bünyesine eklenen Python ve ExtendScript (JSX) araçları:
 - `bolge_murekkep_katman.py`: Bölge bazlı mürekkep katman ayrımı (simplex_ls).
-- `bolgeler_japon.py`: Japon estetiği ve karmaşık bölgesel illüstrasyon katman bölümleme aracı.
 - `katman_birlestir.jsx`: Photoshop ExtendScript ile ayrılmış katmanları kurallı birleştirme betiği.
 - `renk_alfa_katman.py` & `uc_renk_katman.py`: Yumuşak alfa geçişli 3 katmanlı ayırma.
 - `zemin_desen_katman.py`: Zemin ve tek renk desen ayrımı.
-- `zirh_nesne_katman.py`: İllüstrasyon ve yapısal nesne ayrımı.
-- `tools/tasarim/kavisli_yazi_top.py`: Kavisli ve dairesel yazı/top grafiği geometrik üretim aracı.
 
 ### 3. `bilgi/katman-ayirma.md` Yönlendirmesi
 Yumuşak alfa matematiksel formülasyonu (`C = αF + (1−α)B`), Color-to-Alpha farkları, kısıtlı en küçük kareler (`simplex_ls`) bölge grupları ve az mürekkepli baskı katmanları için `bilgi/katman-ayirma.md` rehberine başvurun.
@@ -311,7 +298,7 @@ Modeli yanıltan ve kaliteyi düşüren `masterpiece, 8k, ultra realistic, trend
 6. **TEXT_INTEGRATION (Tipografi Uyumu):** Görsel içine gömülecek metin, font stili ve yüzey fiziği entegrasyonu (ör. `"KEDIHANE" screen-printed in bold geometric sans-serif across the chest`).
 
 ### 2. Emprime ve PSD Katman Ayrımına Hazır Görsel Üretim Standardı
-Görsel üretiminin amacı tek başına dijital sergileme değil; `tools/psd_worker/worker.py`, `tools/katman/` veya `tools/emprime/` araçlarıyla baskıya veya katmanlara dönüştürmektir:
+Görsel üretiminin amacı tek başına dijital sergileme değil; `tools/katman/` veya `tools/emprime/` araçlarıyla baskıya veya katmanlara dönüştürmektir:
 - **Net Kontrast ve Rim-Light İzolasyonu:** Özne ile arka plan arasında en az 2 durak (EV) kontrast farkı ve kenar ayırıcı kontur ışığı (`strong edge backlighting`) verilerek dekupe motorlarının (`rembg`, BiRefNet) pürüzsüz maske üretmesi sağlanır.
 - **Emprime/Serigrafi için Bölge Saflığı:** Tekstil baskısı hedefleniyorsa atmosferik sis, duman ve parazit gradyanlar yasaktır (`no atmospheric haze, no volumetric smoke, clean sharp edges, isolated subject, solid flat background`).
 - **Antigravity Yerleşik Üretim Akışı:** Görsel üretimi için pahalı harici API'ler yerine Antigravity'nin yerleşik `image-generator` alt ajanı devreye sokulur; üretilen PNG doğrudan Kaliko'ya iletilerek `tools/emprime/bolge_am.py` veya `tools/photoshop/psd_olustur_tek_adim.jsx` akışına verilir.

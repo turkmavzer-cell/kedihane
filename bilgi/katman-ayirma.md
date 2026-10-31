@@ -38,7 +38,7 @@ değildir. Fiziksel alt sınır: `α ≥ max(α_R, α_G, α_B)`.
 
 ## B. Bölge Grupları ve Mürekkep Katmanları (Az Mürekkepli Baskı)
 
-Ölçüldü: 1254×1254, 3 mürekkepli (krem kâğıt / siyah / kırmızı) baskı görseli, 4 bölge.
+Ölçüldü: 3 mürekkepli (kâğıt / siyah / kırmızı) tek bir baskı görselinde; aşağıdaki sayılar o işe aittir, yeni görselde yeniden ölçülür.
 Doğrulama durumu: Python'da yeniden birleştirme ölçüldü, Sarman denetledi; Photoshop'ta açılış sınanmadı.
 
 **İş tanımı:** Kullanıcı "bölge bölge grup, her grubun içinde renk renk katman" isterse.
@@ -47,7 +47,7 @@ en altta gizli "Orijinal (referans)".
 
 **Yöntem**
 1. **Bölgeler ayrık bölümleme olsun** (her piksel tek bölge, örtüşme 0, boşluk 0). Birleşim = tüm tuval; yeniden birleştirme böylece birebir kalır.
-2. **Bölge maskesi yapıdan çıkar, dikdörtgenden değil.** Kaba çokgen/blok maske denetimde reddedildi (bina sınırı dikdörtgen basamak, dağ düz kesik). Maske, bölgenin yapı piksellerinden (renk/koyuluk ile bulunan bileşenler) kurulur; çokgen yalnız kaba kılavuz.
+2. **Bölge maskesi yapıdan çıkar, dikdörtgenden değil.** Kaba çokgen/blok maske denetimde reddedildi (sınırlar basamaklı ve düz kesik çıktı). Maske, bölgenin yapı piksellerinden (renk/koyuluk ile bulunan bileşenler) kurulur; çokgen yalnız kaba kılavuz.
 3. **Kontur oturtma yarıçapı, morfolojik kontur değil, geçişin %50 noktalarından** ölçülür.
 4. **Mürekkep renkleri her bölge için ayrı** kestirilir (tek global renk sınır pikselini bozar). Krem = kâğıt pikselleri içinde en parlak %20'nin medyanı; siyah = en koyu %20 medyanı; kırmızı = kırmızı piksellerin en koyu %2'sinin medyanı. **Düz medyan değil uç değer medyanı** (düz medyan mürekkebi soluk bulur).
 5. **Doku varsa tek kırmızı yetmez:** "Açık Kırmızı" (en doygun, en parlak %10 içinden) ekle. Bölgede o mürekkep yoksa (siyah veya kırmızı) katmanı hiç açma ya da siyahı komşu bölgeden al.
