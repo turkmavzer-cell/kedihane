@@ -1,0 +1,27 @@
+# Gizli bilgiler (Bölüm 9)
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets/
+
+# Yerel ayarlar
+.claude/settings.local.json
+
+# Sistem ve geçici dosyalar
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.dll
+node_modules/
+cikti/
+tools/psd_worker/node_modules/
+
+# Yerel yasakli desen listesi (kisisel/marka verisi)
+.denetim_yasakli.txt
+*.pdf
