@@ -9,7 +9,7 @@
 | [B. Çerçeveli / Dairesel Yuvalara Görsel Yerleştirme ve Bitiş Kartları](#b-çerçeveli--dairesel-yuvalara-görsel-yerleştirme-ve-bitiş-kartları) | L55-L98 | Autocrop beyaz boşluk yasağı, 4 fotoğraflı delikli şablon ve alt kanal |
 | [C. Dikey Video (Reels / TikTok / Shorts) Kurgu, FFmpeg ve Premiere XML Mimarisi](#c-dikey-video-reels--tiktok--shorts-kurgu-ffmpeg-ve-premiere-xml-mimarisi) | L102-L126 | Master çıktı (4K 9:16), xfade normalizasyonu, prproj ve xmeml koordinatları |
 | [D. Meta Business Suite ve Çok Kanallı Müşteri Yanıtlama Otomasyonu](#d-meta-business-suite-ve-çok-kanallı-müşteri-yanıtlama-otomasyonu) | L130-L152 | İki aşamalı Türkçe onay, wa.me yer tutucu, DOM dosya yükleme ve spam kontrolü |
-| [E. Sosyal Medya Hesap Güvenliği ve Yerel Kayıt İzolasyonu](#e-sosyal-medya-hesap-güvenliği-ve-yerel-kayıt-izolasyonu) | L156-L163 | Profil doğrulama, git gizlilik duvarı ve yerel kayıt defteri izolasyonu |
+| [E. Sosyal Medya Hesap Güvenliği ve Yerel Kayıt İzolasyonu](#e-sosyal-medya-hesap-güvenliği-ve-yerel-kayıt-izolasyonu) | L156-L167 | Profil doğrulama, git gizlilik duvarı, çift repolu iş kaydı ve global öğrenim ayrımı |
 
 ---
 
@@ -161,3 +161,7 @@ Sosyal medya mesajlaşma ve yorum yanıtlama süreçlerinde kurumsal güvenlik, 
 2. **Git Gizlilik Duvarı ve Yerel Kayıt İzolasyonu:**
    - Gerçek müşteri isimleri, telefon numaraları, sipariş miktarları ve mesajlaşma günlükleri git reposuna **kesinlikle yazılmaz**.
    - Müşteri verileri yalnızca `.gitignore` altında korunan yerel kayıt klasöründe (`yerel-kayitlar/`) tarihli olarak tutulur.
+3. **Çift Repolu Çalışma, İş Kaydı Yönlendirmesi ve Global Öğrenim Ayrımı:**
+   - Kedihane bir işletme/sosyal medya reposu ile birlikte (ör. Facebook / Messenger mesaj ve yorum yanıtlama) kullanıldığında; **ne iş yapıldığı (ilerleme.md, ekleyen-isler.md, ogrenilenler.md) ve müşteri cevap listeleri (yerel-kayitlar/) doğrudan ilgili işletme reposuna kaydedilir.**
+   - Kedihane **kendi içine işletmeyle ilgili hiçbir kişisel veya kurumsal bilgi (marka adı, müşteri adı, telefon, adres, hesap adı, yapılan özel iş özeti) almaz.**
+   - Yalnızca tüm projelerde geçerli **genel (global) bir teknik yöntem veya iş akışı** öğrenildiğinde, bu bilgi özel/kişisel verilerden tamamen arındırılarak Kedihane'nin genel hafızasına veya rehberlerine alınabilir.
