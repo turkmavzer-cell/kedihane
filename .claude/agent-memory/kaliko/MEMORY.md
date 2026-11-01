@@ -42,4 +42,4 @@ Yeni dersler doğrudan ilgili alt başlığın altına eklenir; alt başlık yok
 - `bilgi/emprime-kanal-ayirma.md`: Emprime ve Serigrafi baskı metotları
 - `bilgi/katman-ayirma.md`: Photoshop katman ve bölge ayırma metotları
 - `bilgi/sosyal-medya-ve-video-operasyonu.md`: Video kurgu ve sosyal medya operasyonu standartları
-- `bilgi/video-kurgu.md`: Hibrit kurgu akışı (`analiz.py` + `plan_render.py`), `plan.json` şeması ve 9 kurgu kuralı
+- `bilgi/video-kurgu.md`: Kurgu akışı, `plan.json` şeması, tempo bazlı kurgu dili, kilit ve denetim

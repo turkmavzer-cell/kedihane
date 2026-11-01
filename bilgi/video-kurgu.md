@@ -1,104 +1,109 @@
-# Video Kurgu Dili, Hibrit Model Akışı ve Doğrulama Rehberi
+# Video Kurgu Rehberi (Plan → Uygulama Akışı)
 
-> **Okuma Kuralı:** Fihristten ilgili başlığı (`## X.`) bulun ve yalnızca o satır aralığını okuyun.
+> **Okuma Kuralı:** Fihristten ilgili başlığı (`## X.`) bulun ve yalnızca o bölümü okuyun. Teknik çıktı standartları (4K master, Premiere XML koordinatları, RTL yazı üretimi) `bilgi/sosyal-medya-ve-video-operasyonu.md` A ve C bölümlerindedir.
 
-## Alfabetik Bölüm ve Metot Fihristi (A-Z)
+## Bölüm Fihristi
 | Başlık | Satır Aralığı | İçerik Özeti |
 | :--- | :--- | :--- |
-| [A. Akış ve Hibrit Model İş Bölümü (Argon Planlar, Flash Uygular)](#a-akış-ve-hibrit-model-iş-bölümü-argon-planlar-flash-uygular) | L16-L30 | Kota dostu 5 adımlı analiz, plan.json, doğrulama, önizleme ve master akışı |
-| [B. Bağlam Koruması ve Flash Uzun İş Protokolü](#b-bağlam-koruması-ve-flash-uzun-iş-protokolü) | L32-L41 | durum.md kaydı, adım kapısı, plan kilidi ve 2 tur devre kesici kuralı |
-| [C. Çizelge ve plan.json Şema Standardı](#c-çizelge-ve-planjson-şema-standardı) | L43-L77 | Sahne alanları, odak koordinatları, şablon yuva kontrolü ve müzik tanımı |
-| [D. Doğrulama ve Kurgu Dili (9 Altın Kural)](#d-doğrulama-ve-kurgu-dili-9-altın-kural) | L79-L93 | Hook, vuruşta kesim (<=0.12s), geçiş kilidi, 1:1 taş netliği ve yama yasağı |
-| [E. Ekran Kanıtı ve Tek-Segment Revizyon Döngüsü](#e-ekran-kanıtı-ve-tek-segment-revizyon-döngüsü) | L95-L104 | _kareler.jpg incelemesi, SHA-256 segment önbelleği ve Sarman makbuzu kanıtları |
+| [A. İş Bölümü: Planı Güçlü Model, Uygulamayı Hafif Model Yapar](#a-iş-bölümü-planı-güçlü-model-uygulamayı-hafif-model-yapar) | L16-L35 | Hangi adım hangi modelde, eksik brief, Argon'a giden tek mesaj |
+| [B. Uzun İş Protokolü (Hafif Model)](#b-uzun-iş-protokolü-hafif-model) | L36-L44 | `_calisma/`, durum.md, adım kapısı, plan kilidi, durma koşulu |
+| [C. plan.json Şeması](#c-planjson-şeması) | L45-L74 | Video ve görsel planlar, tempo, kadraj, yazı ve yuva, ses, doğrulama |
+| [D. Kurgu Dili](#d-kurgu-dili) | L75-L96 | Hook, yapı, tempoya göre geçiş, kesim yeri, ince doku, yazı, ses |
+| [E. Kontrol, Kilit ve Denetim](#e-kontrol-kilit-ve-denetim) | L97-L109 | Kodlu kontrol sayfaları, master kilidi, 9 maddelik denetim, Premiere XML, makbuz |
 
 ---
 
-## A. Akış ve Hibrit Model İş Bölümü (Argon Planlar, Flash Uygular)
+## A. İş Bölümü: Planı Güçlü Model, Uygulamayı Hafif Model Yapar
 
-Video kurguda estetik karar ile mekanik işlem birbirinden ayrılır; FFmpeg filtre zinciri asla sıfırdan elle yazılmaz:
+Kurgu kalitesini belirleyen karar (hangi plan, hangi sıra, hangi tempo) tek adımdır ve güçlü modele verilir. Uzun ve mekanik iş hafif modelde yürür. Hafif model ffmpeg komutu yazmaz; yalnız `plan.json` doldurur ve araçları çalıştırır.
 
-| Adım | Komut / İşlem | Sorumlu Model | Kota ve Çıktı |
-| :--- | :--- | :--- | :--- |
-| **1. Ön Analiz** | `python tools/video/analiz.py <kaynak> --muzik <muzik>` | **Gemini 3.8 Flash** | `analiz.json`, `_kontak_videolar.jpg`, `_kontak_gorseller.jpg` (0 Argon kotası) |
-| **2. Kurgu Planı** | Kontak görselleri (`read_file`) + `analiz.json` okunarak `plan.json` yazımı | **Gemini 4 Argon** / **Sonnet 5.5** / **Opus 5.5** | Ham video yerine yalnız özet JSON + kontak sayfası okunur (tek çağrı) |
-| **3. Doğrulama & Önizleme** | `python tools/video/plan_render.py plan.json --dogrula --onizleme` | **Gemini 3.8 Flash** | `540x960` hızlı MP4 ve sahne orta karelerinden `_kareler.jpg` |
-| **4. Görsel Kontrol** | `_kareler.jpg` dosyasının `read_file` ile incelenmesi | **Flash** (Estetik sorun varsa **Argon**) | Kusurlu sahne varsa yalnız o sahne `plan.json`'da düzeltilir |
-| **5. Master & XML** | `python tools/video/plan_render.py plan.json --master` | **Gemini 3.8 Flash** | `1080x1920` CRF 17 MP4, `_premiere.xml` ve master `_kareler.jpg` |
+| Adım | Ne yapılır | Antigravity | Claude |
+|---|---|---|---|
+| 1. Analiz | `python tools/video/analiz.py <kaynak_klasor> --muzik <muzik>` → `<kaynak_klasor>/_calisma/` | Gemini 3.8 Flash | Kaliko (sonnet) |
+| 2. Plan | `analiz.json` + `_kontak_videolar.jpg` + `_kontak_gorseller.jpg` + brief → yalnız `_calisma/plan.json` | **Gemini Argon** | Kaliko (opus) |
+| 3. Önizleme | `python tools/video/plan_render.py _calisma/plan.json --onizleme --analiz _calisma/analiz.json` | Flash | Kaliko (sonnet) |
+| 4. Kontrol | E bölümü; teknik düzeltme Flash, yaratıcı düzeltme Argon | Flash (+Argon) | Kaliko |
+| 5. Master | aynı komut `--master` ile → PASS → Sarman | Flash | Kaliko → Sarman |
 
-> **Yedek Kuralı:** Argon/Sonnet/Opus kotası tamamen doluysa `plan.json` dosyasını Flash yazar ancak teslim raporunda *"Kurgu planı kota nedeniyle Flash ile oluşturuldu"* şerhini düşer.
+**Eksik brief:** Kaynaklar, hedef süre, platform, müzik ve tempo (hareketli/yavaş) belli değilse Flash tahmin yürütmez, önce Cihan'a sorar.
 
----
+**Argon'a giden tek mesaj (adım 2):** Ham video gönderilmez. Mesajda şunlar olur: brief, `analiz.json`, iki kontak sayfası, bu dosyanın C ve D bölümleri ve şu talimat: "Yalnız geçerli `plan.json` döndür. Her planın `neden` alanı dolu olsun. Kesimleri müzik vuruşlarına oturt."
 
-## B. Bağlam Koruması ve Flash Uzun İş Protokolü
+Argon kotası bittiyse plan Opus veya Sonnet'e verilir. Hiçbiri yoksa Flash C ve D bölümleriyle planlar ve teslimde "plan hafif modelle yazıldı" diye belirtir.
 
-Hafif modellerin (Flash) uzun işlerde bağlamı unutmaması ve kısayola kaçmaması için 4 katı kural uygulanır:
+**ffmpeg:** Araçlar önce `imageio-ffmpeg`'i (tam libx264), yoksa PATH'teki ffmpeg'i kullanır. ffprobe yoksa bilgi `ffmpeg -i` çıktısından okunur. Gerekirse `pip install imageio-ffmpeg`.
 
-1. **Durum Kaydı (`_calisma/durum.md`):** Her adım bittiğinde tamamlanan dosya yolu, doğrulama çıktısı ve sıradaki adım `_calisma/durum.md` içine 5–10 satırla yazılır.
-2. **Adım Kapısı (Kanıtsız İlerleme Yasağı):** `_kontak_videolar.jpg` ve `_kontak_gorseller.jpg` `read_file` ile görülmeden `plan.json` yazılamaz; `--dogrula` hatasız geçmeden ve `_kareler.jpg` `read_file` ile görülmeden kullanıcıya "bitti" denilemez.
-3. **Plan Kilidi:** Onaylanmış `plan.json` içindeki sahne sırası, süreler ve geçişler Cihan istemedikçe render sırasında değiştirilemez.
-4. **2 Tur Devre Kesici:** Bir teknik hata veya doğrulama uyarısı 2 denemede çözülemezse deneme durdurulur; hata çıktısıyla birlikte üst modele veya Tekir'e devredilir.
+## B. Uzun İş Protokolü (Hafif Model)
 
----
+1. **İş klasörü:** `<kaynak_klasor>/_calisma/` (repo dışı). İçinde `brief.md`, `analiz.json`, `plan.json`, `durum.md` ve çıktılar bulunur. Plandaki göreli yollar bu klasöre göredir (`../klip.mp4`).
+2. **durum.md:** Her adım bitince tek satır eklenir ve satır o adımın ürettiği dosyayı adıyla anar. Örnek: `14:20 | adım 3 | kurgu_onizleme.mp4, _kareler.jpg | 2 uyarı`. Bağlam dolarsa iş buradan sürer; sohbet geçmişine güvenilmez.
+3. **Eski dosya:** Önceki oturumdan kalan bir ara dosya, `--onizleme` yeniden alınıp kontrol sayfasına bakılmadan kullanılmaz.
+4. **Adım kapısı:** Araç `[TAMAM]` yazmadan sonraki adıma geçilmez. `[HATA]` düzeltilmeden render alınmaz. Master kilidi ve denetim (E bölümü) bunu kod düzeyinde uygular.
+5. **Plan kilidi:** Flash `plan.json`'da yalnız teknik alanları değiştirebilir: kaynak yolu, `kadraj`, `onay_*` kodları. Vuruş hizalamasını araç kendisi yapar. Plan sırası, plan seçimi, süre ve tempo değişikliği Argon'a gider.
+6. **Durma koşulu:** Aynı hata 2 turda çözülmezse Flash durur, `durum.md`'ye yazar ve Argon'a veya Cihan'a bırakır.
 
-## C. Çizelge ve plan.json Şema Standardı
-
-`tools/video/plan_render.py` tarafından işlenen `plan.json` şeması:
+## C. plan.json Şeması
 
 ```json
 {
-  "genislik": 1080,
-  "yukseklik": 1920,
-  "fps": 30,
-  "hedef_sure_sn": 60.0,
-  "analiz_json": "analiz.json",
-  "muzik": "muzik.mp3",
-  "muzik_baslangic_sn": 0.0,
-  "sabit_katman_png": "filigran_seffaf.png",
-  "cikti_mp4": "video_kurgu_master.mp4",
-  "sahneler": [
-    {
-      "kaynak": "../01_video.mp4",
-      "baslangic": 1.2,
-      "sure": 2.8,
-      "hiz": 1.0,
-      "mod": "kirp_9_16",
-      "odak_x": 0.5,
-      "odak_y": 0.35,
-      "gecis": "fade",
-      "gecis_sure": 0.40,
-      "katman_png": "01_baslik_seffaf.png",
-      "yuva_kontrol": [{"cx": 330, "cy": 1050, "r": 185}],
-      "neden": "Hook: en net kadrajla ilk 2.8 saniyede ürün taş parlamasını göster"
-    }
-  ]
+ "cikti": {"boyut": [1080, 1920], "fps": 30, "ad": "urun_kurgu_v1.mp4", "kapanis_fade": 0.5},
+ "hedef_sure": 15, "tempo": "hareketli", "keskinlestir": false,
+ "muzik": {"dosya": "../muzik.mp3", "baslangic": 0, "ses_db": 0, "fade_out": 1.5},
+ "orijinal_ses": false, "hedef_lufs": -14,
+ "planlar": [
+  {"kaynak": "../klip1.mp4", "giris": 2.10, "cikis": 3.60, "kadraj": "orta", "neden": "hook: ürün yakın plan"},
+  {"kaynak": "../urun.jpg", "sure": 1.5, "kadraj": 0.35, "keskinlestir": true, "neden": "taş detayı"},
+  {"kaynak": "../urun2.jpg", "sure": 2.0, "kadraj": "bulanik", "neden": "ürünün tamamı"},
+  {"kaynak": "../klip2.mp4", "giris": 4.0, "cikis": 7.0, "tempo": "yavas", "gecis": "fade", "neden": "yavaş kapanış"}
+ ],
+ "yazilar": [{"png": "bitis.png", "bas": 12.5, "bit": 15, "yuva_kontrol": [{"cx": 330, "cy": 1050, "r": 185}]}],
+ "onay_kareler": "", "onay_yazilar": ""
 }
 ```
 
----
+- **Video planı:** `kaynak`, `giris`, `cikis` (kaynaktaki saniye) ve `neden` zorunlu. İsteğe bağlı: `hiz` (0,25–4).
+- **Görsel planı (jpg/png/webp):** `kaynak`, `sure` ve `neden` zorunlu. Görsel sündürülmez. `keskinlestir` hafif unsharp uygular.
+- **`kadraj`:** `orta`/`ust`/`alt` ya da 0–1 arası sayı (0 = üst, 1 = alt) 9:16'ya kırpar. `bulanik` kırpmadan sığdırır, boşluğu aynı görüntünün bulanık hali doldurur. `sigdir` siyah bantla sığdırır.
+- **`tempo`:** Üst düzeyde varsayılandır; plan düzeyinde o plana giriş için geçerlidir. Kurallar D bölümünde.
+- **`gecis`:** `kesme`, `fade` ya da `fadeblack`. Slide, wipe, circle, PiP, ızgara ve kaydırma (pan) araçta yoktur. `gecis_sure` yazılmazsa tempo varsayılanı kullanılır.
+- **Yazılar:** Tam kadraj şeffaf PNG, çıktı boyutuna ölçeklenir. Arapça/RTL yazı üretimi için `sosyal-medya-ve-video-operasyonu.md` A bölümüne bakılır. `yuva_kontrol` (PNG pikseli cinsinden `cx`, `cy`, `r`) bayrak ya da amblem yuvasının tamamen dolu olduğunu denetler; boşluk varsa hata verir. Boşluk boyanmaz; görsel büyütülür.
+- **Ses:** `orijinal_ses: true` ise klip sesi `orijinal_ses_db` (varsayılan -6) ile müziğe karışır. Sonda `loudnorm` uygulanır. Kısa videoda tek geçişli `loudnorm` hedefin 2–3 LU altında kalabilir.
+- **`--analiz` verilince:** ±0,15 sn içindeki her kesim, önceki planın sonu oynatılarak en yakın vuruşa hizalanır (`[HIZALA]` satırı basılır). Daha uzak kesimler uyarı verir. İki analiz biçimi de okunur (`muzikler[].vuruslar_sn` ve `muzik.vuruslar`).
+- **Hata verenler:** eksik alan, boş `neden`, kaynak dosya yok, `cikis` kaynak süresini aşıyor, izinsiz geçiş, tempo aralığı dışındaki `gecis_sure`, dolmamış yuva, eski `sahneler` şeması.
+- **Uyarı verenler:** plan 0,4 sn'den kısa, plan tempo sınırından uzun, hareketli bölümde geçişlerin 1/3'ünden fazlası efektli, toplam süre hedeften 1 sn'den fazla sapıyor, yazı güvenli alan dışına taşıyor.
 
-## D. Doğrulama ve Kurgu Dili (9 Altın Kural)
+## D. Kurgu Dili
 
-`plan_render.py --dogrula` tarafından denetlenen kurgu ilkeleri:
+> Genel kurgu ilkeleri ve Cihan'ın işlerinden çıkan derslerdir. Cihan bir sonucu "iyi" ya da "kötü" diye değerlendirdikçe güncellenir (CLAUDE.md Bölüm 14). İlkelerden yalnız C bölümünde "hata/uyarı" diye geçenler araçla denetlenir; diğerleri planı yazanın sorumluluğundadır.
 
-1. **Hook (İlk 3 Saniye):** İlk sahne `1.2 – 3.0 sn` arasında olmalı ve en yüksek netlik (`Laplacian`) skoruna sahip hareketli/çarpıcı kareden seçilmelidir.
-2. **Sahne Süresi Sınırları:** Tek bir sahne `1.0 sn`'den kısa veya `5.5 sn`'den uzun olamaz (ideal aralık: `2.4 – 4.2 sn`).
-3. **Vuruşta Kesim (Beat Sync):** Her sahne geçişi (`net_kesim_sn`), müziğin gerçek enerji tepelerinden (`vuruslar_sn`) birine en fazla `≤ 0.12 sn` uzaklıkta olmalıdır.
-4. **Boş `neden` Yasağı:** Her sahnede o karenin neden seçildiğini açıklayan anlamlı bir `neden` alanı zorunludur.
-5. **Geçiş Kısıtı:** Göz yoran `slideleft`, `wipeleft`, `circleopen` gibi geçişler yasaktır; yalnızca `cut` (`kesme`) ve `0.35 – 0.45 sn` yumuşak optik `fade` (`erime`) kullanılır.
-6. **1:1 Ürün/Taş Netliği ve PiP/Grid Yasağı:** Taş, strass, sim ve nakış detaylı görsellerde küçük PiP kutusu, 4'lü grid veya `3:4` görseli `9:16`'ya sündürme yasaktır; `kirp_9_16` modu (`Lanczos` + `UnsharpMask`) kullanılır.
-7. **Sıfır-Titreme (Tamsayı Crop Pan Yasağı):** Sabit görsellerde `crop=x0+dx*t` ile kaydırma yapmak 1 piksellik sıçrama (takılma) yarattığından yasaktır; görseller `%100` sabit tutulur.
-8. **Dikey 4K Telefon Videoları (`displaymatrix`):** `-noautorotate` kullanılmaz; `plan_render.py` her segment sonrası `-display_rotation 0` ile döndürme yan verisini otomatik temizler.
-9. **Şablon/Bayrak Yama Yasağı ve Alfa Doluluk:** Dairesel bayrak veya amblem yuvalarında kalan boşlukları boyayarak yamamak yasaktır; orijinal şablon kullanılır ve `yuva_kontrol` ile yuvanın `%100` opak (`alpha >= 250`) dolduğu doğrulanır.
+1. **Hook:** İlk plan 1,2–3 sn sürer ve en güçlü ya da en hareketli görüntüyle açılır. Logo, siyah ekran veya yavaş açılışla başlanmaz.
+2. **Yapı:** Hook, gelişme (ürün, kullanım, hikâye), doruk, kapanış ve çağrı (son 2–3 sn).
+3. **Tempoya göre geçiş:**
 
----
+| Tempo | Varsayılan geçiş | `gecis_sure` | Plan süresi |
+|---|---|---|---|
+| `hareketli` | `kesme`, vuruşta; `fade` en fazla 1/3 | 0,15–0,35 sn | 0,8–2,5 sn, en fazla 4 |
+| `yavas` | `fade` | 0,35–0,8 sn | 2–5 sn, en fazla 7 |
 
-## E. Ekran Kanıtı ve Tek-Segment Revizyon Döngüsü
+   Bir videoda iki tempo birlikte olabilir (hareketli gövde, yavaş kapanış gibi). `fadeblack` yalnız bölüm değişiminde kullanılır.
 
-1. **Otomatik Kanıt Tablosu (`_kareler.jpg`):**
-   - `plan_render.py` her `--onizleme` ve `--master` çalışmasında tüm sahnelerin tam orta karesini çekerek numaralı `<cikti>_kareler.jpg` dosyasını üretir.
-   - Kaliko bu dosyayı `read_file` ile bizzat inceleyerek sündürme, siyah kare, bozuk Arapça/RTL yazı veya bayrak hizalama hatası olmadığını doğrular.
-2. **SHA-256 Segment Önbelleği ile Nokta Atışı Revizyon:**
-   - Her sahne `_segments/master/seg_XX_<sha256>.mp4` olarak önbelleklenir.
-   - Cihan *"videoyu baştan yapma, sadece sondaki bayrak kısmını düzelt"* dediğinde yalnızca ilgili sahnenin PNG katmanı veya parametresi güncellenir ve `plan_render.py --master` çalıştırılır; değişmeyen sahneler `0.1 sn`'de önbellekten alınır, sadece değişen sahne yeniden kodlanır.
-3. **Sarman Denetim Kanıtları:**
-   - Teslimatta `📋 Sarman Denetim Makbuzu` içine `plan_render.py --dogrula` çıktısı (`[GEÇTİ]`) ve `_kareler.jpg` dosya yolu kanıt olarak eklenir.
+4. **Kesim yeri:** Müzik vuruşunda kesilir. Büyük değişimler (yeni bölüm, yazı girişi) güçlü vuruşa, yani ölçü başına denk getirilir. Hareket varsa hareketin ortasında kesilir.
+5. **Sıralama:** Aynı açıdan benzer iki plan arka arkaya konmaz. Geniş ve yakın plan dönüşümlü kullanılır.
+6. **İnce doku (taş, strass, sim, nakış):** Görsel tam ekran ve sabit kalır, detay bölgesinden `kadraj` sayısıyla kırpılır ve `keskinlestir` açılır. Küçük kutu, ızgara ya da sündürme kullanılmaz.
+7. **Kaynak:** `analiz.json`'daki siyah ve bozuk aralıklar kullanılmaz. Yavaşlatma (`hiz` < 1) yalnız kaynak ≥ 50 fps ise yapılır.
+8. **Yazı:** Ekranda kalma süresi kabaca kelime başına 0,3 sn + 1 sn olur. Güvenli alanın (üst %8, alt %17, sağ %13 dışı) içinde kalır.
+9. **Ses:** Müzik -14 LUFS'tur. Konuşma varsa müzik konuşmanın yaklaşık 12 dB altında kalır.
+
+## E. Kontrol, Kilit ve Denetim
+
+1. **Kontrol sayfaları:** `--onizleme` iki sayfa üretir. `_kareler.jpg` her planın orta karesini, numarasını ve `neden`ini gösterir. `_yazilar.jpg` yazı PNG'lerini gri zeminde, kırmızı güvenli alan çerçevesiyle gösterir. Her sayfanın üst bandında bir **kod** vardır ve kod terminale yazılmaz.
+2. **Kontrol listesi (Flash):**
+   1. Her karede konu kadrajda mı? Konu kesiliyorsa `kadraj` değiştirilir (teknik).
+   2. Kare `neden`le uyuşuyor mu? Uyuşmuyorsa → Argon.
+   3. Yazılar okunuyor mu? Arapça harfler bitişik mi? Bayrak ve amblem yerinde mi?
+   4. `[UYARI]` satırları: sıra, süre veya tempo sorunuysa → Argon.
+3. **Master kilidi:** Kodlar `onay_kareler` ve `onay_yazilar` alanlarına yazılır. `--master` şu durumlarda çalışmaz: kod yanlışsa, önizleme alınmadıysa ya da plan önizlemeden sonra değiştiyse. Kilit kopyayı pahalılaştırır ama imkânsız kılmaz; kontrol yine de gerçekten yapılmalıdır.
+4. **Denetim (otomatik, 9 madde):** çözünürlük, SAR 1:1, sabit fps, döndürme kalıntısı, motor imzası, `faststart`, sürenin planla eşitliği, ses ve görüntü süresinin eşitliği, istenmeyen siyah kare. Master'da **FAIL varsa teslim yasaktır**. Donuk görüntü (yalnız video planlarında) ve düşük netlik uyarı olarak basılır. Elle yazılmış betikle üretilen video imzasız olduğu için FAIL alır.
+5. **Premiere XML:** `--master` ayrıca `_premiere.xml` üretir. Dosya kaynak dosyalara bağlı bir kesim listesidir; geçişler kesme olarak, hız 1x olarak gelir. İnce ayar Premiere'de yapılır.
+6. **Argon'a düzeltme mesajı:** `plan.json`, uyarılar ve `_kareler.jpg` gönderilir; talimat "yalnız sorunlu planları değiştir". En fazla 2 tur yapılır, sonra Cihan'a sorulur.
+7. **Sarman makbuzu:** "Doğrulanan Kanıtlar" alanına denetim satırı (`PASS 9/9`), "kontrol sayfaları görüldü: evet" ve `[HIZALA]`/`[UYARI]` satırları yazılır. "Cihan'ın Kontrol Etmesi Gerekenler" alanına müzik uyumu ve genel ritim yazılır; bunları araç ölçemez.

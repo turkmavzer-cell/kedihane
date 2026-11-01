@@ -131,6 +131,19 @@ def kontrol_2_kirik_referanslar(files):
         except Exception as err:
             hatalar.append(f"{f} okunamadı: {err}")
 
+    # Markdown'da geçen `tools/...` ve `bilgi/...` yolları gerçekten var mı?
+    # CHANGELOG geçmiş kaydıdır (silinmiş dosyaları anar), taranmaz.
+    yol_deseni = re.compile(r"`((?:tools|bilgi)/[^`\s*<>{}|]+)`")
+    for f in files:
+        if not f.endswith(".md") or f.endswith("CHANGELOG.md") or not os.path.isfile(f):
+            continue
+        with open(f, "r", encoding="utf-8", errors="ignore") as fp:
+            for line_no, line in enumerate(fp, 1):
+                for yol in yol_deseni.findall(line):
+                    yol = yol.split("#")[0].rstrip(".,:;)")
+                    if not os.path.exists(yol):
+                        hatalar.append(f"{f}:{line_no} -> Var olmayan dosya/klasör: '{yol}'")
+
     if hatalar:
         print(f"[HATA] Kontrol 2: Kırık Referans Kontrolü ({len(hatalar)} hata)")
         for h in hatalar[:10]:

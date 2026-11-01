@@ -1,26 +1,28 @@
 #!/usr/bin/env python3
-"""Kedihane Kurgu Doğrulama, Önbellekli Segment Render ve Premiere XML Aracı (`tools/video/plan_render.py`)
-
-Bu betik `plan.json` dosyasını doğrular ve yüksek kaliteli dikey/yatay video kurgusunu üretir:
-- `--dogrula`: Sahne sürelerini, boş `neden` alanlarını, vuruş (beat) uyumunu (<= 0.12 sn),
-  yasaklı geçişleri ve şablon/bayrak alfa doluluğunu kontrol eder.
-- `--onizleme`: 540x960 hızlı kontrol çıktısı ve `_kareler.jpg` kanıt tablosu üretir.
-- `--master`: 1080x1920 (veya hedef boyutta) CRF 17 H.264 High + AAC 48kHz master MP4,
-  Premiere Pro XML (`_premiere.xml`) ve `_kareler.jpg` kanıt tablosu üretir.
-- SHA-256 Segment Önbelleği sayesinde tek sahne düzeltmelerinde yalnızca değişen sahneyi render eder.
-- Dikey 4K telefon videolarında `displaymatrix` (-90 derece) yan verisini otomatik temizler.
+"""Kurgu planını (plan.json) doğrular, render eder ve çıktıyı denetler.
 
 Kullanım:
-    python tools/video/plan_render.py <plan.json> --dogrula
-    python tools/video/plan_render.py <plan.json> --onizleme
-    python tools/video/plan_render.py <plan.json> --master
+  python tools/video/plan_render.py plan.json --dogrula  [--analiz analiz.json]
+  python tools/video/plan_render.py plan.json --onizleme [--analiz analiz.json]
+  python tools/video/plan_render.py plan.json --master   [--analiz analiz.json]
+
+- --analiz verilirse kesimler ±0,15 sn içindeki müzik vuruşuna otomatik hizalanır.
+- --onizleme iki kontrol sayfası üretir: <ad>_kareler.jpg (her planın orta karesi) ve
+  varsa <ad>_yazilar.jpg (yazı PNG'leri gri zeminde, güvenli alan çizgili). Her
+  sayfanın üst bandında bir kod vardır; kod terminale yazılmaz.
+- --master yalnız plan.json'daki onay_kareler (ve yazı varsa onay_yazilar) kodları
+  son önizlemeyle eşleşirse ve plan önizlemeden sonra değişmediyse çalışır.
+- Her renderdan sonra çıktı otomatik denetlenir; master'da FAIL varsa teslim yasaktır.
+- --master ayrıca <ad>_premiere.xml (FCP7) üretir: kaynaklara bağlı kesim listesi.
+- ffmpeg: önce imageio-ffmpeg, yoksa PATH. ffprobe yoksa bilgiler ffmpeg -i çıktısından okunur.
+Plan şeması: bilgi/video-kurgu.md, "C. plan.json Şeması".
 """
 import argparse
 import hashlib
 import json
-import math
 import os
 import re
+import secrets
 import shutil
 import subprocess
 import sys
@@ -30,647 +32,686 @@ from pathlib import Path
 from urllib.parse import quote
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageOps
+from PIL import Image, ImageDraw, ImageFont
 
-if sys.platform == "win32":
-    try:
-        sys.stdout.reconfigure(encoding="utf-8")
-        sys.stderr.reconfigure(encoding="utf-8")
-    except Exception:
-        pass
-
-VIDEO_EXTS = {".mp4", ".mov", ".mkv", ".avi", ".webm", ".m4v"}
-IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp"}
-
-IZINLI_GECISLER = {"cut", "kesme", "fade", "erime"}
-IZINLI_MODLAR = {"kirp_9_16", "sigdir_bulanik_arka"}
+IMZA = "kedihane-plan_render v2"
+GORSEL = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
+GECISLER = {"kesme", "fade", "fadeblack"}
+KADRAJLAR = {"orta": 0.5, "ust": 0.0, "alt": 1.0}
+SIGDIR = {"sigdir": "siyah", "bulanik": "bulanik", "sigdir_bulanik_arka": "bulanik"}
 
 
-def get_ffmpeg_exe() -> str:
+def _bul_ffmpeg():
+    """Önce imageio-ffmpeg (tam libx264), yoksa PATH'teki ffmpeg."""
     try:
         import imageio_ffmpeg
         return imageio_ffmpeg.get_ffmpeg_exe()
     except Exception:
-        found = shutil.which("ffmpeg")
-        if found:
-            return found
-        raise RuntimeError("ffmpeg bulunamadı. Lütfen imageio-ffmpeg kurun veya ffmpeg'i PATH'e ekleyin.")
+        yol = shutil.which("ffmpeg")
+        if yol:
+            return yol
+    sys.exit("[HATA] ffmpeg bulunamadı: pip install imageio-ffmpeg ya da ffmpeg'i PATH'e ekle.")
 
 
-def probe_duration(filepath: str, ffmpeg_exe: str) -> float:
-    cmd = [ffmpeg_exe, "-hide_banner", "-i", filepath]
-    res = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="ignore")
-    m = re.search(r"Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)", res.stderr)
-    if not m:
-        return 0.0
-    return int(m.group(1)) * 3600 + int(m.group(2)) * 60 + float(m.group(3))
+FFMPEG = _bul_ffmpeg()
+FFPROBE = shutil.which("ffprobe")
+TEMPO = {  # varsayılan geçiş, geçiş süresi aralığı, en uzun plan
+    "hareketli": {"gecis": "kesme", "sure": 0.25, "aralik": (0.15, 0.35), "en_uzun": 4.0},
+    "yavas": {"gecis": "fade", "sure": 0.45, "aralik": (0.35, 0.8), "en_uzun": 7.0},
+}
+GUVENLI = (0.055, 0.078, 0.87, 0.83)  # x0, y0, x1, y1 (oran): platform düğmeleri dışı
+HIZALA = 0.15
 
 
-def file_sha256_short(filepath: str) -> str:
-    if not filepath or not os.path.isfile(filepath):
-        return "none"
-    st = os.stat(filepath)
-    raw = f"{Path(filepath).resolve()}|{st.st_size}|{int(st.st_mtime)}"
-    return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:10]
-
-
-def check_slot_alpha_fill(png_path: str, slots: list[dict]) -> list[str]:
-    """Dairesel/dikdörtgen şablon yuvalarında şeffaf/boş piksel kalıp kalmadığını denetler."""
-    errors = []
-    if not os.path.isfile(png_path):
-        return [f"Şablon dosyası bulunamadı: {png_path}"]
-    img = Image.open(png_path).convert("RGBA")
-    arr = np.array(img)
-    alpha = arr[:, :, 3]
-    h, w = alpha.shape
-
-    for idx, sl in enumerate(slots, 1):
-        cx, cy, r = int(sl.get("cx", 0)), int(sl.get("cy", 0)), int(sl.get("r", 0))
-        if r <= 0:
+def font(boyut=13):
+    for ad in ("DejaVuSans-Bold.ttf", "DejaVuSans.ttf", "arialbd.ttf", "arial.ttf", "segoeui.ttf"):
+        try:
+            return ImageFont.truetype(ad, boyut)
+        except OSError:
             continue
-        yy, xx = np.ogrid[:h, :w]
-        mask = (xx - cx) ** 2 + (yy - cy) ** 2 <= (r - 2) ** 2
-        if not np.any(mask):
-            errors.append(f"Yuva #{idx} ({cx},{cy},r={r}) görüntü sınırları dışında.")
-            continue
-        transparent_ratio = float(np.mean(alpha[mask] < 250))
-        if transparent_ratio > 0.005:
-            errors.append(
-                f"Yuva #{idx} ({cx},{cy},r={r}) tam doldurulmamış (%{transparent_ratio * 100:.1f} şeffaf boşluk var)!"
-            )
-    return errors
+    return ImageFont.load_default()
 
 
-def validate_plan(plan: dict, plan_dir: Path, ffmpeg_exe: str) -> tuple[list[str], list[str]]:
-    """plan.json şemasını, kurgu dilini, geçişleri ve vuruş uyumunu doğrular."""
-    errors = []
-    warnings = []
-
-    sahneler = plan.get("sahneler", [])
-    if not sahneler:
-        errors.append("Planda hiçbir sahne ('sahneler') tanımlanmamış.")
-        return errors, warnings
-
-    hedef_sure = float(plan.get("hedef_sure_sn", 0.0))
-    vuruslar = sorted(float(x) for x in plan.get("vuruslar_sn", []))
-    analiz_yolu = plan.get("analiz_json", "")
-    if not vuruslar and analiz_yolu:
-        ap = (plan_dir / analiz_yolu).resolve() if not os.path.isabs(analiz_yolu) else Path(analiz_yolu)
-        if ap.is_file():
-            try:
-                adata = json.loads(ap.read_text(encoding="utf-8"))
-                if adata.get("muzikler"):
-                    vuruslar = sorted(float(x) for x in adata["muzikler"][0].get("vuruslar_sn", []))
-            except Exception:
-                pass
-
-    toplam_sure = 0.0
-    gecis_toplam = 0.0
-
-    for i, s in enumerate(sahneler):
-        no = i + 1
-        kaynak_raw = s.get("kaynak", "")
-        kaynak_p = (plan_dir / kaynak_raw).resolve() if not os.path.isabs(kaynak_raw) else Path(kaynak_raw)
-        if not kaynak_p.is_file():
-            errors.append(f"Sahne #{no}: Kaynak dosya bulunamadı -> '{kaynak_raw}'")
-            continue
-
-        ext = kaynak_p.suffix.lower()
-        if ext not in VIDEO_EXTS and ext not in IMAGE_EXTS:
-            errors.append(f"Sahne #{no}: Desteklenmeyen dosya uzantısı -> '{ext}'")
-
-        neden = str(s.get("neden", "")).strip()
-        if len(neden) < 5:
-            errors.append(f"Sahne #{no}: 'neden' alanı boş veya çok kısa (kurgu gerekçesi zorunludur).")
-
-        sure = float(s.get("sure", 0.0))
-        baslangic = float(s.get("baslangic", 0.0))
-        hiz = float(s.get("hiz", 1.0))
-        if sure <= 0.2:
-            errors.append(f"Sahne #{no}: Geçersiz sahne süresi ({sure} sn).")
-
-        if i == 0 and sure > 3.2:
-            warnings.append(f"Sahne #1 (Hook): İlk sahne {sure:.2f} sn (önerilen <= 3.0 sn çarpıcı giriş).")
-        elif sure < 1.0:
-            warnings.append(f"Sahne #{no}: Çok kısa sahne ({sure:.2f} sn < 1.0 sn).")
-        elif sure > 5.5:
-            warnings.append(f"Sahne #{no}: Çok uzun sahne ({sure:.2f} sn > 5.5 sn).")
-
-        if ext in VIDEO_EXTS:
-            v_dur = probe_duration(str(kaynak_p), ffmpeg_exe)
-            gereken = baslangic + (sure * hiz)
-            if v_dur > 0 and gereken > v_dur + 0.08:
-                errors.append(
-                    f"Sahne #{no}: Kaynak süresi aşıldı ({kaynak_p.name}: istenen {gereken:.2f}s > mevcut {v_dur:.2f}s)."
-                )
-
-        mod = s.get("mod", "kirp_9_16")
-        if mod not in IZINLI_MODLAR:
-            errors.append(
-                f"Sahne #{no}: Yasaklı veya bilinmeyen görüntüleme modu '{mod}'. İzinli: {sorted(IZINLI_MODLAR)}."
-            )
-
-        if s.get("pan_zoom") or s.get("crop_pan"):
-            errors.append(
-                f"Sahne #{no}: Sabit görselde tam-sayı crop/pan kaydırması yasaktır (1px titreme yaratır)."
-            )
-
-        gecis = str(s.get("gecis", "fade")).lower()
-        gecis_sure = float(s.get("gecis_sure", 0.40 if gecis in ("fade", "erime") else 0.0))
-        if gecis not in IZINLI_GECISLER:
-            errors.append(
-                f"Sahne #{no}: Göz yoran / yasaklı geçiş '{gecis}'. Yalnızca {sorted(IZINLI_GECISLER)} kullanılabilir."
-            )
-        if gecis in ("fade", "erime") and not (0.20 <= gecis_sure <= 0.65):
-            warnings.append(f"Sahne #{no}: Fade süresi {gecis_sure:.2f} sn (önerilen 0.35 - 0.45 sn).")
-
-        katman_raw = s.get("katman_png", "")
-        if katman_raw:
-            kp = (plan_dir / katman_raw).resolve() if not os.path.isabs(katman_raw) else Path(katman_raw)
-            if not kp.is_file():
-                errors.append(f"Sahne #{no}: Yazı/şablon PNG bulunamadı -> '{katman_raw}'")
-            elif s.get("yuva_kontrol"):
-                slot_errs = check_slot_alpha_fill(str(kp), s["yuva_kontrol"])
-                for se in slot_errs:
-                    errors.append(f"Sahne #{no} Şablon Hatası: {se}")
-
-        toplam_sure += sure
-        if i > 0 and gecis in ("fade", "erime"):
-            gecis_toplam += gecis_sure
-
-        net_kesim = toplam_sure - gecis_toplam
-        if vuruslar and i < len(sahneler) - 1:
-            en_yakin_fark = min(abs(net_kesim - b) for b in vuruslar)
-            if en_yakin_fark > 0.12:
-                warnings.append(
-                    f"Sahne #{no} bitişi ({net_kesim:.2f}s) en yakın müzik vuruşundan {en_yakin_fark:.2f}s uzakta (> 0.12s)."
-                )
-
-    net_toplam = toplam_sure - gecis_toplam
-    if hedef_sure > 0 and abs(net_toplam - hedef_sure) > 1.5:
-        warnings.append(f"Net kurgu süresi ({net_toplam:.2f}s) hedef süreden ({hedef_sure:.2f}s) > 1.5s sapıyor.")
-
-    return errors, warnings
+def _akis_suresi(yol, secici, fps=None):
+    """ffprobe yoksa: video = kare sayısı / fps, ses = çözülmüş son zaman damgası."""
+    r = subprocess.run([FFMPEG, "-hide_banner", "-i", yol, "-map", secici, "-f", "null", "-"],
+                       capture_output=True, text=True, errors="replace")
+    if fps:
+        kare = re.findall(r"frame=\s*(\d+)", r.stderr)
+        return int(kare[-1]) / fps if kare else 0.0
+    t = re.findall(r"time=(\d+):(\d+):([\d.]+)", r.stderr)
+    return int(t[-1][0]) * 3600 + int(t[-1][1]) * 60 + float(t[-1][2]) if t else 0.0
 
 
-def prepare_still_frame(
-    img_path: str,
-    target_w: int,
-    target_h: int,
-    mod: str,
-    odak_x: float,
-    odak_y: float,
-    overlay_paths: list[str],
-) -> Image.Image:
-    """Görseli sündürmeden 1:1 piksel oranıyla 9:16 kırpar, UnsharpMask ve PNG katmanlarını uygular."""
-    raw = Image.open(img_path)
-    img = ImageOps.exif_transpose(raw).convert("RGB")
-    iw, ih = img.size
-    target_ratio = target_w / target_h
+def probe(yol):
+    """Video bilgisi. ffprobe varsa onu, yoksa (imageio-ffmpeg) ffmpeg -i çıktısını kullanır."""
+    b = {"sure": None, "w": None, "h": None, "sar": "1:1", "fps_r": None, "fps_avg": None,
+         "rot": 0, "comment": "", "ses": False, "v_sure": 0.0, "a_sure": 0.0}
+    if FFPROBE:
+        r = subprocess.run([FFPROBE, "-v", "error", "-show_streams", "-show_format", "-of", "json", yol],
+                           capture_output=True, text=True)
+        j = json.loads(r.stdout or "{}")
+        f = j.get("format", {})
+        b["sure"] = float(f["duration"]) if f.get("duration") else None
+        b["comment"] = f.get("tags", {}).get("comment", "")
+        for st in j.get("streams", []):
+            if st["codec_type"] == "video" and b["w"] is None:
+                b.update(w=st.get("width"), h=st.get("height"), sar=st.get("sample_aspect_ratio", "1:1"),
+                         fps_r=st.get("r_frame_rate"), fps_avg=st.get("avg_frame_rate"),
+                         v_sure=float(st.get("duration", 0) or 0))
+                rots = [sd.get("rotation", 0) for sd in st.get("side_data_list", []) if "rotation" in sd]
+                b["rot"] = int(float(rots[0])) if rots else int(st.get("tags", {}).get("rotate", 0))
+            elif st["codec_type"] == "audio" and not b["ses"]:
+                b.update(ses=True, a_sure=float(st.get("duration", 0) or 0))
+        return b
+    r = subprocess.run([FFMPEG, "-hide_banner", "-i", yol], capture_output=True, text=True, errors="replace")
+    e = r.stderr
+    m = re.search(r"Duration: (\d+):(\d+):([\d.]+)", e)
+    if m:
+        b["sure"] = int(m[1]) * 3600 + int(m[2]) * 60 + float(m[3])
+    m = re.search(r"Video: .*?, (\d{2,5})x(\d{2,5})(?: \[SAR (\d+:\d+))?", e)
+    if m:
+        b.update(w=int(m[1]), h=int(m[2]), sar=m[3] or "1:1")
+    m = re.search(r"([\d.]+) fps", e)
+    if m:
+        fps = float(m[1])
+        b["fps_r"] = b["fps_avg"] = f"{round(fps)}/1" if abs(fps - round(fps)) < 0.01 else m[1]
+    m = re.search(r"rotation of (-?[\d.]+) degrees", e)
+    b["rot"] = int(float(m[1])) if m else 0
+    m = re.search(r"comment\s*:\s*(.*)", e)
+    b["comment"] = m[1].strip() if m else ""
+    b["ses"] = "Audio:" in e
+    if b["w"] and b["fps_r"]:
+        pay, _, payda = b["fps_r"].partition("/")
+        b["v_sure"] = _akis_suresi(yol, "0:v:0", float(pay) / float(payda or 1))
+    if b["ses"]:
+        b["a_sure"] = _akis_suresi(yol, "0:a:0")
+    return b
 
-    if mod == "kirp_9_16":
-        src_ratio = iw / ih
-        if src_ratio > target_ratio:
-            crop_h = ih
-            crop_w = int(round(ih * target_ratio))
-            max_dx = max(0, iw - crop_w)
-            x0 = int(round(max_dx * max(0.0, min(1.0, odak_x))))
-            y0 = 0
+
+def kaynak_suresi(yol):
+    return probe(yol)["sure"]
+
+
+def ses_var_mi(yol):
+    return probe(yol)["ses"]
+
+
+def coz(klasor, yol):
+    return yol if os.path.isabs(yol) else os.path.normpath(os.path.join(klasor, yol))
+
+
+def gorsel_mi(yol):
+    return os.path.splitext(yol)[1].lower() in GORSEL
+
+
+def plan_ozeti(plan):
+    temiz = {k: v for k, v in plan.items() if not k.startswith("onay_")}
+    return hashlib.sha256(json.dumps(temiz, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+
+
+def kod_ozeti(kod, tuz):
+    return hashlib.pbkdf2_hmac("sha256", kod.encode(), bytes.fromhex(tuz), 200_000).hex()
+
+
+# ---------------------------------------------------------------- plan hazırlama
+
+def hazirla(plan, klasor):
+    """Planı iç biçime çevirir: her plana tempo, gecis, D, sure, giris/cikis yazar."""
+    varsayilan_tempo = plan.get("tempo", "hareketli")
+    for i, p in enumerate(plan["planlar"]):
+        p["_yol"] = coz(klasor, p["kaynak"])
+        p["_gorsel"] = gorsel_mi(p["kaynak"])
+        p["_tempo"] = p.get("tempo", varsayilan_tempo)
+        t = TEMPO.get(p["_tempo"], TEMPO["hareketli"])
+        p["_gecis"] = "kesme" if i == 0 else p.get("gecis", t["gecis"])
+        p["_D"] = 0.0 if p["_gecis"] == "kesme" else p.get("gecis_sure", t["sure"])
+        if p["_gorsel"]:
+            p["_giris"], p["_cikis"], p["_hiz"] = 0.0, float(p.get("sure", 0)), 1.0
         else:
-            crop_w = iw
-            crop_h = int(round(iw / target_ratio))
-            max_dy = max(0, ih - crop_h)
-            x0 = 0
-            y0 = int(round(max_dy * max(0.0, min(1.0, odak_y))))
-        cropped = img.crop((x0, y0, x0 + crop_w, y0 + crop_h))
-        canvas = cropped.resize((target_w, target_h), Image.Resampling.LANCZOS)
-        canvas = canvas.filter(ImageFilter.UnsharpMask(radius=1.4, percent=125, threshold=2))
-    else:
-        bg = img.resize((target_w, target_h), Image.Resampling.BILINEAR).filter(ImageFilter.GaussianBlur(radius=28))
-        bg = Image.eval(bg, lambda p: int(p * 0.45))
-        fg = img.copy()
-        fg.thumbnail((target_w, target_h), Image.Resampling.LANCZOS)
-        fg = fg.filter(ImageFilter.UnsharpMask(radius=1.2, percent=115, threshold=2))
-        ox = (target_w - fg.width) // 2
-        oy = (target_h - fg.height) // 2
-        bg.paste(fg, (ox, oy))
-        canvas = bg
-
-    rgba = canvas.convert("RGBA")
-    for ovp in overlay_paths:
-        if ovp and os.path.isfile(ovp):
-            ov = Image.open(ovp).convert("RGBA")
-            if ov.size != (target_w, target_h):
-                ov = ov.resize((target_w, target_h), Image.Resampling.LANCZOS)
-            rgba = Image.alpha_composite(rgba, ov)
-
-    return rgba.convert("RGB")
+            p["_giris"], p["_cikis"], p["_hiz"] = p.get("giris", 0), p.get("cikis", 0), p.get("hiz", 1.0)
 
 
-def render_segment(
-    idx: int,
-    shot: dict,
-    plan_dir: Path,
-    seg_dir: Path,
-    target_w: int,
-    target_h: int,
-    fps: int,
-    crf: int,
-    sabit_katman_png: str,
-    ffmpeg_exe: str,
-) -> Path:
-    """Tek bir sahneyi SHA-256 önbellekli olarak seg_XX_<hash>.mp4 dosyasına render eder."""
-    kaynak_raw = shot["kaynak"]
-    kaynak_p = (plan_dir / kaynak_raw).resolve() if not os.path.isabs(kaynak_raw) else Path(kaynak_raw)
-    ext = kaynak_p.suffix.lower()
+def zaman_cizelgesi(planlar):
+    L, sonuc = 0.0, []
+    for p in planlar:
+        d = (p["_cikis"] - p["_giris"]) / p["_hiz"]
+        bas = L - p["_D"]
+        sonuc.append({"bas": bas, "sure": d, "D": p["_D"], "kesim": bas + p["_D"] / 2})
+        L = bas + d
+    return sonuc, L
 
-    sure = float(shot.get("sure", 3.0))
-    baslangic = float(shot.get("baslangic", 0.0))
-    hiz = float(shot.get("hiz", 1.0))
-    mod = shot.get("mod", "kirp_9_16")
-    odak_x = float(shot.get("odak_x", 0.5))
-    odak_y = float(shot.get("odak_y", 0.35))
 
-    overlays = []
-    if sabit_katman_png:
-        sp = (plan_dir / sabit_katman_png).resolve() if not os.path.isabs(sabit_katman_png) else Path(sabit_katman_png)
-        if sp.is_file():
-            overlays.append(str(sp))
-    if shot.get("katman_png"):
-        kp = (plan_dir / shot["katman_png"]).resolve() if not os.path.isabs(shot["katman_png"]) else Path(shot["katman_png"])
-        if kp.is_file():
-            overlays.append(str(kp))
+def vurus_listesi(plan, analiz):
+    if not analiz:
+        return []
+    m = analiz.get("muzik") or (analiz.get("muzikler") or [{}])[0]
+    vur = m.get("vuruslar") or m.get("vuruslar_sn") or []
+    bas = plan.get("muzik", {}).get("baslangic", 0)
+    return [t - bas for t in vur if t >= bas]
 
-    sig_payload = json.dumps(
-        {
-            "src": file_sha256_short(str(kaynak_p)),
-            "ov": [file_sha256_short(o) for o in overlays],
-            "sure": round(sure, 3),
-            "baslangic": round(baslangic, 3),
-            "hiz": round(hiz, 3),
-            "mod": mod,
-            "ox": round(odak_x, 3),
-            "oy": round(odak_y, 3),
-            "w": target_w,
-            "h": target_h,
-            "fps": fps,
-            "crf": crf,
-        },
-        sort_keys=True,
-    )
-    seg_hash = hashlib.sha256(sig_payload.encode("utf-8")).hexdigest()[:10]
-    final_seg = seg_dir / f"seg_{idx:02d}_{seg_hash}.mp4"
 
-    if final_seg.is_file() and final_seg.stat().st_size > 1024:
-        return final_seg
+def vurusa_hizala(plan, vuruslar, sureler):
+    """Her kesimi ±HIZALA içindeki en yakın vuruşa, önceki planın sonunu oynatarak taşır."""
+    notlar = []
+    if not vuruslar or plan.get("vurusa_hizala", True) is False:
+        return notlar
+    planlar = plan["planlar"]
+    for i in range(1, len(planlar)):
+        cizelge, _ = zaman_cizelgesi(planlar)
+        k = cizelge[i]["kesim"]
+        b = min(vuruslar, key=lambda v: abs(v - k))
+        fark = b - k
+        if abs(fark) < 0.01 or abs(fark) > HIZALA:
+            continue
+        onceki = planlar[i - 1]
+        yeni = onceki["_cikis"] + fark * onceki["_hiz"]
+        ust = sureler.get(onceki["_yol"]) if not onceki["_gorsel"] else None
+        if (yeni - onceki["_giris"]) / onceki["_hiz"] < 0.4 or (ust and yeni > ust):
+            continue
+        onceki["_cikis"] = yeni
+        notlar.append(f"plan {i}: bitiş {fark:+.2f} sn → kesim {b:.2f} sn vuruşuna")
+    return notlar
 
-    # Eski seg_XX_* dosyalarını temizle
-    for old_f in seg_dir.glob(f"seg_{idx:02d}_*.mp4"):
-        try:
-            old_f.unlink()
-        except Exception:
-            pass
 
-    tmp_seg = seg_dir / f"_tmp_seg_{idx:02d}.mp4"
+# ---------------------------------------------------------------- doğrulama
 
-    if ext in IMAGE_EXTS:
-        composed_img = prepare_still_frame(str(kaynak_p), target_w, target_h, mod, odak_x, odak_y, overlays)
-        tmp_png = seg_dir / f"_tmp_still_{idx:02d}.png"
-        composed_img.save(tmp_png, compress_level=1)
-        cmd = [
-            ffmpeg_exe, "-y", "-hide_banner", "-loglevel", "error",
-            "-loop", "1", "-framerate", str(fps), "-i", str(tmp_png),
-            "-t", f"{sure:.3f}",
-            "-vf", f"fps={fps},settb=1/{fps},setsar=1,format=yuv420p",
-            "-c:v", "libx264", "-preset", "fast", "-crf", str(crf),
-            "-pix_fmt", "yuv420p", "-an", str(final_seg)
-        ]
-        subprocess.run(cmd, check=True)
-        try:
-            tmp_png.unlink()
-        except Exception:
-            pass
-        return final_seg
-
-    # Video kaynağı: birleşik PNG katmanı varsa tek bir geçici PNG oluştur
-    ov_png_path = None
-    if overlays:
-        base_ov = Image.new("RGBA", (target_w, target_h), (0, 0, 0, 0))
-        for ovp in overlays:
-            ov_img = Image.open(ovp).convert("RGBA")
-            if ov_img.size != (target_w, target_h):
-                ov_img = ov_img.resize((target_w, target_h), Image.Resampling.LANCZOS)
-            base_ov = Image.alpha_composite(base_ov, ov_img)
-        ov_png_path = seg_dir / f"_tmp_ov_{idx:02d}.png"
-        base_ov.save(ov_png_path, compress_level=1)
-
-    pts_expr = f"{1.0 / hiz:.4f}*PTS" if abs(hiz - 1.0) > 0.01 else "PTS-STARTPTS"
-    scale_crop = (
-        f"scale={target_w}:{target_h}:force_original_aspect_ratio=increase:flags=lanczos,"
-        f"crop={target_w}:{target_h},unsharp=3:3:0.45:3:3:0.0,"
-        f"setpts={pts_expr},fps={fps},settb=1/{fps},setsar=1,format=yuv420p"
-    )
-
-    if ov_png_path:
-        fc = f"[0:v]{scale_crop}[v0];[v0][1:v]overlay=0:0:shortest=1,fps={fps},settb=1/{fps},setsar=1,format=yuv420p[vout]"
-        cmd = [
-            ffmpeg_exe, "-y", "-hide_banner", "-loglevel", "error",
-            "-ss", f"{baslangic:.3f}", "-i", str(kaynak_p),
-            "-i", str(ov_png_path),
-            "-t", f"{sure:.3f}",
-            "-filter_complex", fc,
-            "-map", "[vout]",
-            "-c:v", "libx264", "-preset", "fast", "-crf", str(crf),
-            "-pix_fmt", "yuv420p", "-an", str(tmp_seg)
-        ]
-    else:
-        cmd = [
-            ffmpeg_exe, "-y", "-hide_banner", "-loglevel", "error",
-            "-ss", f"{baslangic:.3f}", "-i", str(kaynak_p),
-            "-t", f"{sure:.3f}",
-            "-vf", scale_crop,
-            "-c:v", "libx264", "-preset", "fast", "-crf", str(crf),
-            "-pix_fmt", "yuv420p", "-an", str(tmp_seg)
-        ]
-
-    subprocess.run(cmd, check=True)
-    if ov_png_path and ov_png_path.is_file():
-        try:
-            ov_png_path.unlink()
-        except Exception:
-            pass
-
-    # Kritik koruma: FFmpeg 7.1 dikey 4K videolardan kopyalanan displaymatrix yan verisini sıfırla
-    cmd_strip = [
-        ffmpeg_exe, "-y", "-hide_banner", "-loglevel", "error",
-        "-display_rotation", "0", "-i", str(tmp_seg),
-        "-c", "copy", str(final_seg)
-    ]
-    subprocess.run(cmd_strip, check=True)
+def guvenli_alan_disi(png):
     try:
-        tmp_seg.unlink()
-    except Exception:
-        pass
-
-    return final_seg
-
-
-def join_segments_and_audio(
-    segments: list[Path],
-    sahneler: list[dict],
-    plan: dict,
-    plan_dir: Path,
-    out_mp4: Path,
-    fps: int,
-    crf: int,
-    ffmpeg_exe: str,
-) -> float:
-    """Normalize edilmiş segmentleri xfade/concat ile birleştirir ve müziği (-14 LUFS + fade-out) ekler."""
-    inputs = []
-    for seg in segments:
-        inputs.extend(["-i", str(seg)])
-
-    n = len(segments)
-    if n == 1:
-        total_dur = float(sahneler[0]["sure"])
-        v_filter = f"[0:v]fps={fps},settb=1/{fps},setsar=1,format=yuv420p[vout]"
-    else:
-        fc_parts = []
-        for i in range(n):
-            fc_parts.append(f"[{i}:v]setpts=PTS-STARTPTS,fps={fps},settb=1/{fps},setsar=1,format=yuv420p[v{i}]")
-
-        offset = float(sahneler[0]["sure"])
-        prev_label = "v0"
-        for i in range(1, n):
-            gecis = str(sahneler[i - 1].get("gecis", "fade")).lower()
-            d_tr = float(sahneler[i - 1].get("gecis_sure", 0.40)) if gecis in ("fade", "erime") else 0.0
-            out_label = "vout" if i == n - 1 else f"vx{i}"
-            if d_tr > 0.01:
-                offset = max(0.05, offset - d_tr)
-                fc_parts.append(
-                    f"[{prev_label}][v{i}]xfade=transition=fade:duration={d_tr:.3f}:offset={offset:.3f}[{out_label}]"
-                )
-            else:
-                fc_parts.append(
-                    f"[{prev_label}][v{i}]xfade=transition=fade:duration=0.040:offset={max(0.05, offset - 0.04):.3f}[{out_label}]"
-                )
-            offset += float(sahneler[i]["sure"])
-            prev_label = out_label
-
-        total_dur = offset
-        v_filter = ";".join(fc_parts)
-
-    muzik_raw = plan.get("muzik", "")
-    muzik_p = (plan_dir / muzik_raw).resolve() if (muzik_raw and not os.path.isabs(muzik_raw)) else (Path(muzik_raw) if muzik_raw else None)
-
-    cmd = [ffmpeg_exe, "-y", "-hide_banner", "-loglevel", "error"] + inputs
-    if muzik_p and muzik_p.is_file():
-        muzik_bas = float(plan.get("muzik_baslangic_sn", 0.0))
-        fade_out_st = max(0.5, total_dur - 1.5)
-        a_filter = (
-            f"[{n}:a]aresample=48000,loudnorm=I=-14:TP=-1.5:LRA=11,"
-            f"afade=t=in:st=0:d=0.4,afade=t=out:st={fade_out_st:.3f}:d=1.5[aout]"
-        )
-        full_fc = f"{v_filter};{a_filter}"
-        cmd += [
-            "-ss", f"{muzik_bas:.3f}", "-i", str(muzik_p),
-            "-filter_complex", full_fc,
-            "-map", "[vout]", "-map", "[aout]",
-            "-t", f"{total_dur:.3f}",
-            "-c:v", "libx264", "-profile:v", "high", "-preset", "medium", "-crf", str(crf),
-            "-pix_fmt", "yuv420p",
-            "-c:a", "aac", "-b:a", "256k", "-ar", "48000",
-            "-movflags", "+faststart",
-            "-metadata", "comment=kedihane-plan-render-v2",
-            str(out_mp4),
-        ]
-    else:
-        cmd += [
-            "-filter_complex", v_filter,
-            "-map", "[vout]",
-            "-t", f"{total_dur:.3f}",
-            "-c:v", "libx264", "-profile:v", "high", "-preset", "medium", "-crf", str(crf),
-            "-pix_fmt", "yuv420p", "-an",
-            "-movflags", "+faststart",
-            "-metadata", "comment=kedihane-plan-render-v2",
-            str(out_mp4),
-        ]
-
-    subprocess.run(cmd, check=True)
-    return round(total_dur, 3)
+        a = np.asarray(Image.open(png).convert("RGBA"))[:, :, 3] > 32
+    except OSError:
+        return None
+    h, w = a.shape
+    x0, y0, x1, y1 = (int(GUVENLI[0] * w), int(GUVENLI[1] * h), int(GUVENLI[2] * w), int(GUVENLI[3] * h))
+    toplam = a.sum()
+    if not toplam:
+        return 0.0
+    ic = a[y0:y1, x0:x1].sum()
+    return (toplam - ic) / toplam
 
 
-def generate_verification_sheet(
-    mp4_path: Path, sahneler: list[dict], out_jpg: Path, ffmpeg_exe: str
-):
-    """Her sahnenin orta karesini çekerek numaralı `_kareler.jpg` kanıt sayfasını oluşturur."""
-    mid_times = []
-    cursor = 0.0
-    for i, s in enumerate(sahneler):
-        dur = float(s.get("sure", 3.0))
-        gecis = str(s.get("gecis", "fade")).lower()
-        d_tr = float(s.get("gecis_sure", 0.40)) if (i > 0 and gecis in ("fade", "erime")) else 0.0
-        cursor = max(0.0, cursor - d_tr)
-        mid_times.append((i + 1, round(cursor + dur * 0.5, 2), Path(s["kaynak"]).name))
-        cursor += dur
+def yuva_kontrol(png, yuvalar):
+    """Dairesel bayrak/amblem yuvası tamamen opak mı? (cx, cy, r: PNG pikseli)"""
+    if not yuvalar:
+        return []
+    a = np.asarray(Image.open(png).convert("RGBA"))[:, :, 3]
+    h, w = a.shape
+    yy, xx = np.ogrid[:h, :w]
+    hatalar = []
+    for k, y in enumerate(yuvalar, 1):
+        cx, cy, r = int(y.get("cx", 0)), int(y.get("cy", 0)), int(y.get("r", 0))
+        maske = (xx - cx) ** 2 + (yy - cy) ** 2 <= max(r - 2, 1) ** 2
+        if r <= 0 or not maske.any():
+            hatalar.append(f"yuva {k} ({cx},{cy},r={r}) görüntü dışında")
+            continue
+        bos = float(np.mean(a[maske] < 250))
+        if bos > 0.005:
+            hatalar.append(f"yuva {k} tam dolmamış (%{bos * 100:.1f} boşluk); görseli büyüt, boyama yapma")
+    return hatalar
 
-    thumbs = []
-    for no, ts, name in mid_times:
-        cmd = [
-            ffmpeg_exe, "-y", "-hide_banner", "-loglevel", "error",
-            "-ss", f"{ts:.2f}", "-i", str(mp4_path),
-            "-frames:v", "1", "-vf", "scale=270:-2",
-            "-f", "image2pipe", "-vcodec", "png", "-"
-        ]
-        proc = subprocess.run(cmd, capture_output=True)
-        if proc.returncode == 0 and proc.stdout:
-            im = Image.open(BytesIO(proc.stdout)).convert("RGB")
+
+def dogrula(plan, analiz):
+    hatalar, uyarilar = [], []
+    if len(plan.get("cikti", {}).get("boyut", [])) != 2:
+        hatalar.append("cikti.boyut [genişlik, yükseklik] olmalı")
+    planlar = plan.get("planlar", [])
+    if not planlar:
+        return ["planlar listesi boş"], [], {}
+    sureler = {}
+    for i, p in enumerate(planlar):
+        e = f"plan {i + 1}"
+        for alan in ("kaynak", "neden") + (("sure",) if p["_gorsel"] else ("giris", "cikis")):
+            if alan not in p or (alan == "neden" and not str(p.get("neden", "")).strip()):
+                hatalar.append(f"{e}: '{alan}' eksik veya boş")
+        if not os.path.isfile(p["_yol"]):
+            hatalar.append(f"{e}: kaynak yok: {p['kaynak']}")
+            continue
+        if p["_tempo"] not in TEMPO:
+            hatalar.append(f"{e}: tempo {sorted(TEMPO)} içinden olmalı")
+        if p["_gecis"] not in GECISLER:
+            hatalar.append(f"{e}: gecis {sorted(GECISLER)} içinden olmalı ('{p['_gecis']}' yok)")
+        kj = p.get("kadraj", "orta")
+        if not (kj in SIGDIR or kj in KADRAJLAR or (isinstance(kj, (int, float)) and 0 <= kj <= 1)):
+            hatalar.append(f"{e}: kadraj orta/ust/alt/sigdir/bulanik veya 0–1 arası sayı olmalı")
+        if p["_gorsel"]:
+            if p["_cikis"] <= 0:
+                hatalar.append(f"{e}: görselde 'sure' > 0 olmalı")
+            continue
+        sureler.setdefault(p["_yol"], kaynak_suresi(p["_yol"]))
+        ks = sureler[p["_yol"]]
+        if not 0 <= p["_giris"] < p["_cikis"]:
+            hatalar.append(f"{e}: giris < cikis olmalı")
+        if ks is not None and p["_cikis"] > ks + 0.05:
+            hatalar.append(f"{e}: cikis {p['_cikis']} kaynak süresini ({ks:.2f}) aşıyor")
+        if not 0.25 <= p["_hiz"] <= 4:
+            hatalar.append(f"{e}: hiz 0,25–4 arasında olmalı")
+    for j, y in enumerate(plan.get("yazilar", [])):
+        yol = coz(plan["_klasor"], y.get("png", ""))
+        if not os.path.isfile(yol):
+            hatalar.append(f"yazı {j + 1}: PNG yok: {y.get('png')}")
+            continue
+        for h in yuva_kontrol(yol, y.get("yuva_kontrol", [])):
+            hatalar.append(f"yazı {j + 1}: {h}")
+        oran = guvenli_alan_disi(yol)
+        if oran and oran > 0.01:
+            uyarilar.append(f"yazı {j + 1}: opak piksellerin %{oran * 100:.0f}'i güvenli alan dışında")
+    if hatalar:
+        return hatalar, uyarilar, sureler
+
+    vuruslar = vurus_listesi(plan, analiz)
+    for n in vurusa_hizala(plan, vuruslar, sureler):
+        print(f"[HIZALA] {n}")
+    cizelge, toplam = zaman_cizelgesi(planlar)
+    for i, (p, z) in enumerate(zip(planlar, cizelge)):
+        e, t = f"plan {i + 1}", TEMPO[p["_tempo"]]
+        if z["sure"] < 0.4:
+            uyarilar.append(f"{e}: {z['sure']:.2f} sn, çok kısa")
+        if z["sure"] > plan.get("en_uzun_plan", t["en_uzun"]):
+            uyarilar.append(f"{e}: {z['sure']:.2f} sn, {p['_tempo']} tempo için uzun; gerekçesi var mı?")
+        if i and z["D"]:
+            lo, hi = t["aralik"]
+            if not lo <= z["D"] <= hi:
+                hatalar.append(f"{e}: gecis_sure {z['D']} sn, {p['_tempo']} tempoda {lo}–{hi} olmalı")
+            if z["D"] >= min(z["sure"], cizelge[i - 1]["sure"]):
+                hatalar.append(f"{e}: gecis_sure plan süresinden uzun")
+        if i and vuruslar:
+            fark = min(abs(z["kesim"] - v) for v in vuruslar)
+            if fark > 0.12:
+                uyarilar.append(f"{e}: kesim {z['kesim']:.2f} sn, en yakın vuruşa {fark:.2f} sn uzak")
+    hareketli = [z for p, z in zip(planlar[1:], cizelge[1:]) if p["_tempo"] == "hareketli"]
+    efektli = sum(1 for z in hareketli if z["D"])
+    if len(hareketli) > 2 and efektli > len(hareketli) / 3:
+        uyarilar.append(f"hareketli bölümde {efektli}/{len(hareketli)} geçiş efektli; çoğu kesme olmalı")
+    hedef = plan.get("hedef_sure")
+    if hedef and abs(toplam - hedef) > 1.0:
+        uyarilar.append(f"toplam {toplam:.2f} sn, hedef {hedef} sn")
+    plan["_cizelge"], plan["_toplam"] = cizelge, toplam
+    return hatalar, uyarilar, sureler
+
+
+# ---------------------------------------------------------------- ffmpeg komutu
+
+def kadraj_filtresi(kj, W, H):
+    if SIGDIR.get(kj) == "siyah":
+        return (f"scale={W}:{H}:force_original_aspect_ratio=decrease:flags=lanczos,"
+                f"pad={W}:{H}:(ow-iw)/2:(oh-ih)/2:black")
+    oran = KADRAJLAR.get(kj, kj if isinstance(kj, (int, float)) else 0.5)
+    return (f"scale={W}:{H}:force_original_aspect_ratio=increase:flags=lanczos,"
+            f"crop={W}:{H}:(iw-ow)/2:(ih-oh)*{oran}")
+
+
+def atempo_zinciri(hiz):
+    parcalar = []
+    while hiz > 2.0:
+        parcalar.append("atempo=2.0")
+        hiz /= 2.0
+    while hiz < 0.5:
+        parcalar.append("atempo=0.5")
+        hiz /= 0.5
+    return ",".join(parcalar + [f"atempo={hiz:.4f}"])
+
+
+def boyut(plan, onizleme):
+    W, H = plan["cikti"]["boyut"]
+    if onizleme:
+        W, H = 540, int(round(540 * H / W / 2)) * 2
+    return W, H
+
+
+def komut_kur(plan, cikti_yolu, onizleme):
+    W, H = boyut(plan, onizleme)
+    F = plan["cikti"].get("fps", 30)
+    planlar, cizelge, toplam = plan["planlar"], plan["_cizelge"], plan["_toplam"]
+    orj_ses = plan.get("orijinal_ses", False)
+    keskin = plan.get("keskinlestir", False)
+    girdiler, filtre = [], []
+
+    for i, p in enumerate(planlar):
+        d = cizelge[i]["sure"]
+        if p["_gorsel"]:
+            girdiler += ["-loop", "1", "-framerate", str(F), "-t", f"{d:.3f}", "-i", p["_yol"]]
         else:
-            im = Image.new("RGB", (270, 480), (30, 30, 30))
-        thumbs.append((no, ts, name, im))
+            girdiler += ["-ss", f"{p['_giris']:.3f}", "-t", f"{p['_cikis'] - p['_giris']:.3f}", "-i", p["_yol"]]
+        ks = ",unsharp=5:5:0.6:5:5:0.0" if (keskin or p.get("keskinlestir")) else ""
+        son = f"{ks},fps={F},trim=duration={d:.3f},setpts=PTS-STARTPTS,settb=1/{F},format=yuv420p,setsar=1[v{i}]"
+        if SIGDIR.get(p.get("kadraj")) == "bulanik":
+            filtre.append(f"[{i}:v]setpts=(PTS-STARTPTS)/{p['_hiz']},split[ba{i}][on{i}]")
+            filtre.append(f"[ba{i}]scale={W // 4}:{H // 4}:force_original_aspect_ratio=increase,"
+                          f"crop={W // 4}:{H // 4},boxblur=10:2,scale={W}:{H}[bb{i}]")
+            filtre.append(f"[on{i}]scale={W}:{H}:force_original_aspect_ratio=decrease:flags=lanczos[of{i}]")
+            filtre.append(f"[bb{i}][of{i}]overlay=(W-w)/2:(H-h)/2{son}")
+        else:
+            filtre.append(f"[{i}:v]setpts=(PTS-STARTPTS)/{p['_hiz']},"
+                          f"{kadraj_filtresi(p.get('kadraj', 'orta'), W, H)}{son}")
+        if orj_ses:
+            if not p["_gorsel"] and ses_var_mi(p["_yol"]):
+                filtre.append(f"[{i}:a]asetpts=PTS-STARTPTS,{atempo_zinciri(p['_hiz'])},aresample=48000,"
+                              f"aformat=channel_layouts=stereo,atrim=duration={d:.3f}[a{i}]")
+            else:
+                filtre.append(f"anullsrc=r=48000:cl=stereo,atrim=duration={d:.3f}[a{i}]")
 
-    cols = min(4, max(1, len(thumbs)))
-    rows = math.ceil(len(thumbs) / cols)
-    cw, ch = 290, 540
-    sheet = Image.new("RGB", (cols * cw + 20, rows * ch + 60), (16, 18, 22))
-    draw = ImageDraw.Draw(sheet)
-    font = ImageFont.load_default()
-    draw.text((20, 18), f"KEDIHANE RENDER KONTROL SAYFASI: {mp4_path.name}", fill=(110, 235, 160), font=font)
+    v, a = "v0", "a0"
+    for i in range(1, len(planlar)):
+        z, g = cizelge[i], planlar[i]["_gecis"]
+        if g == "kesme":
+            filtre.append(f"[{v}][v{i}]concat=n=2:v=1:a=0,settb=1/{F}[vx{i}]")
+            if orj_ses:
+                filtre.append(f"[{a}][a{i}]concat=n=2:v=0:a=1[ax{i}]")
+        else:
+            filtre.append(f"[{v}][v{i}]xfade=transition={g}:duration={z['D']:.3f}:"
+                          f"offset={z['bas']:.3f},settb=1/{F}[vx{i}]")
+            if orj_ses:
+                filtre.append(f"[{a}][a{i}]acrossfade=d={z['D']:.3f}[ax{i}]")
+        v, a = f"vx{i}", f"ax{i}"
 
-    for idx, (no, ts, name, im) in enumerate(thumbs):
-        r, c = divmod(idx, cols)
-        x0, y0 = 10 + c * cw, 50 + r * ch
-        draw.rectangle([x0 + 4, y0 + 4, x0 + cw - 4, y0 + ch - 4], outline=(65, 75, 85), width=1)
-        im.thumbnail((cw - 20, ch - 60), Image.Resampling.LANCZOS)
-        sheet.paste(im, (x0 + (cw - im.width) // 2, y0 + 10))
-        draw.text((x0 + 14, y0 + ch - 42), f"Sahne #{no:02d} @ {ts:.2f}s", fill=(245, 220, 100), font=font)
-        draw.text((x0 + 14, y0 + ch - 24), name[:28], fill=(210, 215, 220), font=font)
+    n = len(planlar)
+    for j, y in enumerate(plan.get("yazilar", [])):
+        girdiler += ["-i", coz(plan["_klasor"], y["png"])]
+        filtre.append(f"[{n}:v]scale={W}:{H}[p{j}]")
+        filtre.append(f"[{v}][p{j}]overlay=0:0:enable='between(t,{y['bas']},{y['bit']})'[vy{j}]")
+        v, n = f"vy{j}", n + 1
 
-    sheet.save(out_jpg, quality=90)
+    kf = plan["cikti"].get("kapanis_fade", 0)
+    if kf:
+        filtre.append(f"[{v}]fade=t=out:st={toplam - kf:.3f}:d={kf}[vson]")
+        v = "vson"
+
+    m, ses_cikis = plan.get("muzik"), None
+    if m:
+        girdiler += ["-i", coz(plan["_klasor"], m["dosya"])]
+        mf = m.get("fade_out", 1.5)
+        filtre.append(f"[{n}:a]atrim=start={m.get('baslangic', 0)},asetpts=PTS-STARTPTS,aresample=48000,"
+                      f"aformat=channel_layouts=stereo,volume={m.get('ses_db', 0)}dB,"
+                      f"atrim=duration={toplam:.3f},afade=t=out:st={max(0, toplam - mf):.3f}:d={mf}[mz]")
+        if orj_ses:
+            filtre.append(f"[{a}]volume={plan.get('orijinal_ses_db', -6)}dB[ao]")
+            filtre.append("[ao][mz]amix=inputs=2:duration=first:normalize=0[amx]")
+            ses_cikis = "amx"
+        else:
+            ses_cikis = "mz"
+    elif orj_ses:
+        ses_cikis = a
+    if ses_cikis:
+        filtre.append(f"[{ses_cikis}]loudnorm=I={plan.get('hedef_lufs', -14)}:TP=-1:LRA=11,"
+                      f"aresample=48000,apad,atrim=duration={toplam:.3f}[ason]")
+
+    komut = [FFMPEG, "-y", "-hide_banner", "-loglevel", "error", *girdiler,
+             "-filter_complex", ";".join(filtre), "-map", f"[{v}]"]
+    if ses_cikis:
+        komut += ["-map", "[ason]"]
+    if onizleme:
+        komut += ["-c:v", "libx264", "-preset", "veryfast", "-crf", "28"]
+        komut += ["-c:a", "aac", "-b:a", "128k"] if ses_cikis else []
+    else:
+        komut += ["-c:v", "libx264", "-preset", "medium", "-crf", "16", "-maxrate", "80M",
+                  "-bufsize", "160M", "-profile:v", "high", "-level", "5.2"]
+        komut += ["-c:a", "aac", "-b:a", "320k", "-ar", "48000"] if ses_cikis else []
+    komut += ["-r", str(F), "-fps_mode", "cfr", "-pix_fmt", "yuv420p", "-movflags", "+faststart",
+              "-metadata", f"comment={IMZA} plan:{plan_ozeti(plan['_ham'])[:12]}", cikti_yolu]
+    return komut
 
 
-def write_premiere_xml(
-    segments: list[Path], sahneler: list[dict], plan: dict, plan_dir: Path, xml_path: Path, w: int, h: int, fps: int
-):
-    """Premiere Pro ile tam uyumlu FCP7 XML (xmeml v4) zaman çizelgesi üretir."""
-    root = ET.Element("xmeml", version="4")
-    seq = ET.SubElement(root, "sequence")
-    ET.SubElement(seq, "name").text = xml_path.stem
-    rate = ET.SubElement(seq, "rate")
-    ET.SubElement(rate, "timebase").text = str(fps)
-    ET.SubElement(rate, "ntsc").text = "FALSE"
+# ---------------------------------------------------------------- Premiere XML
 
-    media = ET.SubElement(seq, "media")
-    video = ET.SubElement(media, "video")
-    v_fmt = ET.SubElement(video, "format")
-    sc = ET.SubElement(v_fmt, "samplecharacteristics")
-    ET.SubElement(sc, "width").text = str(w)
-    ET.SubElement(sc, "height").text = str(h)
+def _pathurl(yol):
+    return "file://localhost/" + quote(Path(yol).resolve().as_posix().lstrip("/"), safe="/:")
+
+
+def premiere_xml(plan, hedef):
+    """FCP7 xmeml: kaynak dosyalara bağlı kesim listesi. Geçişler kesme, hız 1x olarak gelir."""
+    W, H = plan["cikti"]["boyut"]
+    F = plan["cikti"].get("fps", 30)
+
+    def oran(el):
+        r = ET.SubElement(el, "rate")
+        ET.SubElement(r, "timebase").text = str(F)
+        ET.SubElement(r, "ntsc").text = "FALSE"
+
+    kok = ET.Element("xmeml", version="4")
+    seq = ET.SubElement(kok, "sequence")
+    ET.SubElement(seq, "name").text = Path(hedef).stem
+    oran(seq)
+    medya = ET.SubElement(seq, "media")
+    video = ET.SubElement(medya, "video")
+    sc = ET.SubElement(ET.SubElement(video, "format"), "samplecharacteristics")
+    ET.SubElement(sc, "width").text = str(W)
+    ET.SubElement(sc, "height").text = str(H)
     ET.SubElement(sc, "pixelaspectratio").text = "square"
+    iz = ET.SubElement(video, "track")
+    kesimler = [z["kesim"] for z in plan["_cizelge"]] + [plan["_toplam"]]
+    kesimler[0] = 0.0
+    for i, p in enumerate(plan["planlar"]):
+        bas_f, bit_f = round(kesimler[i] * F), round(kesimler[i + 1] * F)
+        ci = ET.SubElement(iz, "clipitem", id=f"clipitem-{i + 1}")
+        ET.SubElement(ci, "name").text = f"{i + 1:02d} {p.get('neden', '')[:40]}"
+        oran(ci)
+        ET.SubElement(ci, "start").text = str(bas_f)
+        ET.SubElement(ci, "end").text = str(bit_f)
+        giris_f = round(p["_giris"] * F)
+        ET.SubElement(ci, "in").text = str(giris_f)
+        ET.SubElement(ci, "out").text = str(giris_f + bit_f - bas_f)
+        fe = ET.SubElement(ci, "file", id=f"file-{i + 1}")
+        ET.SubElement(fe, "name").text = Path(p["_yol"]).name
+        ET.SubElement(fe, "pathurl").text = _pathurl(p["_yol"])
+    m = plan.get("muzik")
+    if m:
+        ses = ET.SubElement(ET.SubElement(medya, "audio"), "track")
+        ci = ET.SubElement(ses, "clipitem", id="clipitem-muzik")
+        ET.SubElement(ci, "name").text = Path(m["dosya"]).name
+        oran(ci)
+        ET.SubElement(ci, "start").text = "0"
+        ET.SubElement(ci, "end").text = str(round(plan["_toplam"] * F))
+        ET.SubElement(ci, "in").text = str(round(m.get("baslangic", 0) * F))
+        ET.SubElement(ci, "out").text = str(round((m.get("baslangic", 0) + plan["_toplam"]) * F))
+        fe = ET.SubElement(ci, "file", id="file-muzik")
+        ET.SubElement(fe, "name").text = Path(m["dosya"]).name
+        ET.SubElement(fe, "pathurl").text = _pathurl(coz(plan["_klasor"], m["dosya"]))
+    ET.SubElement(seq, "duration").text = str(round(plan["_toplam"] * F))
+    agac = ET.ElementTree(kok)
+    ET.indent(agac, space=" ")
+    agac.write(hedef, encoding="utf-8", xml_declaration=True)
 
-    v_track = ET.SubElement(video, "track")
-    cursor_f = 0
-    for idx, (seg_p, s) in enumerate(zip(segments, sahneler)):
-        dur_f = int(round(float(s.get("sure", 3.0)) * fps))
-        ci = ET.SubElement(v_track, "clipitem", id=f"clipitem-{idx + 1}")
-        ET.SubElement(ci, "name").text = seg_p.name
-        ET.SubElement(ci, "duration").text = str(dur_f)
-        c_rate = ET.SubElement(ci, "rate")
-        ET.SubElement(c_rate, "timebase").text = str(fps)
-        ET.SubElement(c_rate, "ntsc").text = "FALSE"
-        ET.SubElement(ci, "start").text = str(cursor_f)
-        ET.SubElement(ci, "end").text = str(cursor_f + dur_f)
-        ET.SubElement(ci, "in").text = "0"
-        ET.SubElement(ci, "out").text = str(dur_f)
-        f_el = ET.SubElement(ci, "file", id=f"file-{idx + 1}")
-        ET.SubElement(f_el, "name").text = seg_p.name
-        abs_posix = seg_p.resolve().as_posix()
-        ET.SubElement(f_el, "pathurl").text = "file://localhost/" + quote(abs_posix, safe="/:")
-        cursor_f += dur_f
 
-    ET.SubElement(seq, "duration").text = str(cursor_f)
-    tree = ET.ElementTree(root)
-    ET.indent(tree, space="  ")
-    tree.write(xml_path, encoding="utf-8", xml_declaration=True)
+# ---------------------------------------------------------------- kontrol sayfaları
 
+def kare_al(video, t, genislik=None):
+    vf = ["-vf", f"scale={genislik}:-2"] if genislik else []
+    r = subprocess.run([FFMPEG, "-v", "error", "-ss", f"{t:.2f}", "-i", video, "-frames:v", "1", *vf,
+                        "-f", "image2pipe", "-vcodec", "png", "-"], capture_output=True)
+    return Image.open(BytesIO(r.stdout)).convert("RGB") if r.returncode == 0 and r.stdout else None
+
+
+def kod_bandi(sayfa, kod):
+    band = Image.new("RGB", (sayfa.width, 44), (20, 20, 20))
+    ImageDraw.Draw(band).text((10, 6), f"KOD: {kod}" if kod else "MASTER", fill="yellow", font=font(28))
+    yeni = Image.new("RGB", (sayfa.width, sayfa.height + 44))
+    yeni.paste(band, (0, 0))
+    yeni.paste(sayfa, (0, 44))
+    return yeni
+
+
+def kareler_sayfasi(video, plan, hedef, kod, sutun=4):
+    kareler = []
+    for i, (p, z) in enumerate(zip(plan["planlar"], plan["_cizelge"])):
+        k = kare_al(video, z["bas"] + z["sure"] / 2, 200)
+        if k:
+            kareler.append((i + 1, p.get("neden", ""), k))
+    if not kareler:
+        return
+    kw, kh = kareler[0][2].size
+    satir = -(-len(kareler) // sutun)
+    sayfa = Image.new("RGB", (sutun * kw, satir * (kh + 30)), "black")
+    ciz, yf = ImageDraw.Draw(sayfa), font(13)
+    for j, (no, neden, k) in enumerate(kareler):
+        x, y = (j % sutun) * kw, (j // sutun) * (kh + 30)
+        sayfa.paste(k, (x, y))
+        ciz.text((x + 3, y + kh + 2), f"#{no}", fill="yellow", font=yf)
+        ciz.text((x + 3, y + kh + 15), str(neden)[:30], fill="white", font=yf)
+    kod_bandi(sayfa, kod).save(hedef, quality=85)
+
+
+def yazilar_sayfasi(plan, hedef, kod, W=270, H=480):
+    yazilar = plan.get("yazilar", [])
+    sayfa = Image.new("RGB", (W * len(yazilar), H + 22), "black")
+    ciz, yf = ImageDraw.Draw(sayfa), font(13)
+    for j, y in enumerate(yazilar):
+        zemin = Image.new("RGBA", (W, H), (128, 128, 128, 255))
+        png = Image.open(coz(plan["_klasor"], y["png"])).convert("RGBA").resize((W, H), Image.LANCZOS)
+        zemin.alpha_composite(png)
+        z = ImageDraw.Draw(zemin)
+        z.rectangle([GUVENLI[0] * W, GUVENLI[1] * H, GUVENLI[2] * W, GUVENLI[3] * H], outline=(255, 0, 0, 255))
+        sayfa.paste(zemin.convert("RGB"), (j * W, 0))
+        ciz.text((j * W + 3, H + 4), f"yazı {j + 1}: {y['bas']}–{y['bit']} sn", fill="white", font=yf)
+    kod_bandi(sayfa, kod).save(hedef, quality=85)
+
+
+# ---------------------------------------------------------------- render sonrası denetim
+
+def denetle(video, plan, W, H):
+    F = plan["cikti"].get("fps", 30)
+    sonuc, uyarilar = [], []
+    b = probe(video)
+
+    def kayit(ad, ok, ayrinti=""):
+        sonuc.append((ad, ok, ayrinti))
+
+    kayit("çözünürlük", (b["w"], b["h"]) == (W, H), f"{b['w']}x{b['h']}")
+    kayit("SAR 1:1", b["sar"] in ("1:1", "0:1", "N/A"), b["sar"])
+    kayit(f"{F} fps sabit", b["fps_r"] == b["fps_avg"] == f"{F}/1", f"{b['fps_r']} / {b['fps_avg']}")
+    kayit("döndürme kalıntısı yok", not b["rot"], str(b["rot"]))
+    kayit("motor imzası", IMZA in b["comment"], "")
+    with open(video, "rb") as f:
+        bas = f.read(1 << 20)
+    kayit("faststart", 0 <= bas.find(b"moov") < (bas.find(b"mdat") if b"mdat" in bas else 1 << 30), "")
+    vsure = b["v_sure"]
+    kayit("süre planla eşit", abs(vsure - plan["_toplam"]) < 0.1, f"{vsure:.2f} / plan {plan['_toplam']:.2f}")
+    if plan.get("muzik") or plan.get("orijinal_ses"):
+        kayit("ses/görüntü süresi", b["ses"] and abs(b["a_sure"] - vsure) < 0.1, f"{b['a_sure']:.2f} / {vsure:.2f}")
+    # siyah kare: kapanış fade'i ve fadeblack geçişleri dışında 0,5 sn+ siyah = FAIL
+    r = subprocess.run([FFMPEG, "-hide_banner", "-i", video, "-an", "-vf", "blackdetect=d=0.5:pix_th=0.08",
+                        "-f", "null", "-"], capture_output=True, text=True, errors="replace")
+    serbest = [(plan["_toplam"] - plan["cikti"].get("kapanis_fade", 0) - 0.2, plan["_toplam"] + 1)]
+    serbest += [(z["bas"] - 0.2, z["bas"] + z["D"] + 0.2) for p, z in zip(plan["planlar"], plan["_cizelge"])
+                if p["_gecis"] == "fadeblack"]
+    siyah = [(float(b), float(e)) for b, e in re.findall(r"black_start:([\d.]+) black_end:([\d.]+)", r.stderr)]
+    kacak = [s for s in siyah if not any(a <= s[0] and s[1] <= b for a, b in serbest)]
+    kayit("istenmeyen siyah kare yok", not kacak, str(kacak) if kacak else "")
+    # donuk kare: yalnız video kaynaklı planlarda uyarı
+    r = subprocess.run([FFMPEG, "-hide_banner", "-i", video, "-an", "-vf", "freezedetect=n=0.002:d=1.0",
+                        "-f", "null", "-"], capture_output=True, text=True, errors="replace")
+    donuk = [float(t) for t in re.findall(r"freeze_start: ([\d.]+)", r.stderr)]
+    for t in donuk:
+        for i, (p, z) in enumerate(zip(plan["planlar"], plan["_cizelge"])):
+            if not p["_gorsel"] and z["bas"] <= t < z["bas"] + z["sure"] - 0.5:
+                uyarilar.append(f"plan {i + 1}: {t:.2f} sn'de donuk görüntü (≥1 sn)")
+    # netlik: plan ortası karede Laplacian varyansı (yalnız uyarı)
+    for i, z in enumerate(plan["_cizelge"]):
+        k = kare_al(video, z["bas"] + z["sure"] / 2)
+        if k is None:
+            continue
+        g = np.asarray(k.convert("L"), dtype=np.float32)
+        lap = 4 * g[1:-1, 1:-1] - g[:-2, 1:-1] - g[2:, 1:-1] - g[1:-1, :-2] - g[1:-1, 2:]
+        if lap.var() < plan.get("netlik_esigi", 30):
+            uyarilar.append(f"plan {i + 1}: netlik düşük (Laplacian {lap.var():.0f}); bulanık olabilir")
+    gecen = sum(1 for _, ok, _ in sonuc if ok)
+    for ad, ok, ayr in sonuc:
+        print(f"  [{'PASS' if ok else 'FAIL'}] {ad} {ayr}".rstrip())
+    for u in uyarilar:
+        print(f"  [UYARI] {u}")
+    return gecen == len(sonuc), f"{gecen}/{len(sonuc)}"
+
+
+# ---------------------------------------------------------------- ana akış
 
 def main():
-    parser = argparse.ArgumentParser(description="Kedihane Plan Doğrulama ve Render Aracı")
-    parser.add_argument("plan_json", help="Kurgu planı JSON dosyası yolu")
-    parser.add_argument("--dogrula", action="store_true", help="Yalnızca planı doğrula, render alma")
-    parser.add_argument("--onizleme", action="store_true", help="540x960 hızlı önizleme ve _kareler.jpg üret")
-    parser.add_argument("--master", action="store_true", help="1080x1920 master MP4, Premiere XML ve _kareler.jpg üret")
-    args = parser.parse_args()
+    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("plan")
+    kip = p.add_mutually_exclusive_group(required=True)
+    kip.add_argument("--dogrula", action="store_true")
+    kip.add_argument("--onizleme", action="store_true")
+    kip.add_argument("--master", action="store_true")
+    p.add_argument("--analiz", help="analiz.json; verilirse kesimler müzik vuruşuna hizalanır ve denetlenir")
+    a = p.parse_args()
 
-    plan_path = Path(args.plan_json).resolve()
-    if not plan_path.is_file():
-        print(f"[HATA] Plan dosyası bulunamadı: {plan_path}")
+    with open(a.plan, encoding="utf-8") as f:
+        ham = json.load(f)
+    plan = json.loads(json.dumps(ham))
+    plan["_ham"], plan["_klasor"] = ham, os.path.dirname(os.path.abspath(a.plan))
+    analiz = None
+    if a.analiz:
+        with open(a.analiz, encoding="utf-8") as f:
+            analiz = json.load(f)
+    if not plan.get("planlar"):
+        sys.exit("[HATA] 'planlar' yok. 'sahneler' eski şemadır; bilgi/video-kurgu.md C bölümüne göre yaz."
+                 if plan.get("sahneler") else "[HATA] planlar listesi boş")
+    hazirla(plan, plan["_klasor"])
+
+    hatalar, uyarilar, _ = dogrula(plan, analiz)
+    for h in hatalar:
+        print(f"[HATA] {h}")
+    for u in uyarilar:
+        print(f"[UYARI] {u}")
+    if hatalar:
         sys.exit(1)
+    print(f"[TAMAM] {len(plan['planlar'])} plan, toplam {plan['_toplam']:.2f} sn")
+    if a.dogrula:
+        return
 
-    plan_dir = plan_path.parent
-    plan = json.loads(plan_path.read_text(encoding="utf-8"))
-    ffmpeg_exe = get_ffmpeg_exe()
+    kilit_yolu = os.path.splitext(os.path.abspath(a.plan))[0] + ".kilit.json"
+    if a.master:
+        try:
+            with open(kilit_yolu, encoding="utf-8") as f:
+                kilit = json.load(f)
+        except OSError:
+            sys.exit("[KİLİT] Önce --onizleme çalıştır ve kontrol sayfalarına bak.")
+        if kilit["plan"] != plan_ozeti(ham):
+            sys.exit("[KİLİT] Plan son önizlemeden sonra değişmiş. Yeniden --onizleme al ve sayfalara bak.")
+        for alan in ("kareler", "yazilar"):
+            if kilit.get(alan) and kod_ozeti(str(ham.get(f"onay_{alan}", "")).strip().upper(),
+                                            kilit["tuz"]) != kilit[alan]:
+                sys.exit(f"[KİLİT] onay_{alan} kodu yanlış veya eksik. Kodu _{alan}.jpg sayfasının "
+                         f"üst bandından oku ve plan.json'a yaz.")
 
-    errors, warnings = validate_plan(plan, plan_dir, ffmpeg_exe)
-    print("=" * 60)
-    print(f" Kedihane Kurgu Planı Doğrulaması: {plan_path.name}")
-    print("=" * 60)
-    for w_msg in warnings:
-        print(f"  [UYARI] {w_msg}")
-    for e_msg in errors:
-        print(f"  [HATA]  {e_msg}")
+    ad = plan["cikti"].get("ad", "kurgu_v1.mp4")
+    if a.onizleme:
+        ad = os.path.splitext(ad)[0] + "_onizleme.mp4"
+    cikti_yolu = coz(plan["_klasor"], ad)
+    r = subprocess.run(komut_kur(plan, cikti_yolu, a.onizleme), capture_output=True, text=True,
+                       encoding="utf-8", errors="replace")
+    if r.returncode != 0:
+        print(r.stderr[-1500:])
+        sys.exit("[HATA] ffmpeg başarısız")
+    print(f"[TAMAM] {cikti_yolu}")
 
-    if errors:
-        print(f"\n[BAŞARISIZ] Toplam {len(errors)} hata ve {len(warnings)} uyarı bulundu. Render durduruldu.")
-        sys.exit(1)
+    kok = os.path.splitext(cikti_yolu)[0]
+    if a.onizleme:
+        alfabe = "ABCDEFGHJKLMNPRSTUVYZ23456789"
+        tuz = secrets.token_hex(16)
+        kilit = {"plan": plan_ozeti(ham), "tuz": tuz}
+        kod = "".join(secrets.choice(alfabe) for _ in range(6))
+        kareler_sayfasi(cikti_yolu, plan, kok + "_kareler.jpg", kod)
+        kilit["kareler"] = kod_ozeti(kod, tuz)
+        print(f"[TAMAM] Kontrol sayfası: {kok}_kareler.jpg (kodu sayfadan oku)")
+        if plan.get("yazilar"):
+            kod2 = "".join(secrets.choice(alfabe) for _ in range(6))
+            yazilar_sayfasi(plan, kok + "_yazilar.jpg", kod2)
+            kilit["yazilar"] = kod_ozeti(kod2, tuz)
+            print(f"[TAMAM] Yazı sayfası: {kok}_yazilar.jpg (kodu sayfadan oku)")
+        with open(kilit_yolu, "w", encoding="utf-8") as f:
+            json.dump(kilit, f)
+    else:
+        kareler_sayfasi(cikti_yolu, plan, kok + "_kareler.jpg", None)
+        premiere_xml(plan, kok + "_premiere.xml")
+        print(f"[TAMAM] Premiere XML: {kok}_premiere.xml (geçişler kesme olarak gelir)")
 
-    print(f"[GEÇTİ] Doğrulama başarılı ({len( plan.get('sahneler', []) )} sahne, {len(warnings)} uyarı).")
-    if args.dogrula and not (args.onizleme or args.master):
-        sys.exit(0)
-
-    is_master = args.master or not args.onizleme
-    base_w = int(plan.get("genislik", 1080))
-    base_h = int(plan.get("yukseklik", 1920))
-    target_w = base_w if is_master else max(360, base_w // 2)
-    target_h = base_h if is_master else max(640, base_h // 2)
-    fps = int(plan.get("fps", 30))
-    crf = int(plan.get("crf", 17 if is_master else 24))
-
-    cikti_raw = plan.get("cikti_mp4", "kurgu_master.mp4" if is_master else "kurgu_onizleme.mp4")
-    if not is_master and cikti_raw.endswith(".mp4") and "_onizleme" not in cikti_raw:
-        cikti_raw = cikti_raw[:-4] + "_onizleme.mp4"
-    out_mp4 = (plan_dir / cikti_raw).resolve() if not os.path.isabs(cikti_raw) else Path(cikti_raw)
-    out_mp4.parent.mkdir(parents=True, exist_ok=True)
-
-    seg_dir = plan_dir / "_segments" / ("master" if is_master else "onizleme")
-    seg_dir.mkdir(parents=True, exist_ok=True)
-
-    sahneler = plan["sahneler"]
-    sabit_katman = plan.get("sabit_katman_png", "")
-
-    rendered_segs = []
-    for idx, shot in enumerate(sahneler):
-        seg_p = render_segment(
-            idx, shot, plan_dir, seg_dir, target_w, target_h, fps, crf, sabit_katman, ffmpeg_exe
-        )
-        rendered_segs.append(seg_p)
-        print(f"  + Sahne #{idx + 1:02d}/{len(sahneler):02d} hazır: {seg_p.name}")
-
-    total_dur = join_segments_and_audio(
-        rendered_segs, sahneler, plan, plan_dir, out_mp4, fps, crf, ffmpeg_exe
-    )
-
-    kareler_jpg = out_mp4.with_name(out_mp4.stem + "_kareler.jpg")
-    generate_verification_sheet(out_mp4, sahneler, kareler_jpg, ffmpeg_exe)
-
-    xml_path = out_mp4.with_name(out_mp4.stem + "_premiere.xml")
-    write_premiere_xml(rendered_segs, sahneler, plan, plan_dir, xml_path, target_w, target_h, fps)
-
-    print("=" * 60)
-    print(f"[TAMAM] Video üretildi : {out_mp4} ({total_dur:.2f} sn, {target_w}x{target_h})")
-    print(f"[KANIT] Kontrol sayfası: {kareler_jpg}")
-    print(f"[XML]   Premiere sekans: {xml_path}")
-    print("=" * 60)
+    print("[DENETİM]")
+    ok, skor = denetle(cikti_yolu, plan, *boyut(plan, a.onizleme))
+    if ok:
+        print(f"[DENETİM] PASS ({skor})")
+    else:
+        print(f"[DENETİM] FAIL ({skor})" + ("; teslim yasak" if a.master else ""))
+        if a.master:
+            sys.exit(2)
 
 
 if __name__ == "__main__":

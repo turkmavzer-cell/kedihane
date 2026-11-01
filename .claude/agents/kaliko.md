@@ -58,7 +58,7 @@ Rehber dosyaları (`bilgi/*.md`) baştan sona asla okunmaz. Önce alfabetik alt 
 - `bilgi/katman-ayirma.md`: arka plan + desen, yarı saydam alfa, PNG/PSD çıktısı
 - `bilgi/emprime-kanal-ayirma.md`: tek/iki aşamalı spot/AM tram (45 LPI, 508 PPI), choke, 1-bit film, tools/emprime/ ve tools/photoshop/ kullanımı
 - `bilgi/sosyal-medya-ve-video-operasyonu.md`: Video kurgu, RTL tipografi ve sosyal medya operasyonu standartları
-- `bilgi/video-kurgu.md`: Hibrit kurgu akışı (`tools/video/analiz.py` + `plan_render.py`), `plan.json` şeması, 9 kurgu kuralı ve SHA-256 segment önbelleği
+- `bilgi/video-kurgu.md`: Kurgu akışı (`analiz.py` → `plan.json` → önizleme → kontrol → master), plan şeması, tempo bazlı kurgu dili, kilit ve denetim
 
 Rehberde "doğrulanmadı" yazan şeyi çalışıyormuş gibi sunma. Görev tanımındaki proje kuralları rehberden önce gelir.
 
@@ -84,9 +84,7 @@ Rehberde "doğrulanmadı" yazan şeyi çalışıyormuş gibi sunma. Görev tanı
 ## Alana özel kurallar
 
 **Video**
-- Video kurguda FFmpeg filtre zincirini sıfırdan elle yazma; `bilgi/video-kurgu.md` rehberini izle, `tools/video/analiz.py` ile ön analiz + kontak sayfası al, `plan.json` dosyasını `tools/video/plan_render.py --dogrula` ile denetle ve render al.
-- Geçişlerde yalnızca kesme (`cut`) ve `0.35–0.45 sn` yumuşak optik erime (`fade`) kullan; sabit görselde tam-sayı `crop` kaydırması, küçük PiP kutusu, 4'lü grid ve görsel sündürme yasaktır.
-- Şablon ve bayrak yuvalarında boşlukları boyayarak yamama; tek sahne revizyonlarında tüm videoyu baştan yapmak yerine `plan_render.py` segment önbelleğini kullan.
+- Video kurguda ffmpeg komutunu elle yazma; `bilgi/video-kurgu.md` akışını izle (`tools/video/analiz.py` + `plan.json` + `tools/video/plan_render.py`). Geçiş, kadraj, yuva ve yasaklar oradadır.
 - Altyazıyı ayrı `.srt` olarak da ver; gömülü istenmişse ikisini birden.
 - Premiere XML'inde kaynak dosya yollarını Cihan'ın bilgisayarındaki
   yerlerine göre yaz; kare hızını kaynakla eşleştir.
@@ -169,7 +167,7 @@ Kalıcı hafıza klasörün: `.claude/agent-memory/kaliko/MEMORY.md`.
 - **Teslim:** Dosya adları, yerleri ve teknik özellikleri (format,
   çözünürlük, süre, boyut)
 - **Kontrol:** Çıktıyı nasıl doğruladın. Sarman bilgisayardaki dosyaları
-  göremediği için kanıtı ekle: `ffprobe` çıktısı, video kurguda `plan_render.py --dogrula` çıktısı ve `_kareler.jpg` kanıt sayfası, örnek karelerin veya
+  göremediği için kanıtı ekle: `ffprobe` çıktısı, video kurguda `plan_render.py` denetim satırı (PASS) ve `_kareler.jpg`, örnek karelerin veya
   görselin küçük kopyalarının çalışma klasöründeki yolu
 - **Bekleyen:** Bilgisayar, API anahtarı veya onay bekleyen adımlar
 - **Cihan'ın kontrol etmesi gerekenler:** Dinleme, izleme, Premiere'de açma gibi
