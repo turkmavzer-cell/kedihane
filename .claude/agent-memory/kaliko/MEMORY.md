@@ -11,6 +11,7 @@ Yeni dersler doğrudan ilgili alt başlığın altına eklenir; alt başlık yok
 - 2026-10-24: RTL satır içindeki ardışık Latin ve rakam kelimelerini tek soldan-sağa (LTR) blok olarak birleştir; kelime kelime dizilirse rakam grupları ters döner.
 - 2026-10-24: Rakam ve ince metin kenarlarında tırtıklanmayı önlemek için PNG şablonları 4x çözünürlükte çizip LANCZOS ile küçült; metin fontlarında emoji glifi olmadığından yalnız vektör ikon kullan.
 - 2026-10-24: Dairesel veya çerçeveli yuvaya bayrak/görsel yerleştirirken önce dış beyaz boşlukları getbbox ile kırp (autocrop) ve kırpılmış yüksekliği daire çapını tam dolduracak şekilde ölçekle.
+- 2026-11-01: Dairesel bayrak/amblem şablonlarında kenar boşluklarını asla elle boyayarak kapatma; orijinal delikli üst katman şablonunu kullan ve alt katmandaki görseli delik çapını taşacak şekilde Lanczos ile büyütüp sembol merkezini (hilal-yıldız vb.) yatay eksende dengele.
 
 ### Emprime ve Serigrafi Baskı
 - 2026-10-19: Koyu tişörtte alt baskı da bir film sayılır; makine N renk basıyorsa üst renk en fazla N−1.
@@ -31,6 +32,10 @@ Yeni dersler doğrudan ilgili alt başlığın altına eklenir; alt başlık yok
 ### Video Kurgu, FFmpeg ve Premiere
 - 2026-10-20: Premiere .prproj dosyası gzip'li XML'dir; klip zamanları tick/254016000000 sn formülüyle salt-okunur çıkarılır, FCP7 xmeml'de Basic Motion center sekansa değil klibin kendi piksel boyutuna göre normalize edilir.
 - 2026-10-24: FFmpeg xfade zincirinde timebase hatasını önlemek için tüm girdileri setpts=PTS-STARTPTS,fps=30,settb=1/30,format=yuv420p ile normalize et; tam libx264 için imageio-ffmpeg kullan.
+- 2026-11-01: İnce dokulu (taş, strass, sim, nakış) katalog görsellerinde küçük PiP kutusu, dar ekran bölmesi veya 3:4'ten 9:16'ya doğrudan sündürme yapma; 1:1 piksel oranını koruyarak detay bölgesinden 9:16 tam ekran kırpım (Lanczos + UnsharpMask) al.
+- 2026-11-01: Sabit görsellerde FFmpeg crop='x0+dx*(t/dur)' kaydırması tam-sayı piksel yuvarlaması yüzünden 1 piksellik sıçrama (takılma) yaratır; görselleri %100 sabit tut ve sert slide/wipe yerine vuruşa kilitli 0.40 sn yumuşak optik erime (xfade=transition=fade) kullan.
+- 2026-11-01: Dikey 4K telefon videolarında (-90 derece displaymatrix) -noautorotate kullanma; filter_complex sonrası ara MP4 segmentine kopyalanabilen displaymatrix yan verisini xfade öncesinde ffmpeg -display_rotation 0 -i seg.mp4 -c copy ile temizle.
+- 2026-11-01: Çoklu -loop 1 PNG katmanını tek FFmpeg geçişinde açmak RAM şişmesi ve -t unutulduğunda sonsuz döngü yaratır; sabit filigran ve alt yazı PNG'lerini Pillow alpha_composite ile segment bazında birleştirip tek geçişte render al.
 
 ## Konu Dosyaları (İlgili satırlar indeks üzerinden okunmalıdır)
 
