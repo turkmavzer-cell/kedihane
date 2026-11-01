@@ -20,6 +20,7 @@
 - **Web App Test & Doğrulama:** `python tools/webapp_testing/with_server.py` (arka plan test sunucusu)
 - **Repo Kalite ve Gizlilik Denetimi:** `python tools/denetim.py` (Sarman denetim ve ihlal tarama betiği)
 - **Bağımlılık ve Paket Yönetimi:** `requirements.txt` (`pip install -r requirements.txt`)
+- **Video Kurgu, Ön Analiz ve Doğrulamalı Render:** `python tools/video/analiz.py` (video/görsel kontak sayfası ve müzik vuruş analizi), `python tools/video/plan_render.py` (`--dogrula`, `--onizleme`, `--master`, SHA-256 segment önbelleği ve Premiere XML), `bilgi/video-kurgu.md`
 - **Sosyal Medya ve Video Operasyonu:** `bilgi/sosyal-medya-ve-video-operasyonu.md`, `bilgi/tekstil-ve-sim-gorsel-promptlari.md`
 - **Rehber ve Bilgi Dosyaları:** `bilgi/` altında indeksli dokümanlar
 - **Antigravity Çekirdek Becerileri:** `.agents/skills/` altında 5 uzmanlık paketi

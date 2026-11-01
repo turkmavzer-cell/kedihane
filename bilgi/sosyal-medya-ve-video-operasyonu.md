@@ -115,7 +115,7 @@ Sosyal medya dikey video üretiminde platform algoritmalarının en yüksek bit 
      `setpts=PTS-STARTPTS,fps=30,settb=1/30,format=yuv420p`
    - Kısıtlı gömülü ffmpeg derlemeleri yerine `uv run --with imageio-ffmpeg` (`libx264`) motoru kullanılır.
    - Bellek taşmasını önlemek için uzun renderlar parçalanıp `concat -c copy` ile birleştirilir.
-   - Dikey çekilmiş 4K HEVC (`rotate=90`) kaynaklar kurgu öncesi kontak sayfası çıkarılarak taranır; siyah veya bozuk kareler ayıklanır.
+   - Dikey 4K (`displaymatrix` `-90°`) kaynaklar `tools/video/analiz.py` ile taranır; kurgu ve doğrulama `tools/video/plan_render.py` (`-display_rotation 0` ve SHA-256 segment önbelleği) ve `bilgi/video-kurgu.md` kurallarıyla yürütülür.
 3. **Premiere Pro `.prproj` ve XML Kurgu Köprüsü:**
    - Premiere Pro proje dosyası (`.prproj`), gzip ile sıkıştırılmış bir XML belgesidir.
    - Zaman Birimi: `tick / 254016000000 = saniye` formülüyle klip başlangıç ve bitiş zamanları salt-okunur olarak okunur.

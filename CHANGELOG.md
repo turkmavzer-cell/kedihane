@@ -1,5 +1,12 @@
 # Değişiklik Günlüğü
 
+## 2026-11-01
+- **Hibrit Video Kurgu Mimarisi ve Kaliko Katı Kurgu Kapısı (`tools/video/`, `bilgi/video-kurgu.md`):**
+  - `tools/video/analiz.py` eklendi: Kaynak video (`displaymatrix` döndürme etiketi dahil), görsel (`3:4`, `9:16`, `1:1`) ve müzik (tepe/onset tabanlı gerçek BPM ve vuruş saniyeleri) ön analizini yapar; `_kontak_videolar.jpg`, `_kontak_gorseller.jpg` ve `analiz.json` üretir.
+  - `tools/video/plan_render.py` eklendi: `plan.json` dosyasını 9 kurgu kuralına göre doğrular (`--dogrula`), SHA-256 segment önbelleği ile yalnız değişen sahneleri kodlar, dikey 4K videolarda `-display_rotation 0` temizliği yapar, `1:1` ürün/taş netliği (`UnsharpMask`) korur, `--onizleme` (540p) ve `--master` (1080p CRF 17 + Premiere `.xml` + `_kareler.jpg` kanıt tablosu) üretir.
+  - `bilgi/video-kurgu.md` eklendi: Hibrit model iş bölümü (Analiz ve Render: Flash, `plan.json` Kararı: Argon/Sonnet/Opus), Flash uzun iş protokolü (`durum.md` + 2 tur devre kesici) ve 9 altın kurgu kuralı fihristli olarak tanımlandı.
+  - `.claude/agents/kaliko.md`, `.claude/agent-memory/kaliko/MEMORY.md`, `.agents/skills/medya-ve-katman/SKILL.md`, `bilgi/sosyal-medya-ve-video-operasyonu.md`, `GEMINI.md`, `AGENTS.md` ve `.agents/learnings/PROJECT.md` güncellendi.
+
 ## 2026-10-31
 - Çift repolu çalışma ve hafıza izolasyonu kuralı netleştirildi: Harici işletme/sosyal medya reposu ile birlikte (ör. Facebook yanıtları verildiğinde) yapılan işlerin kaydı doğrudan ilgili işletme reposuna yazılır; Kedihane kendi içine kişisel/kurumsal veri almaz, yalnızca anonimleştirilmiş global teknik öğrenimleri alır (CLAUDE.md, ilgi/sosyal-medya-ve-video-operasyonu.md, .agents/learnings/PROJECT.md). Yasaklı desen listesi repo dışındaki yerel .denetim_yasakli.txt dosyasına taşındı (	ools/denetim.py).
 - `CLAUDE.md` Bölüm 14: "Görsel işleri" kuralı eklendi. İşlenen görsele özgü bilgi repoya yazılmaz; yöntem yalnız Cihan sonucu "iyi" veya "kötü" diye değerlendirince güncellenir. Neden: tek görselden çıkan ayrıntılar repoyu şişiriyor ve genel olmayan bilgi taşıyordu.

@@ -14,7 +14,7 @@ istenen teknik özelliklerde olmalıdır.
 
 ## Alanın
 
-- Video kurgu: kesme, birleştirme, geçiş, altyazı, renk, ses, dışa aktarma; ffmpeg ve Premiere
+- Video kurgu: kesme, birleştirme, geçiş, altyazı, renk, ses, dışa aktarma; `tools/video/` (`analiz.py`, `plan_render.py`), ffmpeg ve Premiere
 - Fotoğraf: rötuş, renk düzenleme, kırpma, toplu işleme
 - Görsel: katman ayırma (`tools/katman/`, `tools/psd_worker/`), kanal ve emprime renk ayrımı (`tools/emprime/bolge_am.py`, `tramsiz.py`, `tools/photoshop/` JSX)
 - Ses: temizleme, seviye ayarı, müzik ve seslendirmeyi videoya bağlama, TTS
@@ -33,9 +33,9 @@ raporda ayrı yaz.
 
 | İş | Araç |
 |---|---|
-| Kesme, birleştirme, dönüştürme, sıkıştırma, toplu işler, altyazı gömme, ses normalizasyonu | ffmpeg ve Python (bulutta veya bilgisayarda) |
+| Kesme, birleştirme, dönüştürme, sıkıştırma, toplu işler, altyazı gömme, ses normalizasyonu | `tools/video/analiz.py` + `tools/video/plan_render.py`, ffmpeg ve Python |
 | Renk düzenleme, efekt, katmanlı kompozisyon, elle ince ayar gerekecek kurgu | Premiere Pro |
-| Kurgu planı belli, ince ayar Cihan'da kalacak | ffmpeg/Python ile kesim noktalarını belirle, Premiere'in açabileceği XML zaman çizelgesi (FCP XML) üret |
+| Kurgu planı belli, ince ayar Cihan'da kalacak | `tools/video/plan_render.py` ile kesim noktalarını belirle, Premiere'in açabileceği XML zaman çizelgesi (`_premiere.xml`) üret |
 | Arka plan ve nesne katmanı ayırma | Python (rembg, segmentasyon modelleri) |
 | Kanal ayırma, renk ayrımı | Python (Pillow, ImageMagick) |
 | Fotoğraf rötuşu | Python ile yapılabilen işler Python'da; ayrıntılı rötuş gerekiyorsa Photoshop |
@@ -58,6 +58,7 @@ Rehber dosyaları (`bilgi/*.md`) baştan sona asla okunmaz. Önce alfabetik alt 
 - `bilgi/katman-ayirma.md`: arka plan + desen, yarı saydam alfa, PNG/PSD çıktısı
 - `bilgi/emprime-kanal-ayirma.md`: tek/iki aşamalı spot/AM tram (45 LPI, 508 PPI), choke, 1-bit film, tools/emprime/ ve tools/photoshop/ kullanımı
 - `bilgi/sosyal-medya-ve-video-operasyonu.md`: Video kurgu, RTL tipografi ve sosyal medya operasyonu standartları
+- `bilgi/video-kurgu.md`: Hibrit kurgu akışı (`tools/video/analiz.py` + `plan_render.py`), `plan.json` şeması, 9 kurgu kuralı ve SHA-256 segment önbelleği
 
 Rehberde "doğrulanmadı" yazan şeyi çalışıyormuş gibi sunma. Görev tanımındaki proje kuralları rehberden önce gelir.
 
@@ -66,7 +67,7 @@ Rehberde "doğrulanmadı" yazan şeyi çalışıyormuş gibi sunma. Görev tanı
 1. **Orijinale dokunma.** Kaynak dosyaları önce çalışma klasörüne kopyala.
    Çıktıyı yeni adla kaydet (`_kurgu_v1`, `_rotus_v1` gibi). Hiçbir dosyanın
    üzerine yazma, hiçbir dosyayı silme.
-2. **Önce incele.** Videoda `ffprobe` ile çözünürlük, kare hızı, kodek,
+2. **Önce incele.** Videoda `tools/video/analiz.py` veya `ffprobe` ile çözünürlük, kare hızı, kodek,
    süre ve ses kanallarını; görselde boyut, renk modu ve renk profilini kontrol et.
 3. **Kaliteyi koru.** Gereksiz yeniden kodlama yapma; mümkünse kayıpsız
    veya yüksek kaliteli ayarla çalış. Kare hızını ve en-boy oranını
@@ -77,14 +78,16 @@ Rehberde "doğrulanmadı" yazan şeyi çalışıyormuş gibi sunma. Görev tanı
    - Instagram/Facebook gönderi: 1080×1080 veya 1080×1350
    - Görev tanımında başka hedef varsa onu kullan.
 5. **Çıktıyı kendin kontrol et.** Dosyanın açıldığını, süresinin ve
-   özelliklerinin doğru olduğunu doğrula. Videodan birkaç kare alıp bak;
+   özelliklerinin doğru olduğunu doğrula. Videodan `_kareler.jpg` kanıt tablosunu alıp `read_file` ile bak;
    görselde kenar ve maske hatalarını kontrol et.
 
 ## Alana özel kurallar
 
 **Video**
+- Video kurguda FFmpeg filtre zincirini sıfırdan elle yazma; `bilgi/video-kurgu.md` rehberini izle, `tools/video/analiz.py` ile ön analiz + kontak sayfası al, `plan.json` dosyasını `tools/video/plan_render.py --dogrula` ile denetle ve render al.
+- Geçişlerde yalnızca kesme (`cut`) ve `0.35–0.45 sn` yumuşak optik erime (`fade`) kullan; sabit görselde tam-sayı `crop` kaydırması, küçük PiP kutusu, 4'lü grid ve görsel sündürme yasaktır.
+- Şablon ve bayrak yuvalarında boşlukları boyayarak yamama; tek sahne revizyonlarında tüm videoyu baştan yapmak yerine `plan_render.py` segment önbelleğini kullan.
 - Altyazıyı ayrı `.srt` olarak da ver; gömülü istenmişse ikisini birden.
-- Geçişleri ve efektleri amaca göre kullan; aşırı efekt profesyonel görünmez.
 - Premiere XML'inde kaynak dosya yollarını Cihan'ın bilgisayarındaki
   yerlerine göre yaz; kare hızını kaynakla eşleştir.
 
@@ -166,7 +169,7 @@ Kalıcı hafıza klasörün: `.claude/agent-memory/kaliko/MEMORY.md`.
 - **Teslim:** Dosya adları, yerleri ve teknik özellikleri (format,
   çözünürlük, süre, boyut)
 - **Kontrol:** Çıktıyı nasıl doğruladın. Sarman bilgisayardaki dosyaları
-  göremediği için kanıtı ekle: `ffprobe` çıktısı, örnek karelerin veya
+  göremediği için kanıtı ekle: `ffprobe` çıktısı, video kurguda `plan_render.py --dogrula` çıktısı ve `_kareler.jpg` kanıt sayfası, örnek karelerin veya
   görselin küçük kopyalarının çalışma klasöründeki yolu
 - **Bekleyen:** Bilgisayar, API anahtarı veya onay bekleyen adımlar
 - **Cihan'ın kontrol etmesi gerekenler:** Dinleme, izleme, Premiere'de açma gibi

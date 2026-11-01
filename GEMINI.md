@@ -30,10 +30,11 @@ Antigravity ortamında kullanılabilir modeller ve kademeli geçiş (fallback) s
 | **Ağır / Zor / Kritik İşler**<br>(Mimari kod, derin refactor, forex, güvenlik, zor analiz, Sarman denetimi, karmaşık medya kurgusu) | `Opus 5.5` / `Sonnet 5.5` / `GPT-OSS` | **Gemini Argon** | Yeni amiral gemisi sürüm çıktığında güncellenir |
 | **Hafif / Basit / Hızlı İşler**<br>(Kısa script, tek dosya ayarı, metin düzenleme, basit araştırma, hızlı özet) | `Sonnet 5.5` / `GPT-OSS` | **Gemini 3.8 Flash** | Yeni hafif/hızlı sürüm çıktığında güncellenir |
 | **Video ve Ses Dosyaları (Analiz)**<br>(ffprobe incelemesi, ses seviyesi/LUFS ölçümü, video kare kontrolü, format/kodek analizi) | **Gemini 3.8 Flash** (Doğrudan) | Gerekirse `Sonnet 5.5` | Hızlı ve düşük maliyetli analiz standardı |
-| **Video ve Ses Dosyaları (Uygulama/Üretim)**<br>(Analiz sonrası yapılacak işin ağırlığına göre) | Basit kesme/dönüştürmede **Gemini 3.8 Flash**; renk/efekt/profesyonel kurguda **Opus 5.5 / Sonnet 5.5 / Gemini Argon** | Duruma göre **Gemini Argon** | İşin ağırlık derecesine göre seçilir |
+| **Video Kurgu ve Medya Üretimi**<br>(`tools/video/analiz.py` + `plan.json` + `tools/video/plan_render.py`) | Ön analiz (`analiz.py`) ve doğrulamalı render (`plan_render.py`) **Gemini 3.8 Flash**; kurgu kararı (`plan.json`) **Gemini Argon / Sonnet 5.5 / Opus 5.5** | Kota doluysa **Gemini Argon**, o da doluysa **3.8 Flash** (`--dogrula` zorunlu) | Hibrit akış: karar Argon'da, mekanik iş Flash'ta |
 
 > **Kota / Hata İlkesi:** Opus, Sonnet veya GPT-OSS modellerinde limit/rate-limit aşıldığında veya kota tükendiğinde iş durdurulmaz; doğrudan Gemini karşılığına (`Gemini Argon` veya `Gemini 3.8 Flash`) geçilerek iş tamamlanır.
 > **Alt Ajan (Subagent) ile Kota Tasarrufu:** Ana model Claude Opus 5.5, Sonnet 5.5 veya Gemini Argon iken; rutin alt işler (çoklu dosya tarama, log inceleme, ön araştırma) için `invoke_subagent` çağrılırken `Model: "flash"` veya `"flash_lite"` seçilerek ana modelin kotası korunur.
+> **Uzun İşler (Flash Durum Kaydı ve 2 Tur Kilidi):** Flash ile yürütülen çok adımlı işlerde bağlam kaybını önlemek için her adım sonunda `_calisma/durum.md` güncellenir; 2 turda çözülemeyen hatalarda işlem durdurulup üst modele devredilir (`bilgi/video-kurgu.md`).
 > **Model Öneri ve Kota Protokolü (`antigravity_davran-sh` v2.0.0):** Yeni bir görev geldiğinde herhangi bir araç çağırmadan önce model öneri ve kota kontrol kutusu sunulur; kullanıcı 'devam et' onayı verdikten sonra ilk adımda `.agents/learnings/PROJECT.md` ve ilgili hafıza fihristi okunur.
 
 ---
@@ -51,7 +52,7 @@ Tekir Antigravity'de `invoke_subagent` ile bir alt ajan başlattığında:
 | **sarman** | `Sarman - Kalite Kontrol` | Teslim öncesi iki aşamalı denetim, build/test çalıştırma, kanıt doğrulama, `python tools/denetim.py` çalıştırma, `📋 Sarman Denetim Makbuzu` | `.agents/skills/guvenlik-denetimi` |
 | **siyam** | `Siyam - Araştırmacı` | Bilim, sağlık, uzay, deniz, piyasa/donanım fiyatı, ürün kıyaslama, doğrulanmış kaynak | `.agents/skills/veri-ve-finans` |
 | **ankara** | `Ankara - Yaratıcı Yönetmen` | Konsept, senaryo, storyboard, yapay zekâ promptları, reklam/metin, çeviri, oyun mekaniği, çok dilli sosyal medya operasyonu | `.agents/skills/pazarlama-ve-buyume`<br>`.agents/skills/frontend-ve-ui`<br>`bilgi/sosyal-medya-ve-video-operasyonu.md`<br>`bilgi/tekstil-ve-sim-gorsel-promptlari.md` |
-| **kaliko** | `Kaliko - Medya Operatörü` | Video kurgu, ses, fotoğraf rötuş, katman ve kanal ayırma, kavisli yazı ve tipografi, PSD/PNG çıktısı | `.agents/skills/medya-ve-katman`<br>`tools/emprime`<br>`tools/photoshop`<br>`tools/psd_worker`<br>`bilgi/emprime-kanal-ayirma.md`<br>`bilgi/sosyal-medya-ve-video-operasyonu.md` |
+| **kaliko** | `Kaliko - Medya Operatörü` | Video kurgu, ses, fotoğraf rötuş, katman ve kanal ayırma, kavisli yazı ve tipografi, PSD/PNG çıktısı | `.agents/skills/medya-ve-katman`<br>`tools/video`<br>`tools/emprime`<br>`tools/photoshop`<br>`tools/psd_worker`<br>`bilgi/video-kurgu.md`<br>`bilgi/emprime-kanal-ayirma.md`<br>`bilgi/sosyal-medya-ve-video-operasyonu.md` |
 | **van** | `Van - İş & Finans` | İş modelleri, bütçe, kârlılık, fiyatlandırma, tedarikçi kıyaslama, forex/iş stratejisi, çok dilli pazar operasyonu | `.agents/skills/veri-ve-finans`<br>`.agents/skills/pazarlama-ve-buyume`<br>`bilgi/sosyal-medya-ve-video-operasyonu.md` |
 
 ---

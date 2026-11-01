@@ -357,7 +357,7 @@ Hedef LUFS Standartları:
 
 ### 3. Dikey Video Kurgu Standartları
 - **İşlev:** Ses dosyasının RMS sessizlik analizine göre altyazı ve video kesimlerini senkronize etmek; RTL altyazıda harf şekillendirme ve LTR bloklama.
-- **Standartlar:** 1080x1920 veya 2160x3840 dikey, 30 fps; logo ve altyazı stili görev tanımından alınır. Ayrıntılar için `bilgi/sosyal-medya-ve-video-operasyonu.md` ve `bilgi/tekstil-ve-sim-gorsel-promptlari.md` fihristini okuyun.
+- **Standartlar ve Araçlar:** `tools/video/analiz.py` (ön analiz + kontak sayfası) ve `tools/video/plan_render.py` (`--dogrula`, `--onizleme`, `--master`, SHA-256 segment önbelleği) kullanılır; ayrıntılar için `bilgi/video-kurgu.md`, `bilgi/sosyal-medya-ve-video-operasyonu.md` ve `bilgi/tekstil-ve-sim-gorsel-promptlari.md` fihristini okuyun.
 
 ### 4. `visioncortex/vtracer` ile Raster Görüntüleri Vektöre (SVG) Dönüştürme
 `visioncortex/vtracer`, raster görüntüleri (PNG, JPG) katmanlı, temiz SVG vektör grafiklerine dönüştüren yüksek hızlı açık kaynak motorumuzdur. Potrace'e göre renkli ve degradeli görselleri başarıyla işler; Adobe Illustrator'ın Image Trace aracına kıyasla delikli şekiller yerine boşluksuz üst üste yığma (stacking) stratejisiyle çok daha kompakt ve hafif SVG üretir.
