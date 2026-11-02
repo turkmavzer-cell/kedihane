@@ -8,8 +8,8 @@
 | :--- | :--- | :--- |
 | [A. Çıktı Türü ve Teslimat Eşikleri](#a-çıktı-türü-ve-teslimat-eşikleri) | L16-L20 | Sohbet, dosya ve artifact teslimat sınırları |
 | [B. Eylem Odaklı İletişim (`i-have-adhd`)](#b-eylem-odaklı-iletişim-i-have-adhd) | L24-L35 | 10 altın iletişim ve odak kuralı |
-| [C. Mühendislik ve Kodlama İlkeleri (`karpathy-guidelines`)](#c-mühendislik-ve-kodlama-ilkeleri-karpathy-guidelines) | L39-L44 | Sadelik, cerrahi değişiklik ve hedef doğrulama |
-| [D. Yapay Zekâ Klişesi Yasağı (`no-ai-slop` & `stop-slop`)](#d-yapay-zekâ-klişesi-yasağı-no-ai-slop--stop-slop) | L48-L55 | Yasaklı kalıplar, boğaz temizleme ve sahte derinlik engeli |
+| [C. Mühendislik ve Kodlama İlkeleri (`karpathy-guidelines`)](#c-mühendislik-ve-kodlama-ilkeleri-karpathy-guidelines) | L39-L45 | Sadelik, cerrahi değişiklik ve hedef doğrulama |
+| [D. Yapay Zekâ Klişesi Yasağı (`no-ai-slop` & `stop-slop`)](#d-yapay-zekâ-klişesi-yasağı-no-ai-slop--stop-slop) | L49-L56 | Yasaklı kalıplar, boğaz temizleme ve sahte derinlik engeli |
 
 ---
 
@@ -42,6 +42,7 @@
 2. **Önce Sadelik:** Sorunu çözen minimum kod; spekülatif tek bir satır kod, istenmemiş soyutlama veya tek kullanımlık kod için esneklik mimarisi ekleme. 200 satır yerine 50 satır yetiyorsa sadeleştir.
 3. **Cerrahi Değişiklik:** Yalnızca dokunman gereken satırlara dokun. Yanındaki kodun formatını, stilini veya alakasız yorumlarını düzeltme. Kendi yaptığın değişikliklerin öksüz bıraktığı import/değişkenleri temizle, önceden var olan ölü koda dokunma. Değişen her satır doğrudan kullanıcı talebine dayanmalıdır.
 4. **Hedefe Yönelik Doğrulama:** Görevleri doğrulanabilir hedeflere dönüştür ("doğrulama ekle" yerine geçersiz girdi için test yaz ve geçmesini sağla). Her adım için: `[Adım] -> doğrulama: [kontrol]`.
+5. **Saat dilimi testleri:** Saat dilimine bağlı tarih testleri farklı `TZ=` ortam değişkenleriyle de koşturulur; sonuç sunucu saat diliminden bağımsız olmalı.
 
 ---
 

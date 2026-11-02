@@ -104,6 +104,6 @@ Tekir'e şu başlıklarla dön:
 - **Onay gereken:** Senin yapmadığın, Cihan'ın onayını bekleyen adımlar
 - **Öneriler:** Görev dışında fark ettiğin sorunlar (kısa)
 - **Atlanan / kontrol edilmeyen / risk:** Tek satırda zorunlu kapanış notu
-- **Ders:** [genel ders satırları; yoksa "yok"]
+- **Ders:** [doğrulandı/doğrulanmadı/Cihan: iyi/kötü] tek cümle
 
 Rapor Türkçe; kod, dosya adı ve teknik terimler orijinal haliyle.

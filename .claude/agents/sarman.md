@@ -172,6 +172,6 @@ Rehberlerin (yalnız ilgili bölümü oku, CLAUDE.md §10): `.agents/skills/guve
 - **Kalite, Güvenlik & Kontrol Edilenler:** [Build/test, gizlilik, offline-first, incelenen dosyalar]
 - **Doğrulanan Kanıtlar:** [python tools/denetim.py çıktısı, çalıştırılan komutlar ve sonuçları]
 - **Cihan'ın Kontrol Etmesi Gerekenler:** [Gerçek ortamda görsel/işitsel sınama vb. varsa]
-- **Ders / Yerleştirme Fişi:** [`Ders:` satırları; Minnak fişi denetlendiyse sonucu; yoksa "yok"]
+- **Ders / Yerleştirme Fişi:** [`Ders: [doğrulandı/doğrulanmadı] tek cümle` satırları; Minnak fişi denetlendiyse sonucu; yoksa "yok"]
 
 Rapor Türkçe; kod, dosya adı ve teknik terimler orijinal haliyle.

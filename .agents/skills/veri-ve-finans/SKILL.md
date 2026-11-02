@@ -11,11 +11,11 @@ description: Bombay, Siyam ve Van için anti-bot web veri kazıma (Scrapling), o
 ### Alfabetik Fihrist (A-Z)
 | Başlık | Kapsam ve Odak | Satır Aralığı |
 | :--- | :--- | :--- |
-| [F. Finansal Veri ve Algoritmik Ticaret (OpenBB, Freqtrade & Lean)](#f-finansal-veri-ve-algoritmik-ticaret-openbb-freqtrade--lean) | OpenBB v4, Freqtrade IStrategy/backtest/FreqAI ve QuantConnect Lean Forex algoritmaları | L22-L222 |
-| [K. Kariyer ve İş Başvuru Otomasyonu (AI Job Search)](#k-kariyer-ve-iş-başvuru-otomasyonu-ai-job-search) | İş ilanı ayrıştırma, ATS skorlama, anahtar kelime optimizasyonu ve mülakat hazırlığı | L226-L240 |
-| [P. Paketleme ve Fiyatlandırma Stratejisi (Pricing Strategy)](#p-paketleme-ve-fiyatlandırma-stratejisi-pricing-strategy) | Değer metriği seçimi, Van Westendorp 4 fiyat sorusu, 3 katmanlı Good-Better-Best ve freemium/deneme | L244-L304 |
-| [R. Rehber, Belge (MarkItDown) ve Kitap Derleme (Book-to-Skill)](#r-rehber-belge-markitdown-ve-kitap-derleme-book-to-skill) | virgiliojr94/book-to-skill ile kitap derleme ve Microsoft MarkItDown CLI/Python dönüştürücü | L308-L380 |
-| [V. Web Veri Kazıma (Scrapling) ve Otonom Tarayıcı (Browser-Use)](#v-web-veri-kazıma-scrapling-ve-otonom-tarayıcı-browser-use) | Scrapling anti-bot/stealth kazıma ve browser-use Python asenkron tarayıcı ajanı | L384-L507 |
+| [F. Finansal Veri ve Algoritmik Ticaret (OpenBB, Freqtrade & Lean)](#f-finansal-veri-ve-algoritmik-ticaret-openbb-freqtrade--lean) | OpenBB v4, Freqtrade IStrategy/backtest/FreqAI ve QuantConnect Lean Forex algoritmaları | L22-L223 |
+| [K. Kariyer ve İş Başvuru Otomasyonu (AI Job Search)](#k-kariyer-ve-iş-başvuru-otomasyonu-ai-job-search) | İş ilanı ayrıştırma, ATS skorlama, anahtar kelime optimizasyonu ve mülakat hazırlığı | L227-L241 |
+| [P. Paketleme ve Fiyatlandırma Stratejisi (Pricing Strategy)](#p-paketleme-ve-fiyatlandırma-stratejisi-pricing-strategy) | Değer metriği seçimi, Van Westendorp 4 fiyat sorusu, 3 katmanlı Good-Better-Best ve freemium/deneme | L245-L308 |
+| [R. Rehber, Belge (MarkItDown) ve Kitap Derleme (Book-to-Skill)](#r-rehber-belge-markitdown-ve-kitap-derleme-book-to-skill) | virgiliojr94/book-to-skill ile kitap derleme ve Microsoft MarkItDown CLI/Python dönüştürücü | L312-L384 |
+| [V. Web Veri Kazıma (Scrapling) ve Otonom Tarayıcı (Browser-Use)](#v-web-veri-kazıma-scrapling-ve-otonom-tarayıcı-browser-use) | Scrapling anti-bot/stealth kazıma ve browser-use Python asenkron tarayıcı ajanı | L388-L511 |
 
 ---
 
@@ -220,6 +220,7 @@ class ForexMomentumStrategy(QCAlgorithm):
 ### 6. Risk ve Doğrulama Protokolü (Van & Sarman)
 - Canlı emir iletimi yapılmadan önce geriye dönük test (Backtesting) verileri Sharpe Oranı, Maksimum Düşüş (Max Drawdown) ve Kâr Faktörü (Profit Factor) kriterlerine göre incelenir.
 - Gerçek para ile işlem yapılmadan önce mutlaka Cihan'dan açık yazılı onay alınır (`GEMINI.md` Güvenlik Kuralı).
+- [doğrulanmadı] Forex botunu canlıya bağlama talebinde önce backtest ve demo raporu (işlem sayısı, en büyük düşüş, kâr faktörü) istenir; canlı test küçük sermaye ve otomatik durdurma sınırlarıyla başlar; Türkiye'de lisanslı kurumda asgari teminat şartı bu küçük testi engelleyebilir.
 
 ---
 
@@ -302,6 +303,9 @@ Fiyat artışı ani bir düğme değişimi değil, riskleri yönetilen bir süre
 
 ### 6. Pazarlama ve Büyüme (CRO) Çapraz Referansı
 Fiyatlandırma sayfasının (Pricing page) dönüşüm oranı optimizasyonu (CRO), değer önerisi netliği, metin yazarlığı ve lansman stratejileri için `.agents/skills/pazarlama-ve-buyume/SKILL.md` rehberine başvurun. Van (finansal model ve katmanlar) ile Ankara (sayfa tasarımı, kancalar ve metin) fiyatlandırma projelerinde ortaklaşa çalışır.
+
+### 7. Satış Üzerinden Kâr Marjı Formülü
+- Satış fiyatı üzerinden marj isteniyorsa: fiyat = maliyet / (1 − marj). Maliyet × (1 + marj) düşük fiyat verir (%35 hedefte gerçek marj %25,9).
 
 ---
 

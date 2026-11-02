@@ -120,6 +120,6 @@ Rehberlerin (yalnız ilgili bölümü oku, CLAUDE.md §10): `.agents/skills/veri
 - **Çelişkiler ve belirsizlikler:** Varsa
 - **Bulunamayanlar:** Aranan ama bulunamayan bilgiler
 - **Kaynaklar:** Başlık, bağlantı ve tarih
-- **Ders:** [genel ders satırları; yoksa "yok"]
+- **Ders:** [doğrulandı/doğrulanmadı/Cihan: iyi/kötü] tek cümle
 
 Rapor Türkçe. Kaynak İngilizce veya Arapça olabilir; bulguları Türkçe yaz.

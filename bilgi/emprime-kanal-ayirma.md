@@ -12,14 +12,14 @@
 | [E. Doğrulanmayanlar ve Sınırlar](#e-doğrulanmayanlar-ve-sınırlar) | L70-L78 | Fiziksel film, elek tutma, gerçek moiré ve ölçüm sınırları |
 | [F. Film Çıktısı Standartları](#f-film-çıktısı-standartları) | L82-L88 | 1-bit bitmap, pHYs etiketi ve dosya adlandırma |
 | [G. İş Akışı: Tek Aşamalı vs İki Aşamalı Yöntem](#g-iş-akışı-tek-aşamalı-vs-iki-aşamalı-yöntem) | L92-L106 | bolge_am.py vs hibrit2.py adım adım yürütme |
-| [H. Kalite Kontrol ve Hata Ölçümü](#h-kalite-kontrol-ve-hata-ölçümü) | L110-L119 | ΔE ≤ 12, kenar pürüzlülüğü ≤ 0.03 ve kalite_kontrol.py |
-| [I. Kaynaklar ve Literatür](#i-kaynaklar-ve-literatür) | L123-L135 | MYK, Ryonet, Fresener, Anatol ve ISO-13660 standartları |
-| [J. Tonlu Nesne ve Alt Taban Çalışma Stili](#j-tonlu-nesne-ve-alt-taban-çalışma-stili) | L139-L143 | Ton dilimli spot kanallar, sert alt taban ve şablon mantığı |
-| [K. Önerilen Boru Hattı ve Ön Analiz Karar Eşikleri](#k-önerilen-boru-hattı-ve-ön-analiz-karar-eşikleri) | L147-L199 | 5 adımlı Python pipeline kodu ve analiz.py karar eşikleri |
-| [L. Photoshop JSX Otomasyon Araçları](#l-photoshop-jsx-otomasyon-araçları) | L203-L210 | psd_olustur_tek_adim.jsx ile tek tıkla Multichannel PSD |
-| [M. Sınama Sonuçları (Sentetik 2000×2000 px, 508 PPI)](#m-sınama-sonuçları-sentetik-20002000-px-508-ppi) | L214-L229 | Raggedness, sahte saçak, choke ve dither sentetik test tablosu |
-| [N. Terimler Sözlüğü](#n-terimler-sözlüğü) | L233-L250 | MYK tanımları, mesh, tram, LPI, spot, choke/spread ve flash cure |
-| [O. Tramsız Düz Renk Ayrımı](#o-tramsız-düz-renk-ayrımı) | L254-L262 | tramsiz.py ile vektörel grafik ayrımı ve trapping |
+| [H. Kalite Kontrol ve Hata Ölçümü](#h-kalite-kontrol-ve-hata-ölçümü) | L110-L121 | ΔE ≤ 12, kenar pürüzlülüğü ≤ 0.03 ve kalite_kontrol.py |
+| [I. Kaynaklar ve Literatür](#i-kaynaklar-ve-literatür) | L125-L137 | MYK, Ryonet, Fresener, Anatol ve ISO-13660 standartları |
+| [J. Tonlu Nesne ve Alt Taban Çalışma Stili](#j-tonlu-nesne-ve-alt-taban-çalışma-stili) | L141-L145 | Ton dilimli spot kanallar, sert alt taban ve şablon mantığı |
+| [K. Önerilen Boru Hattı ve Ön Analiz Karar Eşikleri](#k-önerilen-boru-hattı-ve-ön-analiz-karar-eşikleri) | L149-L201 | 5 adımlı Python pipeline kodu ve analiz.py karar eşikleri |
+| [L. Photoshop JSX Otomasyon Araçları](#l-photoshop-jsx-otomasyon-araçları) | L205-L212 | psd_olustur_tek_adim.jsx ile tek tıkla Multichannel PSD |
+| [M. Sınama Sonuçları (Sentetik 2000×2000 px, 508 PPI)](#m-sınama-sonuçları-sentetik-20002000-px-508-ppi) | L216-L231 | Raggedness, sahte saçak, choke ve dither sentetik test tablosu |
+| [N. Terimler Sözlüğü](#n-terimler-sözlüğü) | L235-L252 | MYK tanımları, mesh, tram, LPI, spot, choke/spread ve flash cure |
+| [O. Tramsız Düz Renk Ayrımı](#o-tramsız-düz-renk-ayrımı) | L256-L265 | tramsiz.py ile vektörel grafik ayrımı ve trapping |
 
 ---
 
@@ -117,6 +117,8 @@ Her işin başında kullanıcıya hangi yöntemin uygulanacağı sorulur:
    - **Renk Sapması:** Düz bölgelerde film rengi kaynaktan **ΔE ≤ 12**.
    - **Kenar Pürüzlülüğü (Raggedness):** 20° test kenarında standart sapma **≤ 0.03 mm**.
    - **Kayıp Detay:** 1 pt altındaki çizgilerde kopukluk bulunmamalıdır.
+3. **Tramsız ayrımda ölçüm kapsamı:** Kanallar json'unda `duz_bolgeler` yoksa `kalite_kontrol.py` ΔE ve kenar pürüzlülüğünü ölçmez. "Tek uyarı" çıktısı eşiklerin geçtiği anlamına gelmez; bu ölçümler ayrıca yapılır.
+4. **Trap örtüşmesi:** Bilinçli trap örtüşmesi `kalite_kontrol.py`'de "çakışma" uyarısı olarak raporlanır; tramsız çıktıda uyarı trap genişliğiyle karşılaştırılarak yorumlanır.
 
 ---
 
@@ -259,4 +261,5 @@ def save_1bit(ink, path, ppi=508):           # film mantigi: basilacak yer SIYAH
    ```
 2. **Özellikler:**
    - Tram içermeyen katı spot renkler.
-   - `TRAP_PX = 4` (~0.17 mm): Açık renklerin koyu rengin altına taşması sağlanarak baskıdaki kayıt kaçıklıkları önlenir.
+   - `TRAP_PX = 4` (~0.17 mm, `tramsiz.py`'nin 600 PPI sabitine göre; 508 PPI'da 0,20 mm = 4 / 508 × 25,4): Açık renklerin koyu rengin altına taşması sağlanarak baskıdaki kayıt kaçıklıkları önlenir.
+3. **Sabit değerler:** `tramsiz.py` genel bir araç değil: mürekkep paleti, PPI (600), genişlik ve önizleme kesit koordinatları başka bir işe sabitlenmiş; 508 PPI film standardıyla çelişiyor. Bunlar argüman olmalı.

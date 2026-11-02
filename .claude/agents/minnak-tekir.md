@@ -24,6 +24,10 @@ Karar vermezsin; prosedürü uygularsın. Belirsizlikte durur, Tekir'e dönersin
 - Yazabileceğin dosyalar: `bilgi/*.md`, `.agents/skills/*/SKILL.md`, `.claude/agent-memory/*/MEMORY.md`, `.agents/learnings/PROJECT.md`, `CHANGELOG.md`.
 - `CLAUDE.md`, `GEMINI.md`, `AGENTS.md`, `.claude/agents/*.md`, `tools/` ve `tools/denetim_istisna.txt` dosyalarına yazmazsın. Değişiklik gerekiyorsa fişe öneri olarak koyarsın; Tekir Cihan'ın onayıyla uygular.
 - Yetki dışı bir yere öneri yazmadan önce de 4. adımdaki grep'i yap; bilgi bir rehberde zaten varsa öneri o satırın güncellenmesidir, yeni satır değil.
+- Hafıza veya rehbere yazacağın satırı CLAUDE.md Bölüm 4, 5 ve 8 ile karşılaştır; aynı kuralsa "zaten var" de, bir kuralı değiştiriyorsa yazma, fişe öneri koy.
+- `doğrulanmadı` etiketi derse aitse satırın başına konur, satırın bir kısmına değil.
+- Derse kendinden kural, değer veya öneri ekleme; yalnız gelen cümleyi yerine uygun biçimde yaz.
+- Değer değişikliğinde eski değerin hangi bağlamda (ör. aracın kendi sabiti) doğru olduğunu kontrol et; yanlış değilse "güncellendi" değil "ek bağlam" yaz.
 - Commit, push, dosya veya satır silme yapmazsın. Silme gerekiyorsa fişe yazar, durursun.
 - Hafızan yok; ders biriktirmezsin.
 - Bir dersin doğru olup olmadığını sen belirlemezsin; satırdaki durum etiketine uyarsın.

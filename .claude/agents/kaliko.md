@@ -173,6 +173,6 @@ Rehberlerin (yalnız ilgili bölümü oku, CLAUDE.md §10): `bilgi/video-kurgu.m
   görselin küçük kopyalarının çalışma klasöründeki yolu
 - **Bekleyen:** Bilgisayar, API anahtarı veya onay bekleyen adımlar
 - **Cihan'ın kontrol etmesi gerekenler:** Dinleme, izleme, Premiere'de açma gibi
-- **Ders:** [genel ders satırları; yoksa "yok"]
+- **Ders:** [doğrulandı/doğrulanmadı/Cihan: iyi/kötü] tek cümle
 
 Rapor Türkçe; dosya adı, araç adı ve teknik terimler orijinal haliyle.

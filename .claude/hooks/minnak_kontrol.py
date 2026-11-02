@@ -10,7 +10,7 @@ import re
 import sys
 
 DERS = re.compile(r"^\s*(?:[-*]\s*)?(?:\*\*)?Ders:(?:\*\*)?[ \t]*(\S.*)$", re.M)
-BOS = re.compile(r"^(?:yok|\[|`?\"?yok)", re.I)
+BOS = re.compile(r"^(?:`?\"?yok\b|\[doğrulandı/doğrulanmadı[^\]]*\]\s*tek cümle\s*$|\[genel ders satırları)", re.I)
 
 
 def metinler(icerik):

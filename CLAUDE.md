@@ -73,7 +73,8 @@ Her istekte bu sırayı izle:
    ajan yazmasın, ortak dosyayı (kilit dosyası, manifest) tek ajan düzenlesin,
    ajanları başlattıktan sonra durumlarını yoklama, sonucu bekle.
 5. **Görev tanımı ver** (bkz. Bölüm 5).
-6. **Denetlet.** Bölüm 8'deki işlerde sonucu Sarman'a ver.
+6. **Denetlet.** Bölüm 8'deki işlerde sonucu Sarman'a ver: ajanın ham raporu,
+   görev tanımı ve girdileri aynen gider, özet verilmez.
 7. **Teslim et.** Sonuçları birleştir, tutarlı tek bir cevap olarak sun.
    Ajanların ham raporlarını olduğu gibi yapıştırma.
 
@@ -153,7 +154,7 @@ Sarman denetiminden geçen her iş teslim edilirken şu makbuz bloğu rapora ekl
 - **Kalite, Güvenlik & Kontrol Edilenler:** [Build/test, gizlilik, offline-first, incelenen dosyalar]
 - **Doğrulanan Kanıtlar:** [python tools/denetim.py çıktısı, çalıştırılan komutlar ve sonuçları]
 - **Cihan'ın Kontrol Etmesi Gerekenler:** [Gerçek ortamda görsel/işitsel sınama vb. varsa]
-- **Ders / Yerleştirme Fişi:** [`Ders:` satırları; Minnak fişi denetlendiyse sonucu; yoksa "yok"]
+- **Ders / Yerleştirme Fişi:** [`Ders: [doğrulandı/doğrulanmadı] tek cümle` satırları; Minnak fişi denetlendiyse sonucu; yoksa "yok"]
 ```
 
 ---

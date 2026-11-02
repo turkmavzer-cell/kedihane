@@ -14,10 +14,10 @@ description: Ankara ve Van için dönüşüm oranı optimizasyonu (cro), metin y
 | [D. Dönüşüm Oranı Optimizasyonu (Page CRO & Funnel Audit)](#d-dönüşüm-oranı-optimizasyonu-page-cro--funnel-audit) | 7 boyutlu analiz çerçevesi, değer önerisi netliği, güven sinyalleri, sürtünme azaltma ve test matrisi | L24-L72 |
 | [E. E-Posta Dizileri ve Soğuk Erişim (Email Sequences & Outreach)](#e-e-posta-dizileri-ve-soğuk-erişim-email-sequences--outreach) | Onboarding, yaşam döngüsü, soğuk erişim şablonu, SPAM uyumu ve konu satırı stratejisi | L76-L119 |
 | [M. Metin Yazarlığı ve Dönüşüm (Copywriting & Conversion)](#m-metin-yazarlığı-ve-dönüşüm-copywriting--conversion) | A/B/C durum teşhisi, 3 Soru Kapısı, Decompose & Lock, yasaklı AI klişeleri ve iddia kanıtı | L123-L154 |
-| [P. Pazarlama ve Büyüme Fikirleri (Marketing Ideas & Frameworks)](#p-pazarlama-ve-büyüme-fikirleri-marketing-ideas--frameworks) | 139 SaaS fikri, PMF testi, Bullseye kanalları, aşama/bütçe matrisi ve fikir öneri standardı | L158-L194 |
-| [R. Referans ve Viral Büyüme Programı (Referral & Viral Programs)](#r-referans-ve-viral-büyüme-programı-referral--viral-programs) | Virallik spektrumu (doğal vs sınırlı), referral vs affiliate, tetikleyiciler ve büyük rakam kuralı | L198-L221 |
-| [S. SEO ve Yapay Zekâ Arama Optimizasyonu (OpenSEO & GEO)](#s-seo-ve-yapay-zekâ-arama-optimizasyonu-openseo--geo) | OpenSEO (every-app/open-seo) araç takımı, DataForSEO MCP, klasik SEO vs GEO, llms.txt ve alıntılanabilir answer blocks | L225-L266 |
-| [T. Topluluk ve Sosyal Medya İçeriği (Social Content & Community)](#t-topluluk-ve-sosyal-medya-içeriği-social-content--community) | 5 içerik sütunu, kanca formülleri (merak/hikâye/karşıt), platform matrisi ve broetry/tell yasakları | L270-L310 |
+| [P. Pazarlama ve Büyüme Fikirleri (Marketing Ideas & Frameworks)](#p-pazarlama-ve-büyüme-fikirleri-marketing-ideas--frameworks) | 139 SaaS fikri, PMF testi, Bullseye kanalları, aşama/bütçe matrisi ve fikir öneri standardı | L158-L196 |
+| [R. Referans ve Viral Büyüme Programı (Referral & Viral Programs)](#r-referans-ve-viral-büyüme-programı-referral--viral-programs) | Virallik spektrumu (doğal vs sınırlı), referral vs affiliate, tetikleyiciler ve büyük rakam kuralı | L200-L223 |
+| [S. SEO ve Yapay Zekâ Arama Optimizasyonu (OpenSEO & GEO)](#s-seo-ve-yapay-zekâ-arama-optimizasyonu-openseo--geo) | OpenSEO (every-app/open-seo) araç takımı, DataForSEO MCP, klasik SEO vs GEO, llms.txt ve alıntılanabilir answer blocks | L227-L268 |
+| [T. Topluluk ve Sosyal Medya İçeriği (Social Content & Community)](#t-topluluk-ve-sosyal-medya-içeriği-social-content--community) | 5 içerik sütunu, kanca formülleri (merak/hikâye/karşıt), platform matrisi ve broetry/tell yasakları | L272-L312 |
 
 ---
 
@@ -182,6 +182,8 @@ Erken aşama ürünlerde pazarlama taktikleri rastgele denenmez; `coreyhaines31/
   1. *Dış Halka (Olasılıklar):* 19 büyüme kanalının her biri için en az bir fikir üretin.
   2. *Orta Halka (Test):* En umut verici 3 kanalı seçip 2 haftalık mikro bütçeli testler koşturun (CAC ve dönüşüm ölçümü).
   3. *İç Boğa Gözü (Ölçekleme):* Çalıştığı kanıtlanan tek kanala odaklanıp doyum noktasına kadar ölçekleyin.
+- Reklam başabaş hesabında kampanyanın kendi ikram veya indirim maliyeti ziyaret başı katkıdan düşülür.
+- [doğrulanmadı] Mahalle işletmesinin Meta reklamında başarı kasada kullanılan kupon koduyla ölçülür; tıklama tek başına yeterli değil.
 
 ### 4. Fikir Çıktı Standardı
 Kedihane ekibinde bir pazarlama fikri önerilirken şu 4 alan eksiksiz sunulur:

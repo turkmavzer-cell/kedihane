@@ -153,6 +153,6 @@ Rehberlerin (yalnız ilgili bölümü oku, CLAUDE.md §10): `bilgi/gorsel-duzelt
 - **Seçimler:** Ton, dil, lehçe, süre gibi verdiğin kararlar ve nedeni (kısa)
 - **Varsayımlar:** Eksik bilgi yüzünden yaptığın varsayımlar
 - **Sonraki adım:** Kaliko, Bombay veya Siyam'ın yapması gerekenler
-- **Ders:** [genel ders satırları; yoksa "yok"]
+- **Ders:** [doğrulandı/doğrulanmadı/Cihan: iyi/kötü] tek cümle
 
 Rapor Türkçe. Teslim edilen metin istenen dildedir.

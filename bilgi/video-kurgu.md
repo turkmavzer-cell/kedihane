@@ -5,11 +5,11 @@
 ## Bölüm Fihristi
 | Başlık | Satır Aralığı | İçerik Özeti |
 | :--- | :--- | :--- |
-| [A. İş Bölümü: Planı Güçlü Model, Uygulamayı Hafif Model Yapar](#a-iş-bölümü-planı-güçlü-model-uygulamayı-hafif-model-yapar) | L16-L34 | Hangi adım hangi modelde, eksik brief, Argon'a giden tek mesaj |
-| [B. Uzun İş Protokolü (Hafif Model)](#b-uzun-iş-protokolü-hafif-model) | L36-L43 | `_calisma/`, durum.md, adım kapısı, plan kilidi, durma koşulu |
-| [C. plan.json Şeması](#c-planjson-şeması) | L45-L74 | Video ve görsel planlar, tempo, kadraj, yazı ve yuva, ses, doğrulama |
-| [D. Kurgu Dili](#d-kurgu-dili) | L76-L96 | Hook, yapı, tempoya göre geçiş, kesim yeri, ince doku, yazı, ses |
-| [E. Kontrol, Kilit ve Denetim](#e-kontrol-kilit-ve-denetim) | L98-L110 | Kodlu kontrol sayfaları, master kilidi, 9 maddelik denetim, Premiere XML, makbuz |
+| [A. İş Bölümü: Planı Güçlü Model, Uygulamayı Hafif Model Yapar](#a-iş-bölümü-planı-güçlü-model-uygulamayı-hafif-model-yapar) | L16-L36 | Hangi adım hangi modelde, eksik brief, Argon'a giden tek mesaj |
+| [B. Uzun İş Protokolü (Hafif Model)](#b-uzun-iş-protokolü-hafif-model) | L38-L45 | `_calisma/`, durum.md, adım kapısı, plan kilidi, durma koşulu |
+| [C. plan.json Şeması](#c-planjson-şeması) | L47-L76 | Video ve görsel planlar, tempo, kadraj, yazı ve yuva, ses, doğrulama |
+| [D. Kurgu Dili](#d-kurgu-dili) | L78-L98 | Hook, yapı, tempoya göre geçiş, kesim yeri, ince doku, yazı, ses |
+| [E. Kontrol, Kilit ve Denetim](#e-kontrol-kilit-ve-denetim) | L100-L112 | Kodlu kontrol sayfaları, master kilidi, 9 maddelik denetim, Premiere XML, makbuz |
 
 ---
 
@@ -24,6 +24,8 @@ Kurgu kalitesini belirleyen karar (hangi plan, hangi sıra, hangi tempo) tek ad�
 | 3. Önizleme | `python tools/video/plan_render.py _calisma/plan.json --onizleme --analiz _calisma/analiz.json` | Flash | Kaliko (sonnet) |
 | 4. Kontrol | E bölümü; teknik düzeltme Flash, yaratıcı düzeltme Argon | Flash (+Argon) | Kaliko |
 | 5. Master | aynı komut `--master` ile → PASS → Sarman | Flash | Kaliko → Sarman |
+
+**Analiz çağrısı:** Müzik hem kaynak klasörde hem `--muzik` ile verilirse `analiz.py` müziği iki kez listeler; zararsızdır.
 
 **Eksik brief:** Kaynaklar, hedef süre, platform, müzik ve tempo (hareketli/yavaş) belli değilse Flash tahmin yürütmez, önce Cihan'a sorar.
 
@@ -66,7 +68,7 @@ Argon kotası bittiyse plan Opus veya Sonnet'e verilir. Hiçbiri yoksa Flash C v
 - **Görsel planı (jpg/png/webp):** `kaynak`, `sure` ve `neden` zorunlu. Görsel sündürülmez. `keskinlestir` hafif unsharp uygular.
 - **`kadraj`:** `orta`/`ust`/`alt` ya da 0–1 arası sayı (0 = üst, 1 = alt) 9:16'ya kırpar. `bulanik` kırpmadan sığdırır, boşluğu aynı görüntünün bulanık hali doldurur. `sigdir` siyah bantla sığdırır.
 - **`tempo`:** Üst düzeyde varsayılandır; plan düzeyinde o plana giriş için geçerlidir. Kurallar D bölümünde.
-- **`gecis`:** `kesme`, `fade` ya da `fadeblack`. Slide, wipe, circle, PiP, ızgara ve kaydırma (pan) araçta yoktur. `gecis_sure` yazılmazsa tempo varsayılanı kullanılır.
+- **`gecis`:** `kesme`, `fade` ya da `fadeblack`. Slide, wipe, circle, PiP, ızgara ve kaydırma (pan) araçta yoktur. `gecis_sure` yazılmazsa tempo varsayılanı kullanılır. Fade geçişinde `plan_render.py` kesimi fade'in ortası (başlangıç + süre/2) sayar; senaryo fade'in vuruşta bitmesini mi ortalanmasını mı istediğini yazmalı.
 - **Yazılar:** Tam kadraj şeffaf PNG, çıktı boyutuna ölçeklenir. Arapça/RTL yazı üretimi için `sosyal-medya-ve-video-operasyonu.md` A bölümüne bakılır. `yuva_kontrol` (PNG pikseli cinsinden `cx`, `cy`, `r`) bayrak ya da amblem yuvasının tamamen dolu olduğunu denetler; boşluk varsa hata verir. Boşluk boyanmaz; görsel büyütülür.
 - **Ses:** `orijinal_ses: true` ise klip sesi `orijinal_ses_db` (varsayılan -6) ile müziğe karışır. Sonda `loudnorm` uygulanır. Kısa videoda tek geçişli `loudnorm` hedefin 2–3 LU altında kalabilir.
 - **`--analiz` verilince:** ±0,15 sn içindeki her kesim, önceki planın sonu oynatılarak en yakın vuruşa hizalanır (`[HIZALA]` satırı basılır). Daha uzak kesimler uyarı verir. İki analiz biçimi de okunur (`muzikler[].vuruslar_sn` ve `muzik.vuruslar`).
@@ -104,7 +106,7 @@ Argon kotası bittiyse plan Opus veya Sonnet'e verilir. Hiçbiri yoksa Flash C v
    3. Yazılar okunuyor mu? Arapça harfler bitişik mi? Bayrak ve amblem yerinde mi?
    4. `[UYARI]` satırları: sıra, süre veya tempo sorunuysa → Argon.
 3. **Master kilidi:** Kodlar `onay_kareler` ve `onay_yazilar` alanlarına yazılır. `--master` şu durumlarda çalışmaz: kod yanlışsa, önizleme alınmadıysa ya da plan önizlemeden sonra değiştiyse. Kilit kopyayı pahalılaştırır ama imkânsız kılmaz; kontrol yine de gerçekten yapılmalıdır.
-4. **Denetim (otomatik, 9 madde):** çözünürlük, SAR 1:1, sabit fps, döndürme kalıntısı, motor imzası, `faststart`, sürenin planla eşitliği, ses ve görüntü süresinin eşitliği, istenmeyen siyah kare. Master'da **FAIL varsa teslim yasaktır**. Donuk görüntü (yalnız video planlarında) ve düşük netlik uyarı olarak basılır. Elle yazılmış betikle üretilen video imzasız olduğu için FAIL alır.
+4. **Denetim (otomatik, 9 madde):** çözünürlük, SAR 1:1, sabit fps, döndürme kalıntısı, motor imzası, `faststart`, sürenin planla eşitliği, ses ve görüntü süresinin eşitliği, istenmeyen siyah kare. Master'da **FAIL varsa teslim yasaktır**. Donuk görüntü (yalnız video planlarında) ve düşük netlik uyarı olarak basılır. Elle yazılmış betikle üretilen video imzasız olduğu için FAIL alır. Fade'li geçişte önceki planın tek başına görünen süresi plan süresi alt sınırına göre denetlenmez; elle kontrol edilir. Netlik uyarısı yazı bindirilmiş planlarda maskelenebilir; aynı kaynaktan gelen diğer planların netliğine `analiz.json`'dan bakılır.
 5. **Premiere XML:** `--master` ayrıca `_premiere.xml` üretir. Dosya kaynak dosyalara bağlı bir kesim listesidir; geçişler kesme olarak, hız 1x olarak gelir. İnce ayar Premiere'de yapılır.
 6. **Argon'a düzeltme mesajı:** `plan.json`, uyarılar ve `_kareler.jpg` gönderilir; talimat "yalnız sorunlu planları değiştir". En fazla 2 tur yapılır, sonra Cihan'a sorulur.
 7. **Sarman makbuzu:** "Doğrulanan Kanıtlar" alanına denetim satırı (`PASS 9/9`), "kontrol sayfaları görüldü: evet" ve `[HIZALA]`/`[UYARI]` satırları yazılır. "Cihan'ın Kontrol Etmesi Gerekenler" alanına müzik uyumu ve genel ritim yazılır; bunları araç ölçemez.
