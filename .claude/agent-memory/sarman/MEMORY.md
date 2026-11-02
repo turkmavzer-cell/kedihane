@@ -11,7 +11,3 @@ Yeni dersler doğrudan ilgili alt başlığın altına eklenir; alt başlık yok
 
 ### Git kancaları
 - 2026-11-02: Yeni hook dosyasının exec bit'ini kontrol et; 644 ise git kancayı uyarıyla atlar (Linux'ta sınandı). LF satır sonu için `.gitattributes` olup olmadığına bak.
-
-## Konu Dosyaları (İlgili satırlar indeks üzerinden okunmalıdır)
-
-- `bilgi/self-hosted-ve-mcp-servisler.md`: Self-hosted servisler ve MCP güvenlik denetim rehberi

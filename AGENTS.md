@@ -10,7 +10,7 @@
 
 ## 1. Proje Amacı ve Özeti
 - **Proje Adı:** kedihane
-- **Amaç:** Cihan'ın 7 ajanlı çoklu yapay zekâ uzmanlık ekosistemi (Tekir şefliğinde Bombay, Sarman, Siyam, Ankara, Kaliko, Van).
+- **Amaç:** Cihan'ın 8 ajanlı çoklu yapay zekâ uzmanlık ekosistemi (Tekir şefliğinde Bombay, Sarman, Siyam, Ankara, Kaliko, Van; bilgi yerleştirmede Minnak Tekir).
 - **Teknoloji Yığını:** Python (psd-tools, numpy, PIL), Shell/PowerShell, Markdown, Multi-Agent Mimarisi, Antigravity Customizations (Skills, Rules, MCP).
 
 ## 2. Geliştirme, Test ve Araç Komutları
@@ -35,5 +35,6 @@
 1. Görev başında `.agents/learnings/PROJECT.md` dosyasını kontrol et ve oradaki mimari kararlara/tuzaklara dikkat et.
 2. Bu projeye özgü yeni bir bilgi keşfettiğinde veya kullanıcı projeye özel bir düzeltme yaptığında:
    - Bunu core repoya değil, bu projedeki `.agents/learnings/PROJECT.md` tablosuna tarihli olarak ekle.
+   - Projeden bağımsız genel dersler `bilgi/HARITA.md` Ekleme Prosedürü'yle yerleştirilir (Minnak Tekir).
 3. **Commit Politikası (`sor`):**
    - `.agents/learnings/PROJECT.md` dosyasını güncelledikten sonra ayrı bir `docs(learnings): ...` commit'i hazırlamayı teklif et; **kullanıcı onaylamadan bu proje reposunda commit/push yapma**.

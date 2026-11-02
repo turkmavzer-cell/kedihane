@@ -13,7 +13,3 @@ Yeni dersler doğrudan ilgili alt başlığın altına eklenir; alt başlık yok
 
 ### Repo ve Sistem Entegrasyonu
 - 2026-10-19: Repo eklenip kayıt edildikten sonraki ilk turda `.claude/agents/` ajan türleri çağrılamayabilir; bir tur sonra görünür. O zamana kadar işi genel amaçlı ajana ajan dosyasını okutarak ver.
-
-## Konu Dosyaları
-
-(henüz yok)

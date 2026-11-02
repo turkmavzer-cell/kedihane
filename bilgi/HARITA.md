@@ -18,11 +18,31 @@ Yeni bilgi sırayla bu sorulardan geçer; ilk "evet" asıl yerdir.
 
 Yeni bir rehber veya konu eklenirse bu tabloya satır eklenir (Kontrol 8 haritada olmayan rehberi hata sayar).
 
+## Ekleme Prosedürü
+
+Uygulayan: Minnak Tekir (`.claude/agents/minnak-tekir.md`). Elle ekleme yapan herkes de aynı adımları izler. Fişi Sarman denetler, commit için Tekir Cihan'a sorar (CLAUDE.md Bölüm 14).
+
+**Ders satırı (ajan raporunun sonunda, ders yoksa `Ders: yok`):**
+`Ders: [doğrulandı | doğrulanmadı | Cihan: iyi | Cihan: kötü] <projeden bağımsız tek cümle> (iş türü: <ör. video kurgu>)`
+
+0. `git status --porcelain` boş değilse dur. `git config core.hooksPath` boşsa `git config core.hooksPath .githooks`. `python tools/denetim.py` çalıştır, mevcut HATA'ları "önceden var" diye not et.
+1. Girdiyi atomik birimlere böl: bir birim = tek kural, tek eşik ya da tek ders.
+2. Gizlilik (Bölüm 9, 14): müşteri, marka, hesap, telefon, adres, fiyat, proje adı, kişisel yol ve tek görsele özgü ölçü/koordinat/renk çıkarılır. Çıkarılamıyorsa birim yazılmaz.
+3. Yer: yukarıdaki karar ağacı, sonra Konu Haritası. Yöntem/standart rehbere gider; hafızaya yalnız `doğrulandı` ya da `Cihan: iyi` olan tek satırlık ders girer (yöntem rehberdeyse yalnız atıf). `doğrulanmadı` → rehbere "doğrulanmadı" notuyla. `Cihan: kötü` → rehberdeki hatalı adım düzeltilir. Yer belirsizse dur.
+4. Tekrar ve çelişki (zorunlu; denetim anlamca tekrarı yakalamaz): 2–4 ayırt edici terim seç (sayı+birim, araç, parametre; genel sözcük değil). `git grep -n -i -E "t1|t2|t3" -- '*.md' ':!CHANGELOG.md'` (40 satırı aşarsa daralt). Asıl yerde varsa ekleme yapma. Başka yerde varsa asıl yere taşı, eski yeri `> Bu konu: [dosya §X](yol)` atfına çevir. Farklı değer varsa dur.
+5. Yaz: rehberde hedef bölümün biçimiyle, konuya en yakın `###` altına. Hafızada `- YYYY-AA-GG: ders`, ilgili `###` altına (A–Z; yoksa sırasındaki yerde aç). Değer değişirse satırı yerinde güncelle, sonuna `(güncellendi YYYY-AA-GG; önceki: X)`. "doğrulanmadı" notu silinmez, metin özetlenip kısaltılmaz.
+6. Yeni konu/bölüm → Konu Haritası satırı. Denetimin bildiği birimde (çözünürlük, fps, mbps, lufs, lpi, ppi) sayısal standart → Sayısal Standartlar satırı.
+7. `python tools/denetim.py --fihrist-duzelt`, sonra `python tools/denetim.py`. Kendi hatanı 2 turda düzeltemezsen dur.
+
+**Okuma bütçesi:** bu dosya + hedef fihrist + hedef bölüm (`## X.` → sonraki `## `) + grep eşleşmelerinin ±3 satırı + hedef `MEMORY.md`. Tam okuma ve tam tarama yasak.
+**Dur ve sor:** kirli çalışma ağacı, yer belirsiz, çelişki, gizlilik, Bölüm 8/9/11 ya da onay kuralı, `MEMORY.md` 100 satır, silme, geçmeyen denetim.
+
 ## Konu Haritası
 
 | Konu | Anahtar sözcükler (başlık uyarısı) | Asıl dosya | Asıl başlık | Sahip |
 |---|---|---|---|---|
 | Ekip kuralları, güvenlik, hafıza | onay kuralı | `CLAUDE.md` | §9, §10, §14 | Tekir |
+| Bilgi yerleştirme prosedürü, ders satırı | ders satırı | `bilgi/HARITA.md` | Ekleme Prosedürü | Minnak Tekir |
 | Antigravity model ve kota | kota geçiş | `GEMINI.md` | §2 | Tekir |
 | Kedihane mimari kararları | proje kararları | `.agents/learnings/PROJECT.md` | tümü | Tekir |
 | Teslimat ve kodlama ilkeleri | no-ai-slop, karpathy | `bilgi/teslimat-ve-kodlama-ilkeleri.md` | tümü | herkes |

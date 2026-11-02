@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Kedihane Repo Denetim Aracı (Sarman Otomatik Kalite Kapısı)
 
-Bu betik git reposundaki izlenen dosyaları 8 kontrolden geçirir:
+Bu betik git reposundaki izlenen dosyaları 10 kontrolden geçirir:
 1. Gizlilik, Marka, Sosyal Hesap ve Sabit Yol Kontrolü
 2. Kırık Referans Kontrolü
 3. UTF-8 BOM ve İkili (.so/.dll) Kontrolü
@@ -10,6 +10,8 @@ Bu betik git reposundaki izlenen dosyaları 8 kontrolden geçirir:
 6. Sözdizimi Derleme Kontrolü (py_compile & node --check)
 7. Tekrar ve Sayısal Standart Kontrolü (bilgi/HARITA.md "Sayısal Standartlar")
 8. Bilgi Haritası Kontrolü (bilgi/HARITA.md "Konu Haritası")
+9. Ekip Tutarlılığı (CLAUDE.md §2 ↔ .claude/agents ↔ GEMINI.md §3; Minnak Tekir hafızasız)
+10. Yetki Sınırı Uyarısı (commit'e giren CLAUDE.md, GEMINI.md, AGENTS.md, ajan dosyası; engellemez)
 
 Kullanım:
     python tools/denetim.py                  # tüm kontroller
@@ -318,7 +320,17 @@ def kontrol_5_ajan_hafiza():
         if len(lines) > 100:
             hatalar.append(f"{norm_path}: Satır sayısı 100 sınırını aşıyor ({len(lines)} satır)!")
 
-        # 2. ### başlıkları alfabetik sıra kontrolü
+        # 2. ### altındaki her ders tarihli tek satır olmalı: "- YYYY-AA-GG: ders"
+        alt = False
+        for i, l in enumerate(lines, 1):
+            if l.startswith("### "):
+                alt = True
+            elif l.startswith("## ") or l.startswith("# "):
+                alt = False
+            elif alt and l.startswith("- ") and not re.match(r"- \d{4}-\d{2}-\d{2}: \S", l):
+                hatalar.append(f"{norm_path}:{i}: Ders satırı '- YYYY-AA-GG: ders' biçiminde değil")
+
+        # 3. ### başlıkları alfabetik sıra kontrolü
         h3_list = [l[4:].strip() for l in lines if l.startswith("### ")]
         sorted_h3 = sorted(h3_list, key=tr_sort_key)
         if h3_list != sorted_h3:
@@ -507,6 +519,8 @@ def kontrol_7_tekrar_ve_standart():
         "lufs": (r"([−-]?\d+(?:[.,]\d+)?)\s*LUFS", lambda m: m.group(1).replace("−", "-").replace(",", ".")),
         "lpi": (r"(\d+(?:[.,]\d+)?)\s*LPI", lambda m: m.group(1).replace(",", ".")),
         "ppi": (r"(\d+(?:[.,]\d+)?)\s*PPI", lambda m: m.group(1).replace(",", ".")),
+        "fps": (r"(\d+(?:[.,]\d+)?)\s*fps\b", lambda m: m.group(1).replace(",", ".")),
+        "mbps": (r"(\d+(?:[.,]\d+)?)\s*Mbps\b", lambda m: m.group(1).replace(",", ".")),
     }
     for satir in standartlar or []:
         if len(satir) < 5:
@@ -592,6 +606,77 @@ def kontrol_8_harita():
     return True
 
 
+def _ilk_sutun(lines, baslik_deseni):
+    """`## ` başlığı desene uyan bölümdeki ilk tablonun ilk sütunu (küçük harf, işaretsiz)."""
+    sonuc, icinde = [], False
+    for l in lines:
+        if l.startswith("## "):
+            icinde = bool(re.search(baslik_deseni, l))
+            continue
+        if icinde and l.strip().startswith("|"):
+            h = re.sub(r"[*`]", "", l.strip().strip("|").split("|")[0]).strip().lower()
+            if h and not re.fullmatch(r":?-{3,}:?", h) and h not in ("kod adı",):
+                sonuc.append(h)
+    return sonuc
+
+
+def kontrol_9_ekip_tutarliligi():
+    """CLAUDE.md §2, .claude/agents/*.md ve GEMINI.md §3 aynı ekibi gösteriyor mu; Minnak Tekir hafızasız mı;
+    HARITA "Sahip" sütunundaki ajanın dosyası asıl rehberi anıyor mu (uyarı)."""
+    hatalar, uyarilar = [], []
+    dosyalar = {os.path.basename(f)[:-3] for f in glob.glob(".claude/agents/*.md")}
+    claude = set(_ilk_sutun(_oku("CLAUDE.md"), r"^## 2\. ")) if os.path.isfile("CLAUDE.md") else set()
+    gemini = set(_ilk_sutun(_oku("GEMINI.md"), r"^## 3\. ")) if os.path.isfile("GEMINI.md") else set()
+    for ad in sorted(dosyalar - claude):
+        hatalar.append(f".claude/agents/{ad}.md CLAUDE.md §2 tablosunda yok")
+    for ad in sorted(claude - dosyalar):
+        hatalar.append(f"CLAUDE.md §2'deki '{ad}' için .claude/agents/{ad}.md yok")
+    for ad in sorted(dosyalar - gemini):
+        hatalar.append(f".claude/agents/{ad}.md GEMINI.md §3 tablosunda yok")
+    minnak = ".claude/agents/minnak-tekir.md"
+    if os.path.isfile(minnak):
+        on = "\n".join(_oku(minnak)[:8])
+        if re.search(r"^memory:", on, re.M):
+            hatalar.append(f"{minnak}: Minnak Tekir hafızasızdır; 'memory:' satırı olmamalı")
+    if os.path.isdir(".claude/agent-memory/minnak-tekir"):
+        hatalar.append(".claude/agent-memory/minnak-tekir/ olmamalı (Minnak Tekir hafızasız)")
+
+    konular, _ = _harita()
+    for satir in konular or []:
+        if len(satir) < 5:
+            continue
+        asil = satir[2].strip("` ")
+        if not (asil.startswith("bilgi/") or asil.startswith(".agents/skills/")) or asil == HARITA:
+            continue
+        anilan = asil if asil.startswith("bilgi/") else os.path.dirname(asil)
+        for sahip in [x.strip().lower() for x in satir[4].split(",")]:
+            yol = f".claude/agents/{sahip}.md"
+            if os.path.isfile(yol) and anilan not in "\n".join(_oku(yol)):
+                uyarilar.append(f"{yol} HARITA'da sahibi olduğu '{anilan}' dosyasını anmıyor")
+    for u in sorted(set(uyarilar))[:15]:
+        print(f"  [UYARI] {u}")
+    if hatalar:
+        print(f"[HATA] Kontrol 9: Ekip Tutarlılığı ({len(hatalar)} hata)")
+        for h in hatalar:
+            print(f"  - {h}")
+        return False
+    print(f"[GEÇTİ] Kontrol 9: Ekip Tutarlılığı ({len(dosyalar)} ajan, {len(set(uyarilar))} uyarı)")
+    return True
+
+
+def kontrol_10_yetki_uyarisi():
+    """Commit'e giren kural/ajan dosyaları için uyarı (engellemez): bunları Minnak Tekir değil Tekir, Cihan onayıyla değiştirir."""
+    try:
+        cikti = subprocess.run(["git", "diff", "--cached", "--name-only"], capture_output=True, text=True).stdout
+    except Exception:
+        cikti = ""
+    kural = [f for f in cikti.split() if f in ("CLAUDE.md", "GEMINI.md", "AGENTS.md") or f.startswith(".claude/agents/")]
+    for f in kural:
+        print(f"  [UYARI] Kontrol 10: {f} commit'e giriyor; Cihan onayı ve Sarman denetimi gerekir (Minnak yazamaz).")
+    print(f"[GEÇTİ] Kontrol 10: Yetki Sınırı Uyarısı ({len(kural)} uyarı)")
+    return True
+
+
 def main():
     print("=" * 60)
     print(" Kedihane Otomatik Repo Denetimi (Sarman Kalite Kapısı)")
@@ -614,6 +699,8 @@ def main():
         kontrol_6_sozdizimi_derleme(),
         kontrol_7_tekrar_ve_standart(),
         kontrol_8_harita(),
+        kontrol_9_ekip_tutarliligi(),
+        kontrol_10_yetki_uyarisi(),
     ]
 
     print("=" * 60)

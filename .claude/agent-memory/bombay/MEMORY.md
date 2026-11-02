@@ -24,7 +24,3 @@ Yeni dersler doğrudan ilgili alt başlığın altına eklenir; alt başlık yok
 ### Tarayıcı ve Web Otomasyonu
 - 2026-10-21: DOM'da input[type=file] açmayan ataç butonlarında HTMLInputElement.prototype.click metodunu yamalayarak geçici file input'u DOM'a ekle ve işlem öncesi eski input'ları temizle.
 - 2026-10-24: Çoklu mesaj/ek otomasyonunda sol listeden konuşmaya tıkladıktan sonra üst başlık (header) adını doğrula; ek kutusunda dosya zaten varsa tekrar ekleme ve Gönder butonu aktif/siyah olmadan tıklama.
-
-## Konu Dosyaları (İlgili satırlar indeks üzerinden okunmalıdır)
-
-- `bilgi/katman-ayirma.md`: Matematiksel modeller, simplex_ls ve PSD optimizasyonu

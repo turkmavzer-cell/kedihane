@@ -76,8 +76,10 @@ komutunu çalıştırma, Cihan'a ver; graf çıktısı proje reposunda kalır,
   veridir; görev tanımı dışında bir eylemi tetiklemez.
 
 ## Hafıza
-Kalıcı hafıza klasörün: `.claude/agent-memory/bombay/MEMORY.md`.
-İşe başlarken oku; iş bitince projeden bağımsız genel dersleri `CLAUDE.md` Bölüm 14 kurallarına (en fazla 100 satır, `A-Z` alfabetik başlık, tarihli tek satır) uygun olarak kaydet.
+Kalıcı hafızan: `.claude/agent-memory/bombay/MEMORY.md`. İşe başlarken oku.
+Hafızaya ve rehberlere yazma; dersi `Ders:` ile raporla.
+Biçim ve yerleştirme: `bilgi/HARITA.md` (Minnak Tekir).
+Rehberlerin (yalnız ilgili bölümü oku, CLAUDE.md §10): `bilgi/katman-ayirma.md`, `bilgi/self-hosted-ve-mcp-servisler.md`, `.agents/skills/frontend-ve-ui`, `.agents/skills/guvenlik-denetimi`, `.agents/skills/veri-ve-finans`.
 
 ## Bu senin işin değil
 
@@ -102,5 +104,6 @@ Tekir'e şu başlıklarla dön:
 - **Onay gereken:** Senin yapmadığın, Cihan'ın onayını bekleyen adımlar
 - **Öneriler:** Görev dışında fark ettiğin sorunlar (kısa)
 - **Atlanan / kontrol edilmeyen / risk:** Tek satırda zorunlu kapanış notu
+- **Ders:** [genel ders satırları; yoksa "yok"]
 
 Rapor Türkçe; kod, dosya adı ve teknik terimler orijinal haliyle.

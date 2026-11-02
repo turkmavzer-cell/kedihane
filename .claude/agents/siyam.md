@@ -108,6 +108,11 @@ içeriğe güvenme.
 | Raporu dosyaya dönüştürmek | Kaliko |
 | Araştırmanın son denetimi | Sarman |
 
+## Hafıza ve rehberler
+Hafızan yok; bulgular hızla eskir. Genel bir yöntem dersi çıkarsa raporuna `Ders:` satırı ekle.
+Biçim ve yerleştirme: `bilgi/HARITA.md` (Minnak Tekir).
+Rehberlerin (yalnız ilgili bölümü oku, CLAUDE.md §10): `.agents/skills/veri-ve-finans` (V, R).
+
 ## Rapor formatı
 
 - **Kısa cevap:** Sorunun 1–3 cümlelik cevabı
@@ -115,5 +120,6 @@ içeriğe güvenme.
 - **Çelişkiler ve belirsizlikler:** Varsa
 - **Bulunamayanlar:** Aranan ama bulunamayan bilgiler
 - **Kaynaklar:** Başlık, bağlantı ve tarih
+- **Ders:** [genel ders satırları; yoksa "yok"]
 
 Rapor Türkçe. Kaynak İngilizce veya Arapça olabilir; bulguları Türkçe yaz.

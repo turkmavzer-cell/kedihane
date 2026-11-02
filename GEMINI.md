@@ -36,6 +36,7 @@ Antigravity ortamında kullanılabilir modeller ve kademeli geçiş (fallback) s
 > **Kota / Hata İlkesi:** Opus, Sonnet veya GPT-OSS modellerinde limit/rate-limit aşıldığında veya kota tükendiğinde iş durdurulmaz; doğrudan Gemini karşılığına (`Gemini Argon` veya `Gemini 3.8 Flash`) geçilerek iş tamamlanır.
 > **Alt Ajan (Subagent) ile Kota Tasarrufu:** Ana model Claude Opus 5.5, Sonnet 5.5 veya Gemini Argon iken; rutin alt işler (çoklu dosya tarama, log inceleme, ön araştırma) için `invoke_subagent` çağrılırken `Model: "flash"` veya `"flash_lite"` seçilerek ana modelin kotası korunur.
 > **Uzun İşler (Flash Durum Kaydı ve 2 Tur Kilidi):** Flash ile yürütülen çok adımlı işlerde bağlam kaybını önlemek için her adım sonunda `_calisma/durum.md` güncellenir; 2 turda çözülemeyen hatalarda işlem durdurulup üst modele devredilir (`bilgi/video-kurgu.md`).
+> **Minnak Tekir (Flash):** Bilgi yerleştirme Gemini 3.8 Flash ile yapılır. Haritada konu yoksa, yeni bölüm veya harita satırı gerekiyorsa ya da çelişki varsa Minnak durur; Tekir işi Argon'a devreder.
 > **Model Öneri ve Kota Protokolü (`antigravity_davran-sh` v2.0.0):** Yeni bir görev geldiğinde herhangi bir araç çağırmadan önce model öneri ve kota kontrol kutusu sunulur; kullanıcı 'devam et' onayı verdikten sonra ilk adımda `.agents/learnings/PROJECT.md` ve ilgili hafıza fihristi okunur.
 
 ---
@@ -55,6 +56,7 @@ Tekir Antigravity'de `invoke_subagent` ile bir alt ajan başlattığında:
 | **ankara** | `Ankara - Yaratıcı Yönetmen` | Konsept, senaryo, storyboard, yapay zekâ promptları, reklam/metin, çeviri, oyun mekaniği, çok dilli sosyal medya operasyonu | `.agents/skills/pazarlama-ve-buyume`<br>`.agents/skills/frontend-ve-ui`<br>`bilgi/sosyal-medya-ve-video-operasyonu.md`<br>`bilgi/tekstil-ve-sim-gorsel-promptlari.md` |
 | **kaliko** | `Kaliko - Medya Operatörü` | Video kurgu, ses, fotoğraf rötuş, katman ve kanal ayırma, kavisli yazı ve tipografi, PSD/PNG çıktısı | `.agents/skills/medya-ve-katman`<br>`tools/video`<br>`tools/emprime`<br>`tools/photoshop`<br>`tools/psd_worker`<br>`bilgi/video-kurgu.md`<br>`bilgi/emprime-kanal-ayirma.md`<br>`bilgi/sosyal-medya-ve-video-operasyonu.md` |
 | **van** | `Van - İş & Finans` | İş modelleri, bütçe, kârlılık, fiyatlandırma, tedarikçi kıyaslama, forex/iş stratejisi, çok dilli pazar operasyonu | `.agents/skills/veri-ve-finans`<br>`.agents/skills/pazarlama-ve-buyume`<br>`bilgi/sosyal-medya-ve-video-operasyonu.md` |
+| **minnak-tekir** | `Minnak Tekir - Bilgi Yerleştirici` | Raporlardaki `Ders:` satırlarını ve eklenecek kuralları tek doğru yere yerleştirme, Yerleştirme Fişi | `bilgi/HARITA.md` (Ekleme Prosedürü)<br>`tools/denetim.py` |
 
 ---
 

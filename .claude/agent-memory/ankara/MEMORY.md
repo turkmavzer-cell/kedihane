@@ -11,9 +11,3 @@ Yeni dersler doğrudan ilgili alt başlığın altına eklenir; alt başlık yok
 
 ### Prompt Mühendisliği ve Görsel Konsept
 - 2026-10-24: Sim ve taş serpme dağılımında öbekleşmeyi önlemek için: rastgele tekil parçacıklar, aralarında boş kumaş, öbek yasağı, 1-2 mm ölçek, yan/arka ışık formülü uygulanır.
-
-## Konu Dosyaları (İlgili satırlar indeks üzerinden okunmalıdır)
-
-- `bilgi/gorsel-duzeltme.md`: Görsel analiz ve prompt şablonu
-- `bilgi/sosyal-medya-ve-video-operasyonu.md`: Sosyal medya, kurgu ve müşteri iletişimi operasyonu
-- `bilgi/tekstil-ve-sim-gorsel-promptlari.md`: Tekstil, giydirme ve sim serpme prompt rehberi

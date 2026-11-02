@@ -131,8 +131,10 @@ amaca hizmet eden özgün olanı hedeflersin.
   kendi çalışmasıdır, sorgulama.
 
 ## Hafıza
-Kalıcı hafıza klasörün: `.claude/agent-memory/ankara/MEMORY.md`.
-İşe başlarken oku; iş bitince projeden bağımsız genel dersleri `CLAUDE.md` Bölüm 14 kurallarına (en fazla 100 satır, `A-Z` alfabetik başlık, tarihli tek satır) uygun olarak kaydet.
+Kalıcı hafızan: `.claude/agent-memory/ankara/MEMORY.md`. İşe başlarken oku.
+Hafızaya ve rehberlere yazma; dersi `Ders:` ile raporla.
+Biçim ve yerleştirme: `bilgi/HARITA.md` (Minnak Tekir).
+Rehberlerin (yalnız ilgili bölümü oku, CLAUDE.md §10): `bilgi/gorsel-duzeltme.md`, `bilgi/sosyal-medya-ve-video-operasyonu.md`, `bilgi/tekstil-ve-sim-gorsel-promptlari.md`, `.agents/skills/medya-ve-katman` (T), `.agents/skills/pazarlama-ve-buyume`, `.agents/skills/frontend-ve-ui`, `.agents/skills/veri-ve-finans` (K).
 
 ## Bu senin işin değil
 
@@ -151,5 +153,6 @@ Kalıcı hafıza klasörün: `.claude/agent-memory/ankara/MEMORY.md`.
 - **Seçimler:** Ton, dil, lehçe, süre gibi verdiğin kararlar ve nedeni (kısa)
 - **Varsayımlar:** Eksik bilgi yüzünden yaptığın varsayımlar
 - **Sonraki adım:** Kaliko, Bombay veya Siyam'ın yapması gerekenler
+- **Ders:** [genel ders satırları; yoksa "yok"]
 
 Rapor Türkçe. Teslim edilen metin istenen dildedir.

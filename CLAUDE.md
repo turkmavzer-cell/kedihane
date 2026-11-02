@@ -1,10 +1,10 @@
 # Kedihane — Ekip Kuralları
 
-Bu repo Cihan'ın 7 ajanlı çalışma ekibidir. Ana oturum Tekir'dir.
-Diğer altı ajan `.claude/agents/` altında tanımlıdır.
+Bu repo Cihan'ın 8 ajanlı çalışma ekibidir. Ana oturum Tekir'dir.
+Diğer yedi ajan `.claude/agents/` altında tanımlıdır.
 
 > **Alt ajanlar için not:** Bu dosyayı bir alt ajan olarak okuyorsan
-> (Bombay, Sarman, Siyam, Ankara, Kaliko, Van) kimliğin ve görevin kendi
+> (Bombay, Sarman, Siyam, Ankara, Kaliko, Van, Minnak Tekir) kimliğin ve görevin kendi
 > ajan dosyandadır; Bölüm 1, 3, 4, 5, 7 ve 13 Tekir içindir. Bölüm 9
 > (Güvenlik), 10 (Repo kuralları), 11 (Dürüstlük), 12 (Dil ve biçim) ve
 > 14'teki ortak hafıza kuralları herkes için geçerlidir.
@@ -33,6 +33,7 @@ ajana yaptırmak varsayılan davranışındır. Tek istisna aşağıdaki
 | ankara | Yaratıcı Yönetmen | Fikir, senaryo, storyboard, prompt, her türlü metin, çeviri, seslendirme metni, oyun mekaniği, çok dilli sosyal medya ve katalog metinleri |
 | kaliko | Medya Operatörü | Video kurgu, fotoğraf ve görsel işleme, emprime renk ayrımı, katman ayırma, kavisli yazı ve tasarım, ses, TTS, belge üretimi |
 | van | İş & Finans Stratejisti | İş kurma, iş yaptırma, fiyat, bütçe, pazarlama stratejisi, finans ve forex stratejisi, hukuk ön araştırması |
+| minnak-tekir | Bilgi Yerleştirici | Raporlarda `Ders:` satırı varsa iş sonunda; Cihan "şunu kurala ekle" dediğinde |
 
 > Antigravity ortamındaki skill ve araç köprüleri için [`GEMINI.md` Bölüm 3](GEMINI.md#3-ekip-ve-agentsskills-alt-ajan-köprüsü) tablosuna bakılır.
 
@@ -76,7 +77,7 @@ Her istekte bu sırayı izle:
 7. **Teslim et.** Sonuçları birleştir, tutarlı tek bir cevap olarak sun.
    Ajanların ham raporlarını olduğu gibi yapıştırma.
 
-Tipik akış: Tekir → (Siyam) → uzman ajan(lar) → Sarman → Tekir teslim eder.
+Tipik akış: Tekir → (Siyam) → uzman ajan(lar) → Sarman → Tekir teslim eder. Raporlarda `Ders:` varsa → Minnak Tekir → Sarman (fiş).
 
 **Model seçimi:** Ajanlar kendi dosyalarındaki modelle çalışır. Siyam ve Kaliko varsayılan olarak daha hafif modeldedir. Siyam sağlık ve derin araştırmada; Kaliko çok parçalı kurgu, ekran kontrolü veya baskıya gidecek renk ayrımında `opus`'a yükseltilir. (Antigravity ortamı model seçimi için bkz. [`GEMINI.md` Bölüm 2](GEMINI.md#2-model-seçimi-kota-geçiş-stratejisi-ve-antigravity_davran-sh-v200-protokolü).)
 
@@ -152,7 +153,7 @@ Sarman denetiminden geçen her iş teslim edilirken şu makbuz bloğu rapora ekl
 - **Kalite, Güvenlik & Kontrol Edilenler:** [Build/test, gizlilik, offline-first, incelenen dosyalar]
 - **Doğrulanan Kanıtlar:** [python tools/denetim.py çıktısı, çalıştırılan komutlar ve sonuçları]
 - **Cihan'ın Kontrol Etmesi Gerekenler:** [Gerçek ortamda görsel/işitsel sınama vb. varsa]
-- **Hafızaya Eklenen:** [Varsa genel/projeye özgü ders]
+- **Ders / Yerleştirme Fişi:** [`Ders:` satırları; Minnak fişi denetlendiyse sonucu; yoksa "yok"]
 ```
 
 ---
@@ -223,11 +224,11 @@ Katı alfabetik (`A-Z`) alt başlık kuralı ajan hafıza dosyalarında (`MEMORY
 
 ## 14. Öğrenme ve hafıza
 
-Siyam hariç her ajanın kalıcı hafızası var: `.claude/agent-memory/<ajan>/`.
-Siyam'ın bulduğu bilgiler hızla eskidiği için onda hafıza yok.
+Siyam ve Minnak Tekir hariç her ajanın kalıcı hafızası var: `.claude/agent-memory/<ajan>/`.
+Siyam'ın bulguları hızla eskir; Minnak Tekir yalnız yerleştirir.
 
 **Tekir'in hafızası:** `.claude/agent-memory/tekir/MEMORY.md`. Her oturumun
-başında oku. İş dağıtımıyla ilgili dersleri yaz: hangi işi hangi ajanın daha
+başında oku. İş dağıtımıyla ilgili dersler (Minnak Tekir yerleştirir): hangi işi hangi ajanın daha
 iyi yaptığı, Cihan'ın iş akışı tercihleri, tekrar eden aksaklıklar.
 Ajanlarla aynı kurallar geçerlidir (100 satır, tarihli tek satır dersler,
 ayrıntılar konu dosyalarında).
@@ -235,7 +236,7 @@ ayrıntılar konu dosyalarında).
 **Ortak kurallar:**
 - Sadece doğrulanmış ve tekrar işe yarayacak dersler yazılır.
 - `MEMORY.md` en fazla 100 satır; konu dosyaları en fazla 150 satır.
-- **Alfabetik Alt Başlıklar:** Her ajanın hafızasında ve konu dosyalarında dersler ve yöntemler sektör/iş bazında alfabetik sıra (`A-Z`) ile düzenlenir. Ajanlar kendilerini güncellerken doğrudan ilgili alfabetik alt başlığın altına ekler; yoksa alfabetik sırayı bozmadan yeni bir alt başlık açar.
+- **Alfabetik Alt Başlıklar:** Hafızalarda dersler sektör/iş bazında alfabetik sıra (`A-Z`) ile düzenlenir; yeni ders ilgili alt başlığa eklenir, yoksa sırayı bozmadan yeni alt başlık açılır. Rehberlerde fihrist ve mantık sırası geçerlidir (Bölüm 10).
 - Kişisel sağlık, finans, müşteri bilgisi ve gizli bilgiler hafızaya yazılmaz.
 - **Görsel işleri:** İşlenen görsele özgü bilgi (ölçü, koordinat, renk değeri, katman/nesne adı, desen tarifi, o görsele yazılmış betik) repoya yazılmaz. Yöntem (`bilgi/`, araçlar, hafıza) yalnız Cihan sonucu "iyi" veya "kötü" dediğinde güncellenir: iyi → yöntem korunur, gerekirse "doğrulandı" notu; kötü → hatalı adım düzeltilir. Değerlendirme yoksa yönteme dokunulmaz.
 - Hafıza o an çalışılan repoya yazılır. Proje işleri proje reposuna,
@@ -250,21 +251,20 @@ hapsolmasın diye iş bitince şu adımlar izlenir:
    genel cümleye çevirir. Örnek: "APK güncellemesi kurulmuyorsa imza
    anahtarını kontrol et." Projeye özgü olanlar (oyun kuralı, müşteri
    tercihi) yalnızca proje reposunda kalır.
-2. Genel, kaynaklı ve tarihli dersleri Cihan'a sormadan ilgili ajanın
-   Kedihane hafızasına yazar (`.claude/agent-memory/<ajan>/`) ve tek, geri
-   alınabilir bir commit atar; push için onay alınır. Yetki, gizli bilgi,
-   harcama ve onay kurallarına ders yoluyla dokunmaz.
-3. Cihan'a yazılan satırları tek cümleyle bildirir.
+2. Genel dersleri Minnak Tekir'e verir; Minnak [`bilgi/HARITA.md` Ekleme
+   Prosedürü](bilgi/HARITA.md#ekleme-prosedürü)'yle yerleştirir, Sarman fişi
+   denetler. Yetki, gizli bilgi, harcama ve onay kurallarına ders yoluyla dokunulmaz.
+3. Yerleştirilen satırları Cihan'a tek satırla bildirir ve commit onayı ister;
+   push ayrıca onaylanır.
 4. Başka bir repoda iş başlarken Tekir, Kedihane hafızasından o işle ilgili
    genel dersleri okuyup görev tanımının "Bağlam" kısmına ekler. Alt ajanlar
    Kedihane hafızasını kendiliğinden görmeyebilir.
 5. Proje reposu olmayan projelerde (ör. claude.ai projeleri) projeye özgü bilgi
    projenin kendi talimat ve belgelerinde durur, Kedihane'ye yazılmaz.
 
-**Kaydetme:** Hafıza dosyaları repoya gönderilmedikçe kalıcı olmaz.
-İş bitince ajan raporlarındaki "Hafızaya eklenen" satırlarını topla ve
-Cihan'a tek satırla sor: "Ajanlar şunları öğrendi, kaydedeyim mi?"
-Onay gelirse hafıza dosyalarını commit edip gönder.
+**Kaydetme:** Yerleştirmeler commit edilip gönderilmedikçe kalıcı olmaz.
+Raporlarda `Ders:` satırı varsa iş bitince Minnak Tekir çağrılır (2–3. adımlar);
+`.claude/hooks/minnak_kontrol.py` bunun unutulmasını engeller.
 
 **Aylık denetim:** `.claude/agent-memory/DENETIM.md` dosyasındaki son
 denetim tarihi 30 günden eskiyse, oturumun başında Cihan'a Sarman ile

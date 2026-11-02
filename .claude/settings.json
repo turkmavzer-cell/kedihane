@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && (python .claude/hooks/minnak_kontrol.py 2>/dev/null || python3 .claude/hooks/minnak_kontrol.py)"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -7,7 +7,3 @@ Yeni dersler doğrudan ilgili alt başlığın altına eklenir; alt başlık yok
 ## Dersler (Alfabetik Sektör / İş Sırası)
 
 (henüz yok)
-
-## Konu Dosyaları (İlgili satırlar indeks üzerinden okunmalıdır)
-
-- `bilgi/sosyal-medya-ve-video-operasyonu.md`: Pazar ve operasyon stratejisi
