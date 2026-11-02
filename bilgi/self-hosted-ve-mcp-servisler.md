@@ -51,7 +51,7 @@ uv run cli.py
 
 ### 3. Kedihane Entegrasyon Notları
 - Cihan'ın yerel makinesinde API kotası tüketmeden yerel modelle uzun süreli tarama veya masaüstü görevleri yürütülürken devreye alınabilir.
-- Dosya operasyonları öncesinde `GEMINI.md` Bölüm 11 gereği kaynak dosyaların kopyası alınmalıdır.
+- Dosya operasyonları öncesinde `CLAUDE.md` Bölüm 9 gereği kaynak dosyaların kopyası alınmalıdır.
 
 ---
 
@@ -219,7 +219,7 @@ Kedihane ekibinin kurumsal ve sosyal medya sayfalarında otomatik içerik yayın
 3. **Webhook ile Gelen Yorum / DM Otomasyonu:**
    - Sayfaya yeni bir yorum veya mesaj geldiğinde Meta Webhook n8n'e JSON yükü fırlatır.
    - n8n içindeki AI Ajan düğümü (Ankara prompt yönergeleriyle) bağlamı analiz eder; spam/küfür filtrelemesi yapar.
-   - Önceden tanımlı onaylı yanıt veya otomatik müşteri bilgilendirmesi Meta Graph API (`POST /{comment-id}/comments` veya mesaj API) ile 15 saniye içinde iletilir.
+   - Yanıt taslağı `bilgi/sosyal-medya-ve-video-operasyonu.md` D'deki iki aşamalı onaydan geçer; Cihan onaylamadan Meta Graph API (`POST /{comment-id}/comments` veya mesaj API) ile gönderilmez (CLAUDE.md Bölüm 9).
 
 ---
 

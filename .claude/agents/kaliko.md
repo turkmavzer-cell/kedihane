@@ -53,7 +53,7 @@ dosyası olarak kaydet.
 
 ## Bilgi rehberleri ve Token Tasarrufu (Hedefli Okuma)
 
-Rehber dosyaları (`bilgi/*.md`) baştan sona asla okunmaz. Önce alfabetik alt başlık indeksinden metot belirlenir, ardından sadece ilgili satır aralığı (`read_file` ile `StartLine` - `EndLine`) okunur.
+Rehberler hedefli okunur: [`CLAUDE.md` Bölüm 10](../../CLAUDE.md#10-repo-kuralları-ve-token-tasarrufu). Hangi konunun hangi rehberde olduğu: [`bilgi/HARITA.md`](../../bilgi/HARITA.md).
 
 - `bilgi/katman-ayirma.md`: arka plan + desen, yarı saydam alfa, PNG/PSD çıktısı
 - `bilgi/emprime-kanal-ayirma.md`: tek/iki aşamalı spot/AM tram (45 LPI, 508 PPI), choke, 1-bit film, tools/emprime/ ve tools/photoshop/ kullanımı

@@ -13,11 +13,11 @@ description: Sarman ve Bombay için kod güvenlik denetimi (security-guidance), 
 | :--- | :--- | :--- |
 | [A. API, Kimlik Doğrulama ve Yetkilendirme](#a-api-kimlik-doğrulama-ve-yetkilendirme) | JWT/OAuth2, IDOR/BOLA denetimi, rate-limiting ve güvenli CORS politikası | L24-L71 |
 | [B. Bağımlılık ve Gizli Bilgi (Secret) Güvenliği](#b-bağımlılık-ve-gizli-bilgi-secret-güvenliği) | .env izolasyonu, gitleaks/trufflehog taraması, npm/pip zafiyet analizi | L75-L106 |
-| [D. Doğrulama ve Kanıt İlkesi (Verification Before Completion)](#d-doğrulama-ve-kanıt-ilkesi-verification-before-completion) | obra/superpowers Demir Yasası: Kanıt olmadan tamamlandı iddiası yasağı, 5 adımlı doğrulama kapısı | L110-L151 |
-| [G. Girdi Doğrulama ve Enjeksiyon Koruması](#g-girdi-doğrulama-ve-enjeksiyon-koruması) | Parametreli SQL/NoSQL, XSS, DOM Injection, exec vs execFile, Path Traversal | L155-L210 |
-| [K. Kod İçi Tehlikeli Kalıplar ve 3 Katmanlı Denetim](#k-kod-içi-tehlikeli-kalıplar-ve-3-katmanlı-denetim) | security-guidance 3 katman, 25 regex kuralı (torch, yaml, pickle, crypto, SRI, CI/CD) | L214-L235 |
-| [R. Repo Paketleme ve Mimari Analiz (Repomix)](#r-repo-paketleme-ve-mimari-analiz-repomix) | yamadashy/repomix CLI kullanımı, XML/MD formatı, kod sıkıştırma (--compress) ve Secretlint | L239-L289 |
-| [S. Sistematik Hata Ayıklama (Systematic Debugging) ve Strix Pentest](#s-sistematik-hata-ayıklama-systematic-debugging-ve-strix-pentest) | obra/superpowers 4 fazlı kök neden protokolü, 3 başarısız deneme sonrası duruş kuralı ve Strix pentest | L293-L357 |
+| [D. Doğrulama ve Kanıt İlkesi (Verification Before Completion)](#d-doğrulama-ve-kanıt-ilkesi-verification-before-completion) | obra/superpowers Demir Yasası: Kanıt olmadan tamamlandı iddiası yasağı, 5 adımlı doğrulama kapısı | L110-L150 |
+| [G. Girdi Doğrulama ve Enjeksiyon Koruması](#g-girdi-doğrulama-ve-enjeksiyon-koruması) | Parametreli SQL/NoSQL, XSS, DOM Injection, exec vs execFile, Path Traversal | L154-L209 |
+| [K. Kod İçi Tehlikeli Kalıplar ve 3 Katmanlı Denetim](#k-kod-içi-tehlikeli-kalıplar-ve-3-katmanlı-denetim) | security-guidance 3 katman, 25 regex kuralı (torch, yaml, pickle, crypto, SRI, CI/CD) | L213-L234 |
+| [R. Repo Paketleme ve Mimari Analiz (Repomix)](#r-repo-paketleme-ve-mimari-analiz-repomix) | yamadashy/repomix CLI kullanımı, XML/MD formatı, kod sıkıştırma (--compress) ve Secretlint | L238-L288 |
+| [S. Sistematik Hata Ayıklama (Systematic Debugging) ve Strix Pentest](#s-sistematik-hata-ayıklama-systematic-debugging-ve-strix-pentest) | obra/superpowers 4 fazlı kök neden protokolü, 3 başarısız deneme sonrası duruş kuralı ve Strix pentest | L292-L356 |
 
 ---
 
@@ -119,8 +119,7 @@ NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE
 Eğer geçerli mesaj veya tur içinde doğrulama komutunu bizzat çalıştırıp terminal çıktısını görmediyseniz, kodun çalıştığını veya testlerin geçtiğini kesinlikle iddia edemezsiniz.
 
 ### 2. Emprime ve Medya Kalite Doğrulaması
-- **Emprime Renk Ayrımı:** `tools/emprime/kalite_kontrol.py` çalıştırılarak dE <= 12 ve kenar pürüzlülüğü <= 0.03 kanıtı makbuza eklenmeden iş teslim edilemez.
-- **Video Kurgu:** 1080x1920 dikey çözünürlük, 30 fps, ses senkronu ve görev tanımındaki logo/altyazı kuralları doğrulanmalıdır.
+- Eşikler ve kanıt kendi rehberindedir: emprime `bilgi/emprime-kanal-ayirma.md` H (`tools/emprime/kalite_kontrol.py`), video `bilgi/video-kurgu.md` C ve E (`plan_render.py` denetimi PASS; ayrıca görev tanımındaki logo/altyazı kuralları). Kanıt makbuza eklenmeden iş teslim edilmez.
 
 ### 3. Beş Adımlı Doğrulama Kapısı (The Gate Function)
 Herhangi bir teslimat veya başarı bildiriminde bulunmadan önce sırasıyla şu 5 adım zorunludur:
@@ -132,7 +131,7 @@ Herhangi bir teslimat veya başarı bildiriminde bulunmadan önce sırasıyla ş
    - **EVET:** İddianızı terminal çıktısını veya log kanıtını iliştirerek sunun.
 5. **ONLY THEN (Ancak O Zaman):** Görevin tamamlandığını veya hatanın çözüldüğünü beyan edin. Bu adımlardan herhangi birini atlamak doğrulama değil, aldatmacadır.
 
-### 3. Kırmızı Bayraklar ve Rasyonelleştirme Yasağı (Red Flags)
+### 4. Kırmızı Bayraklar ve Rasyonelleştirme Yasağı (Red Flags)
 Aşağıdaki durumlar tespit edildiğinde işlem DERHAL durdurulmalı ve kanıt toplanmalıdır:
 - "Büyük ihtimalle düzeldi", "çalışması lazım", "görünüşe göre oldu", "tamam gibi" (`should`, `probably`, `seems to`) gibi temelsiz ifadeler kullanmak.
 - Doğrulama komutu çalıştırılmadan "Harika!", "Bitti!", "Kusursuz!" gibi başarı/memnuniyet ifadeleri dile getirmek.
@@ -140,7 +139,7 @@ Aşağıdaki durumlar tespit edildiğinde işlem DERHAL durdurulmalı ve kanıt 
 - Alt ajanların yalnızca "başarılı" raporuna güvenip çıktıyı bizzat doğrulamamak.
 - Linter geçmesini derleme/test başarısı yerine saymak (linter tip veya derleme hatasını garanti etmez).
 
-### 4. İddia ve Kanıt Matrisi
+### 5. İddia ve Kanıt Matrisi
 | Beyan Edilen Durum | Zorunlu Kanıt | Yetersiz / Geçersiz Sayılan |
 | :--- | :--- | :--- |
 | **Testler geçiyor** | Test komutu terminal çıktısı: `0 failures`, `All passed` | Önceki test çıktısı, "kod mantıklı duruyor" demek |

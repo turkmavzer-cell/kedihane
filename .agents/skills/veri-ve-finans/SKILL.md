@@ -13,7 +13,7 @@ description: Bombay, Siyam ve Van için anti-bot web veri kazıma (Scrapling), o
 | :--- | :--- | :--- |
 | [F. Finansal Veri ve Algoritmik Ticaret (OpenBB, Freqtrade & Lean)](#f-finansal-veri-ve-algoritmik-ticaret-openbb-freqtrade--lean) | OpenBB v4, Freqtrade IStrategy/backtest/FreqAI ve QuantConnect Lean Forex algoritmaları | L22-L222 |
 | [K. Kariyer ve İş Başvuru Otomasyonu (AI Job Search)](#k-kariyer-ve-iş-başvuru-otomasyonu-ai-job-search) | İş ilanı ayrıştırma, ATS skorlama, anahtar kelime optimizasyonu ve mülakat hazırlığı | L226-L240 |
-| [P. Paketleme ve Fiyatlandırma Stratejisi (Pricing Strategy)](#p-paketleme-ve-fiyatlandırma-stratejisi-pricing) | Değer metriği seçimi, Van Westendorp 4 fiyat sorusu, 3 katmanlı Good-Better-Best ve freemium/deneme | L244-L304 |
+| [P. Paketleme ve Fiyatlandırma Stratejisi (Pricing Strategy)](#p-paketleme-ve-fiyatlandırma-stratejisi-pricing-strategy) | Değer metriği seçimi, Van Westendorp 4 fiyat sorusu, 3 katmanlı Good-Better-Best ve freemium/deneme | L244-L304 |
 | [R. Rehber, Belge (MarkItDown) ve Kitap Derleme (Book-to-Skill)](#r-rehber-belge-markitdown-ve-kitap-derleme-book-to-skill) | virgiliojr94/book-to-skill ile kitap derleme ve Microsoft MarkItDown CLI/Python dönüştürücü | L308-L380 |
 | [V. Web Veri Kazıma (Scrapling) ve Otonom Tarayıcı (Browser-Use)](#v-web-veri-kazıma-scrapling-ve-otonom-tarayıcı-browser-use) | Scrapling anti-bot/stealth kazıma ve browser-use Python asenkron tarayıcı ajanı | L384-L507 |
 

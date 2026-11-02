@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
 """Kedihane Repo Denetim Aracı (Sarman Otomatik Kalite Kapısı)
 
-Bu betik git reposundaki izlenen dosyaları 6 kritik kontrolden geçirir:
+Bu betik git reposundaki izlenen dosyaları 8 kontrolden geçirir:
 1. Gizlilik, Marka, Sosyal Hesap ve Sabit Yol Kontrolü
 2. Kırık Referans Kontrolü
 3. UTF-8 BOM ve İkili (.so/.dll) Kontrolü
 4. Fihrist Satır Aralığı (Lxx-Lyy) ve Başlık Eşleşmesi Kontrolü
 5. Ajan Hafıza (MEMORY.md) Boyut ve Alfabetik Sıra Kontrolü
 6. Sözdizimi Derleme Kontrolü (py_compile & node --check)
+7. Tekrar ve Sayısal Standart Kontrolü (bilgi/HARITA.md "Sayısal Standartlar")
+8. Bilgi Haritası Kontrolü (bilgi/HARITA.md "Konu Haritası")
 
 Kullanım:
-    python tools/denetim.py
+    python tools/denetim.py                  # tüm kontroller
+    python tools/denetim.py --fihrist-duzelt # fihrist Lxx-Lyy aralıklarını yeniden yazar, sonra denetler
 """
 import glob
 import os
@@ -186,7 +189,8 @@ def kontrol_3_utf8_bom_ve_ikili(files):
 
 def kontrol_4_fihrist_ve_baslik_eslesmesi():
     """Fihrist Satır Aralığı (Lxx-Lyy) ve Başlık Eşleşmesi Kontrolü."""
-    target_files = sorted(glob.glob("bilgi/*.md") + glob.glob(".agents/skills/*/SKILL.md"))
+    target_files = sorted(f for f in glob.glob("bilgi/*.md") + glob.glob(".agents/skills/*/SKILL.md")
+                          if f.replace("\\", "/") != "bilgi/HARITA.md")
     hatalar = []
 
     for filepath in target_files:
@@ -234,6 +238,12 @@ def kontrol_4_fihrist_ve_baslik_eslesmesi():
         for i, ((s_line, e_line, f_title, tbl_line), (r_line, r_text)) in enumerate(
             zip(fihrist_entries, real_headings)
         ):
+            # 0. Fihrist satırı ile başlık aynı bölüm etiketini taşımalı (sıra kontrolü)
+            if _etiket(f_title) != _etiket(r_text[3:]):
+                hatalar.append(
+                    f"{norm_path}:{tbl_line} -> Fihrist '{f_title[:40]}' ile sıradaki başlık '{r_text[:40]}' uyuşmuyor (sıra hatası)"
+                )
+
             # 1. Başlangıç satırı tam eşleşmeli
             if s_line != r_line:
                 hatalar.append(
@@ -362,10 +372,233 @@ def kontrol_6_sozdizimi_derleme():
     return True
 
 
+# ---------------------------------------------------------------------------
+# Bilgi Haritası, tekrar ve fihrist yardımcıları
+# ---------------------------------------------------------------------------
+HARITA = "bilgi/HARITA.md"
+ISTISNA = "tools/denetim_istisna.txt"
+
+
+def _rehber_dosyalari():
+    yollar = glob.glob("bilgi/*.md") + glob.glob(".agents/skills/*/SKILL.md")
+    return sorted(y.replace("\\", "/") for y in yollar if y.replace("\\", "/") != HARITA)
+
+
+def _bilgi_dosyalari():
+    """Tekrar kontrolünün kapsadığı bilgi dosyaları (CHANGELOG ve HARITA hariç)."""
+    adaylar = _rehber_dosyalari() + glob.glob(".claude/agents/*.md") + glob.glob(".claude/agent-memory/*/MEMORY.md")
+    adaylar += ["CLAUDE.md", "GEMINI.md", "AGENTS.md", ".agents/learnings/PROJECT.md"]
+    return sorted(set(f.replace("\\", "/") for f in adaylar if os.path.isfile(f) and f.replace("\\", "/") != HARITA))
+
+
+def _oku(yol):
+    with open(yol, "r", encoding="utf-8") as fp:
+        return [l.rstrip("\r\n") for l in fp]
+
+
+def _tablo(lines, baslik):
+    """`## <baslik>` altındaki ilk markdown tablosunu satır listesi (hücre listesi) olarak döndürür."""
+    satirlar, icinde, tablo_basladi = [], False, False
+    for l in lines:
+        if l.startswith("## "):
+            if icinde:
+                break
+            icinde = baslik.lower() in l.lower()
+            continue
+        if not icinde:
+            continue
+        if l.strip().startswith("|"):
+            tablo_basladi = True
+            hucre = [h.strip().replace("\\|", "|") for h in re.split(r"(?<!\\)\|", l.strip().strip("|"))]
+            if all(re.fullmatch(r":?-{3,}:?", h) for h in hucre if h):
+                continue
+            satirlar.append(hucre)
+        elif tablo_basladi:
+            break
+    return satirlar[1:] if satirlar else []  # başlık satırı atlanır
+
+
+def _harita():
+    if not os.path.isfile(HARITA):
+        return None, None
+    lines = _oku(HARITA)
+    return _tablo(lines, "Konu Haritası"), _tablo(lines, "Sayısal Standartlar")
+
+
+def _normalize(l):
+    l = re.sub(r"^\s*(?:[-*>]|\d+\.)\s*", "", l.strip())
+    l = re.sub(r"[*_`#|]", "", l)
+    return re.sub(r"\s+", " ", l).strip().lower().replace("i\u0307", "i")
+
+
+def _istisnalar():
+    if not os.path.isfile(ISTISNA):
+        return []
+    return [re.compile(s.strip(), re.I) for s in _oku(ISTISNA) if s.strip() and not s.startswith("#")]
+
+
+def _etiket(metin):
+    """Başlık veya fihrist hücresindeki bölüm etiketi ("A", "Ç", "10")."""
+    m = re.match(r"[\s*\[`]*(?:#+\s*)?([A-ZÇĞİÖŞÜ]|\d+)\.", metin)
+    return m.group(1) if m else None
+
+
+def _fihrist_basligi(satir):
+    parts = satir.split("|")
+    return parts[1].strip() if len(parts) > 1 else ""
+
+
+def fihrist_duzelt():
+    """Rehber ve skill fihristlerindeki Lxx-Lyy aralıklarını gerçek `## ` başlıklarına göre yeniden yazar."""
+    degisen = []
+    for yol in _rehber_dosyalari():
+        lines = _oku(yol)
+        basliklar = [i for i, l in enumerate(lines, 1)
+                     if l.startswith("## ") and "Fihrist" not in l and "İçindekiler" not in l]
+        satirlar = [i for i, l in enumerate(lines) if "|" in l and re.search(r"L\d+-L\d+", l)]
+        if len(basliklar) != len(satirlar):
+            print(f"[UYARI] {yol}: başlık ({len(basliklar)}) ve fihrist ({len(satirlar)}) sayısı farklı; elle düzeltin.")
+            continue
+        uyusmayan = [(lines[b - 1], _fihrist_basligi(lines[t])) for b, t in zip(basliklar, satirlar)
+                     if _etiket(lines[b - 1][3:]) != _etiket(_fihrist_basligi(lines[t]))]
+        if uyusmayan:
+            print(f"[UYARI] {yol}: fihrist sırası başlık sırasıyla uyuşmuyor (ör. '{uyusmayan[0][1][:40]}' ↔ "
+                  f"'{uyusmayan[0][0][:40]}'); fihrist satırlarını başlık sırasına dizin, dosyaya dokunulmadı.")
+            continue
+        yeni = list(lines)
+        for k, (bas, ti) in enumerate(zip(basliklar, satirlar)):
+            son_sinir = basliklar[k + 1] - 1 if k + 1 < len(basliklar) else len(lines)
+            bit = son_sinir
+            while bit > bas and lines[bit - 1].strip() in ("", "---"):
+                bit -= 1
+            yeni[ti] = re.sub(r"L\d+-L\d+", f"L{bas}-L{bit}", lines[ti], count=1)
+        if yeni != lines:
+            with open(yol, "w", encoding="utf-8", newline="\n") as fp:
+                fp.write("\n".join(yeni) + "\n")
+            degisen.append(yol)
+    print(f"[FİHRİST] {len(degisen)} dosyada aralık güncellendi" + (": " + ", ".join(degisen) if degisen else ""))
+
+
+def kontrol_7_tekrar_ve_standart():
+    """Aynı uzun satırın iki dosyada geçmesi ve sayısal standartların asıl yer dışında farklı değerle yazılması."""
+    hatalar, uyarilar = [], []
+    istisna = _istisnalar()
+    dosyalar = _bilgi_dosyalari()
+    gorulen = {}
+    for yol in dosyalar:
+        kod = False
+        for i, l in enumerate(_oku(yol), 1):
+            if l.strip().startswith("```"):
+                kod = not kod
+                continue
+            if kod:
+                continue
+            n = _normalize(l)
+            if len(n) < 60 or any(r.search(n) for r in istisna):
+                continue
+            gorulen.setdefault(n, []).append(f"{yol}:{i}")
+    for n, yerler in gorulen.items():
+        if len({y.rsplit(":", 1)[0] for y in yerler}) > 1:
+            hatalar.append(f"Tekrar: {', '.join(yerler)} -> '{n[:70]}...' (tek yerde tut, ötekine atıf koy)")
+
+    _, standartlar = _harita()
+    birimler = {
+        "çözünürlük": (r"(\d{3,4})\s*[x×]\s*(\d{3,4})", lambda m: f"{m.group(1)}x{m.group(2)}"),
+        "lufs": (r"([−-]?\d+(?:[.,]\d+)?)\s*LUFS", lambda m: m.group(1).replace("−", "-").replace(",", ".")),
+        "lpi": (r"(\d+(?:[.,]\d+)?)\s*LPI", lambda m: m.group(1).replace(",", ".")),
+        "ppi": (r"(\d+(?:[.,]\d+)?)\s*PPI", lambda m: m.group(1).replace(",", ".")),
+    }
+    for satir in standartlar or []:
+        if len(satir) < 5:
+            continue
+        ad, birim, deger, baglam, asil = (h.strip("` ") for h in satir[:5])
+        if birim.lower() not in birimler:
+            hatalar.append(f"HARITA: '{ad}' için bilinmeyen birim '{birim}'")
+            continue
+        desen, cevir = birimler[birim.lower()]
+        try:
+            baglam_re = re.compile(baglam, re.I)
+        except re.error as e:
+            hatalar.append(f"HARITA: '{ad}' bağlam deseni geçersiz: {e}")
+            continue
+        for yol in dosyalar:
+            if yol == asil:
+                continue
+            for i, l in enumerate(_oku(yol), 1):
+                if not baglam_re.search(l):
+                    continue
+                for m in re.finditer(desen, l, re.I):
+                    v = cevir(m)
+                    if v != deger:
+                        hatalar.append(f"Standart '{ad}': {yol}:{i} '{v}' yazıyor, asıl değer '{deger}' ({asil})")
+    for u in uyarilar:
+        print(f"  [UYARI] {u}")
+    if hatalar:
+        print(f"[HATA] Kontrol 7: Tekrar ve Sayısal Standart ({len(hatalar)} hata)")
+        for h in hatalar[:15]:
+            print(f"  - {h}")
+        if len(hatalar) > 15:
+            print(f"  ... ve {len(hatalar) - 15} hata daha.")
+        return False
+    print("[GEÇTİ] Kontrol 7: Tekrar ve Sayısal Standart Kontrolü")
+    return True
+
+
+def kontrol_8_harita():
+    """bilgi/HARITA.md: her satırın dosyası ve başlığı var mı, her rehber haritada mı; anahtar sözcük başka başlıkta mı (uyarı)."""
+    konular, _ = _harita()
+    if konular is None:
+        print(f"[HATA] Kontrol 8: {HARITA} bulunamadı")
+        return False
+    hatalar, uyarilar, haritadaki = [], [], set()
+    istisna = _istisnalar()
+    basliklar = {}
+    for yol in _bilgi_dosyalari():
+        basliklar[yol] = [(i, l) for i, l in enumerate(_oku(yol), 1) if re.match(r"#{2,3} ", l)]
+    for satir in konular:
+        if len(satir) < 5:
+            hatalar.append(f"HARITA satırı eksik sütunlu: {satir}")
+            continue
+        konu, sozcukler, asil, bolum = satir[0], satir[1], satir[2].strip("` "), satir[3]
+        haritadaki.add(asil)
+        if not os.path.isfile(asil):
+            hatalar.append(f"'{konu}': asıl dosya yok: {asil}")
+            continue
+        heads = [l for _, l in basliklar.get(asil, [])] or [l for l in _oku(asil) if l.startswith("## ")]
+        for b in re.findall(r"§?([A-ZÇĞİÖŞÜ]|\d+)(?=[\s,.;]|$)", bolum):
+            if not any(re.match(rf"## {re.escape(b)}\.", h) for h in heads):
+                hatalar.append(f"'{konu}': {asil} içinde '## {b}.' başlığı yok")
+        for s in [x.strip().lower() for x in sozcukler.split(",") if x.strip()]:
+            s_re = re.compile(rf"(?<!\w){re.escape(s)}(?!\w)", re.I)
+            for yol, hs in basliklar.items():
+                if yol == asil or yol.endswith("/MEMORY.md"):
+                    continue
+                for i, h in hs:
+                    if s_re.search(h) and not any(r.search(f"{yol}: {h}") for r in istisna):
+                        uyarilar.append(f"'{s}' ({konu}) asıl yer dışında başlıkta: {yol}:{i} -> asıl {asil}")
+    for yol in _rehber_dosyalari():
+        if yol.replace("\\", "/") not in haritadaki and yol != HARITA:
+            hatalar.append(f"{yol} haritada yok; bilgi/HARITA.md'ye satır ekleyin")
+    for u in uyarilar[:15]:
+        print(f"  [UYARI] {u}")
+    if len(uyarilar) > 15:
+        print(f"  [UYARI] ... ve {len(uyarilar) - 15} uyarı daha.")
+    if hatalar:
+        print(f"[HATA] Kontrol 8: Bilgi Haritası ({len(hatalar)} hata)")
+        for h in hatalar[:15]:
+            print(f"  - {h}")
+        return False
+    print(f"[GEÇTİ] Kontrol 8: Bilgi Haritası Kontrolü ({len(konular)} konu, {len(uyarilar)} uyarı)")
+    return True
+
+
 def main():
     print("=" * 60)
     print(" Kedihane Otomatik Repo Denetimi (Sarman Kalite Kapısı)")
     print("=" * 60)
+
+    if "--fihrist-duzelt" in sys.argv:
+        fihrist_duzelt()
 
     files = get_tracked_files()
     if not files:
@@ -379,6 +612,8 @@ def main():
         kontrol_4_fihrist_ve_baslik_eslesmesi(),
         kontrol_5_ajan_hafiza(),
         kontrol_6_sozdizimi_derleme(),
+        kontrol_7_tekrar_ve_standart(),
+        kontrol_8_harita(),
     ]
 
     print("=" * 60)

@@ -60,8 +60,8 @@ amaca hizmet eden özgün olanı hedeflersin.
 
 **Bozuk görseli düzeltme (yeniden yaratma promptu)**
 - İş "bozuk/kırışık/fotoğraflanmış görseli tek parçada temiz üret" ise
-  önce `bilgi/gorsel-duzeltme.md` dosyasını oku ve oradaki 7 parametreli mikro analiz
-  kontrol listesini, Nano Banana Pro modüler şablonunu ve hata tablosunu uygula.
+  `bilgi/gorsel-duzeltme.md` dosyasının H (7 parametreli mikro analiz), F (modüler
+  master prompt) ve C (hata tablosu) bölümlerini oku ve uygula.
 - Çıktı tek görseldir; katman veya parça üretmesini isteyen prompt yazma.
 - Prompt İngilizce ve yalnızca prompt olarak verilir.
 

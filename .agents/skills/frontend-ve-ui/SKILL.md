@@ -11,13 +11,13 @@ description: Bombay ve Ankara için özgün arayüz tasarımı (frontend-design)
 ### Alfabetik Fihrist (A-Z)
 | Başlık | Kapsam ve Odak | Satır Aralığı |
 | :--- | :--- | :--- |
-| [A. Antigravity & 21st.dev Bileşen İş Akışı](#a-antigravity--21stdev-bileşen-iş-akışı) | 21st.dev, shadcn/ui, Magic UI, Aceternity entegrasyon ve modülerlik kuralları | L24-L104 |
-| [B. Boşluk, Grid ve Görsel Hiyerarşi](#b-boşluk-grid-ve-görsel-hiyerarşi) | Asimetrik denge, negatif alan, bento grid, z-index ölçeği ve responsive kırılımlar | L108-L152 |
-| [K. Klişe Yasağı (Anti-AI Slop UI)](#k-klişe-yasağı-anti-ai-slop-ui) | Anthropic frontend-design 5 AI klişe kümesi, mor gradyan ve tipografik tell yasakları | L156-L172 |
-| [M. Mikro Etkileşimler ve MCP Sunucu Geliştirme (MCP Builder)](#m-mikro-etkileşimler-ve-mcp-sunucu-geliştirme-mcp-builder) | Animasyon easing/timing, prefers-reduced-motion ve Anthropic mcp-builder 4 fazlı protokol | L176-L232 |
-| [R. Renk, Kontrast ve Tema Sistemi](#r-renk-kontrast-ve-tema-sistemi) | 60-30-10 kuralı, CSS değişkenleri/tokens, WCAG AA/AAA ve gerçek koyu tema | L236-L284 |
-| [T. Tipografi, İki Aşamalı Süreç (2-Pass) ve Tasarımda Metin](#t-tipografi-iki-aşamalı-süreç-2-pass-ve-tasarımda-metin) | 2-Pass tasarım planı, ASCII wireframe, akıcı tipografi ve arayüz içi metin kuralları | L288-L311 |
-| [W. Web Uygulaması Testi ve Doğrulama (Playwright & Webapp-Testing)](#w-web-uygulaması-testi-ve-doğrulama-playwright--webapp-testing) | Anthropic webapp-testing karar ağacı, with_server.py, networkidle ve görsel kanıt | L315-L392 |
+| [A. Antigravity & 21st.dev Bileşen İş Akışı](#a-antigravity--21stdev-bileşen-iş-akışı) | 21st.dev, shadcn/ui, Magic UI, Aceternity entegrasyon ve modülerlik kuralları | L24-L85 |
+| [B. Boşluk, Grid ve Görsel Hiyerarşi](#b-boşluk-grid-ve-görsel-hiyerarşi) | Asimetrik denge, negatif alan, bento grid, z-index ölçeği ve responsive kırılımlar | L89-L133 |
+| [K. Klişe Yasağı (Anti-AI Slop UI)](#k-klişe-yasağı-anti-ai-slop-ui) | Anthropic frontend-design 5 AI klişe kümesi, mor gradyan ve tipografik tell yasakları | L137-L153 |
+| [M. Mikro Etkileşimler ve MCP Sunucu Geliştirme (MCP Builder)](#m-mikro-etkileşimler-ve-mcp-sunucu-geliştirme-mcp-builder) | Animasyon easing/timing, prefers-reduced-motion ve Anthropic mcp-builder 4 fazlı protokol | L157-L213 |
+| [R. Renk, Kontrast ve Tema Sistemi](#r-renk-kontrast-ve-tema-sistemi) | 60-30-10 kuralı, CSS değişkenleri/tokens, WCAG AA/AAA ve gerçek koyu tema | L217-L265 |
+| [T. Tipografi, İki Aşamalı Süreç (2-Pass) ve Tasarımda Metin](#t-tipografi-iki-aşamalı-süreç-2-pass-ve-tasarımda-metin) | 2-Pass tasarım planı, ASCII wireframe, akıcı tipografi ve arayüz içi metin kuralları | L269-L292 |
+| [W. Web Uygulaması Testi ve Doğrulama (Playwright & Webapp-Testing)](#w-web-uygulaması-testi-ve-doğrulama-playwright--webapp-testing) | Anthropic webapp-testing karar ağacı, with_server.py, networkidle ve görsel kanıt | L296-L373 |
 
 ---
 
@@ -82,26 +82,7 @@ InteractiveCard.displayName = "InteractiveCard";
 ```
 
 ### 3. Resmi 21st MCP Kurulumu ve Ajan Entegrasyonu
-Modern UI bileşenlerini Antigravity ve Claude ajanlarına doğrudan sunmak için resmi **21st MCP** mimarisi kullanılır (eski `@21st-dev/magic-mcp` paketi kullanımdan kaldırılmıştır):
-
-```bash
-# Hızlı CLI kurulumu ve proje başlatma
-npx @21st-dev/cli@latest init
-```
-
-- **HTTP MCP Sunucusu (Önerilen):** `https://21st.dev/api/mcp`
-- **Yetkilendirme:** İstek başlığında `x-api-key: <API_KEY_21ST>` (ortam değişkeni `API_KEY_21ST`).
-- **Stdio Yapılandırması (Alternatif):**
-  ```json
-  {
-    "mcpServers": {
-      "21st": {
-        "command": "npx",
-        "args": ["-y", "@21st-dev/magic@latest", "API_KEY=your_api_key_here"]
-      }
-    }
-  }
-  ```
+Kurulum (CLI, HTTP MCP sunucusu, `API_KEY_21ST`, stdio alternatifi) ve iş akışı: `bilgi/self-hosted-ve-mcp-servisler.md` M. Eski `@21st-dev/magic-mcp` paketi kullanılmaz.
 
 ---
 

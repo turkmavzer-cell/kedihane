@@ -17,7 +17,7 @@ description: Ankara ve Van için dönüşüm oranı optimizasyonu (cro), metin y
 | [P. Pazarlama ve Büyüme Fikirleri (Marketing Ideas & Frameworks)](#p-pazarlama-ve-büyüme-fikirleri-marketing-ideas--frameworks) | 139 SaaS fikri, PMF testi, Bullseye kanalları, aşama/bütçe matrisi ve fikir öneri standardı | L158-L194 |
 | [R. Referans ve Viral Büyüme Programı (Referral & Viral Programs)](#r-referans-ve-viral-büyüme-programı-referral--viral-programs) | Virallik spektrumu (doğal vs sınırlı), referral vs affiliate, tetikleyiciler ve büyük rakam kuralı | L198-L221 |
 | [S. SEO ve Yapay Zekâ Arama Optimizasyonu (OpenSEO & GEO)](#s-seo-ve-yapay-zekâ-arama-optimizasyonu-openseo--geo) | OpenSEO (every-app/open-seo) araç takımı, DataForSEO MCP, klasik SEO vs GEO, llms.txt ve alıntılanabilir answer blocks | L225-L266 |
-| [T. Topluluk ve Sosyal Medya İçeriği (Social Content & Community)](#t-topluluk-ve-sosyal-medya-içeriği-social-content--community) | 5 içerik sütunu, kanca formülleri (merak/hikâye/karşıt), platform matrisi ve broetry/tell yasakları | L270-L318 |
+| [T. Topluluk ve Sosyal Medya İçeriği (Social Content & Community)](#t-topluluk-ve-sosyal-medya-içeriği-social-content--community) | 5 içerik sütunu, kanca formülleri (merak/hikâye/karşıt), platform matrisi ve broetry/tell yasakları | L270-L310 |
 
 ---
 
@@ -305,14 +305,6 @@ Sosyal medya kullanıcıları AI kokan gönderileri anında fark eder ve etkile�
   - *X (Twitter):* Teknik ekran görüntüleri, kısa kod akışları, ritmik cümleler ve tartışma açan sorular (günde 2-5 tweet veya haftalık odaklı flood).
 
 ### 4. Çok Dilli Sosyal Medya ve Müşteri Yanıtlama Yönetimi
-- **Platformlar:** Meta Business Suite (Facebook & Instagram + Messenger) ve kısa video platformları (TikTok / Reels / Shorts).
-- **İki Aşamalı Yanıt Protokolü:**
-  1. *Aşama 1 (Doğrulama ve Onay):* Gelen okunmamış mesajlar taranır ve yöneticiye Türkçe onay tablosu sunulur (`| Sıra | Müşteri Adı | Soru Özeti | Önerilen Yanıt (Yerel Dil) |`).
-  2. *Aşama 2 (İletim ve Belge):* Yönetici onayladıktan sonra metin gönderilir, ekine onaylı güncel katalog PDF'i ataçlanır.
-- **Kritik İletişim Kuralları:**
-  - WhatsApp bağlantı yer tutucusu zorunludur: `{{WHATSAPP_LINK}}` (`https://wa.me/<ULKE_KODU_NUMARA>`). Arapça ve RTL dillerinde telefon numarası metin içine asla düz rakam olarak yazılmaz.
-  - Fiyat ve özel sipariş detayları doğrudan tıklanabilir `{{WHATSAPP_LINK}}` üzerinden paylaşılır.
-- **Canlı Hafıza ve Gizlilik Takibi:**
-  - Müşteri isimleri ve mesajları repoya yazılmaz; `.gitignore` altındaki `yerel-kayitlar/` klasörüne işlenir.
-  - Ayrıntılı operasyon, teknik video kurgu, RTL tipografi ve müşteri yanıtlama standartları: `bilgi/sosyal-medya-ve-video-operasyonu.md`.
-  - Tekstil ve sim kumaş görsel prompt mühendisliği standartları: `bilgi/tekstil-ve-sim-gorsel-promptlari.md`.
+- **Müşteri yanıtlama (iki aşamalı onay, `{{WHATSAPP_LINK}}`, tekil ek, spam):** `bilgi/sosyal-medya-ve-video-operasyonu.md` D.
+- **Gizlilik ve `yerel-kayitlar/`:** `bilgi/sosyal-medya-ve-video-operasyonu.md` E.
+- **Tekstil ve sim kumaş görsel promptları:** `bilgi/tekstil-ve-sim-gorsel-promptlari.md`.

@@ -186,6 +186,10 @@ Rehberler (`bilgi/*.md`), beceri dosyaları (`.agents/skills/`) ve büyük dokü
 
 Katı alfabetik (`A-Z`) alt başlık kuralı ajan hafıza dosyalarında (`MEMORY.md`) zorunludur; rehberlerde (`bilgi/*.md`) ise başta fihrist tablosu bulunması esastır.
 
+### Bilgi yerleştirme (tek kaynak)
+- Bir bilgi yalnız asıl yerine yazılır; başka yerde en fazla tek satır atıf olur. Asıl yer ve karar ağacı: [`bilgi/HARITA.md`](bilgi/HARITA.md). Yeni bilgi yazarken repo taranmaz; harita, hedef fihrist ve hedef bölüm okunur.
+- Her commit'te `tools/denetim.py` çalışır (`.githooks/pre-commit`; her klonda bir kez `git config core.hooksPath .githooks`). `--no-verify` ile atlamak yasaktır. Fihrist aralıkları `python tools/denetim.py --fihrist-duzelt` ile güncellenir.
+
 ---
 
 ## 11. Dürüstlük

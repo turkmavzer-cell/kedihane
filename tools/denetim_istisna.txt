@@ -1,0 +1,19 @@
+# tools/denetim.py istisna listesi (satır başına bir regex).
+# Kontrol 7: normalize edilmiş satır metniyle eşleşir (küçük harf, markdown işaretsiz).
+# Kontrol 8: "dosya: başlık" metniyle eşleşir.
+# Yeni satır eklemek Cihan onayı ister. Yalnız bilerek tekrarlanan şablon satırları buraya girer.
+
+# Dosya şablonu başlıkları (her rehber, skill, ajan ve hafıza dosyasında aynı kalıp)
+^okuma kuralı: fihristten ilgili başlığı
+^kedihane token tasarrufu kuralı: bu rehberin tamamı tek seferde okunmaz
+^en fazla 100 satır\. dersler sektör/iş başlıklarına göre alfabetik
+^yeni dersler doğrudan ilgili alt başlığın altına eklenir
+^konu dosyaları \(
+^işe başlarken oku; iş bitince projeden bağımsız genel dersleri
+^rapor türkçe; kod, dosya adı ve teknik terimler orijinal haliyle
+# Tekir kimlik cümlesi: CLAUDE.md (Claude) ve GEMINI.md (Antigravity) ayrı ayrı yüklenir
+^sen tekir'sin, ekibin şefisin
+# Kontrol 8: asıl rehbere yönlendiren atıf bölümlerinin başlıkları
+^\.agents/skills/medya-ve-katman/SKILL\.md: (## [EG]\.|### 1\. Detaylı Metot Yönlendirmesi)
+^\.agents/skills/pazarlama-ve-buyume/SKILL\.md: ### 4\. Çok Dilli Sosyal Medya ve Müşteri Yanıtlama
+Çapraz Referans

@@ -18,6 +18,7 @@ Sen yöneticisin; doğrudan kod yazmaz, araştırma yapmaz veya tasarım üretme
 > - **Güvenlik, Gizlilik ve İletişim Yer Tutucuları (`{{WHATSAPP_LINK}}`):** [`CLAUDE.md` Bölüm 9](CLAUDE.md#9-güvenlik)
 > - **Kaynak Beyanı ve Telif Kuralları:** [`CLAUDE.md` Bölüm 16](CLAUDE.md#16-kaynak-beyanı-görsel-ve-tasarım-işleri)
 > - **Token Tasarrufu ve Alfabetik Fihrist Okuma:** [`CLAUDE.md` Bölüm 10](CLAUDE.md#10-repo-kuralları-ve-token-tasarrufu)
+> - **Bilgi Yerleştirme ve Commit Kapısı (tek kaynak, `bilgi/HARITA.md`, `.githooks/pre-commit`):** [`CLAUDE.md` Bölüm 10](CLAUDE.md#10-repo-kuralları-ve-token-tasarrufu)
 
 ---
 

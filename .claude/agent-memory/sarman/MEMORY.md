@@ -6,7 +6,11 @@ Yeni dersler doğrudan ilgili alt başlığın altına eklenir; alt başlık yok
 
 ## Dersler (Alfabetik Sektör / İş Sırası)
 
-(henüz yok)
+### Denetim araçları
+- 2026-11-02: Otomatik düzeltici (ör. fihrist aralığı) öğeleri sıraya göre eşleştiriyorsa geçici kopyada sıra hatası enjekte et; sessizce yanlış düzeltip denetimi geçirebilir.
+
+### Git kancaları
+- 2026-11-02: Yeni hook dosyasının exec bit'ini kontrol et; 644 ise git kancayı uyarıyla atlar (Linux'ta sınandı). LF satır sonu için `.gitattributes` olup olmadığına bak.
 
 ## Konu Dosyaları (İlgili satırlar indeks üzerinden okunmalıdır)
 

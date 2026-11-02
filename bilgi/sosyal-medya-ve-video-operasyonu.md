@@ -7,9 +7,9 @@
 | :--- | :--- | :--- |
 | [A. Arapça ve RTL Tipografi, Yazı Katmanı ve Supersampling (Pillow & Cairo)](#a-arapça-ve-rtl-tipografi-yazı-katmanı-ve-supersampling-pillow--cairo) | L16-L51 | RTL harf birleştirme, 4x supersampling, emoji yasağı ve kontak sayfası |
 | [B. Çerçeveli / Dairesel Yuvalara Görsel Yerleştirme ve Bitiş Kartları](#b-çerçeveli--dairesel-yuvalara-görsel-yerleştirme-ve-bitiş-kartları) | L55-L98 | Autocrop beyaz boşluk yasağı, 4 fotoğraflı delikli şablon ve alt kanal |
-| [C. Dikey Video (Reels / TikTok / Shorts) Kurgu, FFmpeg ve Premiere XML Mimarisi](#c-dikey-video-reels--tiktok--shorts-kurgu-ffmpeg-ve-premiere-xml-mimarisi) | L102-L126 | Master çıktı (4K 9:16), xfade normalizasyonu, prproj ve xmeml koordinatları |
-| [D. Meta Business Suite ve Çok Kanallı Müşteri Yanıtlama Otomasyonu](#d-meta-business-suite-ve-çok-kanallı-müşteri-yanıtlama-otomasyonu) | L130-L152 | İki aşamalı Türkçe onay, wa.me yer tutucu, DOM dosya yükleme ve spam kontrolü |
-| [E. Sosyal Medya Hesap Güvenliği ve Yerel Kayıt İzolasyonu](#e-sosyal-medya-hesap-güvenliği-ve-yerel-kayıt-izolasyonu) | L156-L167 | Profil doğrulama, git gizlilik duvarı, çift repolu iş kaydı ve global öğrenim ayrımı |
+| [C. Dikey Video: Araç Dışı FFmpeg Notları ve Premiere XML Köprüsü](#c-dikey-video-araç-dışı-ffmpeg-notları-ve-premiere-xml-köprüsü) | L102-L124 | Standart video-kurgu.md'de; xfade normalizasyonu, prproj ve xmeml koordinatları |
+| [D. Meta Business Suite ve Çok Kanallı Müşteri Yanıtlama Otomasyonu](#d-meta-business-suite-ve-çok-kanallı-müşteri-yanıtlama-otomasyonu) | L128-L151 | İki aşamalı Türkçe onay, wa.me yer tutucu, DOM dosya yükleme ve spam kontrolü |
+| [E. Sosyal Medya Hesap Güvenliği ve Yerel Kayıt İzolasyonu](#e-sosyal-medya-hesap-güvenliği-ve-yerel-kayıt-izolasyonu) | L155-L163 | Profil doğrulama, git gizlilik duvarı, çift repolu iş kaydı ve global öğrenim ayrımı |
 
 ---
 
@@ -90,7 +90,7 @@ Video bitiş ekranlarında veya çoklu ürün sahnelerinde dairesel ve çerçeve
    - Ülke bayrakları ve resmî amblemler yapay zekâya çizdirilmez (oran, yıldız sayısı veya renk hatası riski).
    - Daima kullanıcının sağladığı doğrulanmış vektör veya yüksek çözünürlüklü raster kaynak dosya kullanılır.
 3. **Dört Fotoğraflı Delikli Üst Katman Şablonu:**
-   - `2160x3840` dikey 4K master üzerinde `960x1280` (3:4 dikey) boyutunda 4 pencere koordinatı:
+   - `2160x3840` dikey şablon tuvali (2x; video çıktısına `bilgi/video-kurgu.md` C'deki boyuta ölçeklenir) üzerinde `960x1280` (3:4 dikey) boyutunda 4 pencere koordinatı:
      - Sol Üst Yuva: `(560, 1360)` merkez koordinatı
      - Sağ Üst Yuva: `(1600, 1360)` merkez koordinatı
      - Sol Alt Yuva: `(560, 2720)` merkez koordinatı
@@ -99,15 +99,13 @@ Video bitiş ekranlarında veya çoklu ürün sahnelerinde dairesel ve çerçeve
 
 ---
 
-## C. Dikey Video (Reels / TikTok / Shorts) Kurgu, FFmpeg ve Premiere XML Mimarisi
+## C. Dikey Video: Araç Dışı FFmpeg Notları ve Premiere XML Köprüsü
 
-Sosyal medya dikey video üretiminde platform algoritmalarının en yüksek bit hızını koruması için master standartlar esastır.
+> Çıktı standardı (1080x1920, 30 fps), kurgu akışı, kilit ve denetim: [`bilgi/video-kurgu.md`](video-kurgu.md) C ve E. Kurgu `tools/video/plan_render.py` ile yapılır; aşağıdaki FFmpeg notları yalnız araç dışı işler içindir.
 
-1. **Master Çıktı Standardı:**
-   - **Çözünürlük ve En-Boy:** `2160x3840` piksel, 9:16 tam dikey.
-   - **Kare Hızı ve Kodek:** 30.0 fps (veya 60.0 fps), H.264 MP4 (`libx264`).
-   - **Bit Hızı:** VBR 2 geçişli (2-pass) 60–80 Mbps, High Profile Level 5.2.
-   - **Ses Standardı:** AAC stereo, 320 kbps, 48 kHz örnekleme frekansı.
+1. **Araç Dışı Elle Render Notları:** Çözünürlük ve fps standardı `bilgi/video-kurgu.md` C'deki `cikti` alanıdır.
+   - **Kodek:** H.264 MP4 (`libx264`).
+   - **Ses:** AAC stereo, 320 kbps, 48 kHz örnekleme frekansı.
    - **Renk ve Netlik Filtre Zinciri:** `LANCZOS` yeniden ölçekleme, hafif unsharp (`unsharp=5:5:0.6:5:5:0.0`), kontrast ve doygunluk ayarı (`eq=contrast=1.06:saturation=1.12`) ve müzik vuruşlarında anlık parlama (`beat-flash`).
 2. **FFmpeg `xfade` ve Zaman Temeli (Timebase) Normalizasyonu:**
    - Farklı kaynaklardan gelen dikey videolarda timebase veya değişken kare hızı (VFR) `xfade` geçişlerinde ses kaymasına veya donmalara yol açar.
@@ -139,6 +137,7 @@ Sosyal medya mesajlaşma ve yorum yanıtlama süreçlerinde kurumsal güvenlik, 
 2. **RTL Metinlerde WhatsApp Bağlantı Kuralı:**
    - Sağdan sola akan dillerde telefon numarası metin içine asla düz rakam olarak yazılmaz; ters çevrilme ve kopyalama hatası önlenir.
    - Metin içinde yalnızca `{{WHATSAPP_LINK}}` yer tutucusu (`https://wa.me/<ULKE_KODU_NUMARA>`) kullanılır.
+   - Fiyat ve özel sipariş ayrıntıları mesajda yazılmaz; `{{WHATSAPP_LINK}}` üzerinden paylaşılır.
 3. **Tekil Ek, Başlık ve Buton Doğrulaması:**
    - Konuşma seçildikten sonra sağ paneldeki üst başlığın (müşteri adı) değiştiği DOM üzerinden doğrulanır.
    - Konuşma geçmişinde veya ekleme kutusunda katalog PDF'i zaten mevcutsa ikinci kez eklenmez.
@@ -161,7 +160,4 @@ Sosyal medya mesajlaşma ve yorum yanıtlama süreçlerinde kurumsal güvenlik, 
 2. **Git Gizlilik Duvarı ve Yerel Kayıt İzolasyonu:**
    - Gerçek müşteri isimleri, telefon numaraları, sipariş miktarları ve mesajlaşma günlükleri git reposuna **kesinlikle yazılmaz**.
    - Müşteri verileri yalnızca `.gitignore` altında korunan yerel kayıt klasöründe (`yerel-kayitlar/`) tarihli olarak tutulur.
-3. **Çift Repolu Çalışma, İş Kaydı Yönlendirmesi ve Global Öğrenim Ayrımı:**
-   - Kedihane bir işletme/sosyal medya reposu ile birlikte (ör. Facebook / Messenger mesaj ve yorum yanıtlama) kullanıldığında; **ne iş yapıldığı (ilerleme.md, ekleyen-isler.md, ogrenilenler.md) ve müşteri cevap listeleri (yerel-kayitlar/) doğrudan ilgili işletme reposuna kaydedilir.**
-   - Kedihane **kendi içine işletmeyle ilgili hiçbir kişisel veya kurumsal bilgi (marka adı, müşteri adı, telefon, adres, hesap adı, yapılan özel iş özeti) almaz.**
-   - Yalnızca tüm projelerde geçerli **genel (global) bir teknik yöntem veya iş akışı** öğrenildiğinde, bu bilgi özel/kişisel verilerden tamamen arındırılarak Kedihane'nin genel hafızasına veya rehberlerine alınabilir.
+3. **Çift Repolu Çalışma ve Global Öğrenim Ayrımı:** [`CLAUDE.md` Bölüm 14](../CLAUDE.md#14-öğrenme-ve-hafıza) ("Harici İşletme / Sosyal Medya Reposu ile Birlikte Çalışma").

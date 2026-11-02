@@ -1,15 +1,15 @@
 # Video Kurgu Rehberi (Plan → Uygulama Akışı)
 
-> **Okuma Kuralı:** Fihristten ilgili başlığı (`## X.`) bulun ve yalnızca o bölümü okuyun. Teknik çıktı standartları (4K master, Premiere XML koordinatları, RTL yazı üretimi) `bilgi/sosyal-medya-ve-video-operasyonu.md` A ve C bölümlerindedir.
+> **Okuma Kuralı:** Fihristten ilgili başlığı (`## X.`) bulun ve yalnızca o bölümü okuyun. Video çıktı standardının asıl yeri bu dosyanın C bölümüdür. Premiere XML koordinatları, araç dışı FFmpeg notları ve RTL yazı üretimi `bilgi/sosyal-medya-ve-video-operasyonu.md` A ve C bölümlerindedir.
 
 ## Bölüm Fihristi
 | Başlık | Satır Aralığı | İçerik Özeti |
 | :--- | :--- | :--- |
-| [A. İş Bölümü: Planı Güçlü Model, Uygulamayı Hafif Model Yapar](#a-iş-bölümü-planı-güçlü-model-uygulamayı-hafif-model-yapar) | L16-L35 | Hangi adım hangi modelde, eksik brief, Argon'a giden tek mesaj |
-| [B. Uzun İş Protokolü (Hafif Model)](#b-uzun-iş-protokolü-hafif-model) | L36-L44 | `_calisma/`, durum.md, adım kapısı, plan kilidi, durma koşulu |
+| [A. İş Bölümü: Planı Güçlü Model, Uygulamayı Hafif Model Yapar](#a-iş-bölümü-planı-güçlü-model-uygulamayı-hafif-model-yapar) | L16-L34 | Hangi adım hangi modelde, eksik brief, Argon'a giden tek mesaj |
+| [B. Uzun İş Protokolü (Hafif Model)](#b-uzun-iş-protokolü-hafif-model) | L36-L43 | `_calisma/`, durum.md, adım kapısı, plan kilidi, durma koşulu |
 | [C. plan.json Şeması](#c-planjson-şeması) | L45-L74 | Video ve görsel planlar, tempo, kadraj, yazı ve yuva, ses, doğrulama |
-| [D. Kurgu Dili](#d-kurgu-dili) | L75-L96 | Hook, yapı, tempoya göre geçiş, kesim yeri, ince doku, yazı, ses |
-| [E. Kontrol, Kilit ve Denetim](#e-kontrol-kilit-ve-denetim) | L97-L109 | Kodlu kontrol sayfaları, master kilidi, 9 maddelik denetim, Premiere XML, makbuz |
+| [D. Kurgu Dili](#d-kurgu-dili) | L76-L96 | Hook, yapı, tempoya göre geçiş, kesim yeri, ince doku, yazı, ses |
+| [E. Kontrol, Kilit ve Denetim](#e-kontrol-kilit-ve-denetim) | L98-L110 | Kodlu kontrol sayfaları, master kilidi, 9 maddelik denetim, Premiere XML, makbuz |
 
 ---
 
@@ -61,6 +61,7 @@ Argon kotası bittiyse plan Opus veya Sonnet'e verilir. Hiçbiri yoksa Flash C v
 }
 ```
 
+- **Çıktı standardı:** Dikey master 1080x1920 (9:16), 30 fps, H.264. Kodlama ayarlarını `plan_render.py` belirler; elle değiştirilmez.
 - **Video planı:** `kaynak`, `giris`, `cikis` (kaynaktaki saniye) ve `neden` zorunlu. İsteğe bağlı: `hiz` (0,25–4).
 - **Görsel planı (jpg/png/webp):** `kaynak`, `sure` ve `neden` zorunlu. Görsel sündürülmez. `keskinlestir` hafif unsharp uygular.
 - **`kadraj`:** `orta`/`ust`/`alt` ya da 0–1 arası sayı (0 = üst, 1 = alt) 9:16'ya kırpar. `bulanik` kırpmadan sığdırır, boşluğu aynı görüntünün bulanık hali doldurur. `sigdir` siyah bantla sığdırır.

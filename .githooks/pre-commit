@@ -1,0 +1,20 @@
+#!/bin/sh
+# Kedihane commit kapısı: her commit'te tools/denetim.py çalışır; hata varsa commit durur.
+# Etkinleştirme (her klonda bir kez): git config core.hooksPath .githooks
+# --no-verify ile atlamak yasaktır (CLAUDE.md Bölüm 10).
+cd "$(git rev-parse --show-toplevel)" || exit 1
+if command -v python >/dev/null 2>&1 && python -c "import sys" >/dev/null 2>&1; then
+    PY=python
+elif command -v python3 >/dev/null 2>&1; then
+    PY=python3
+else
+    echo "[pre-commit] Python bulunamadı; tools/denetim.py çalıştırılamadı. Commit durduruldu."
+    exit 1
+fi
+"$PY" tools/denetim.py
+durum=$?
+if [ "$durum" -ne 0 ]; then
+    echo "[pre-commit] Denetim geçmedi; commit durduruldu. Hataları düzeltin (fihrist için: $PY tools/denetim.py --fihrist-duzelt)."
+    exit 1
+fi
+exit 0

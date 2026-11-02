@@ -26,8 +26,8 @@
 - **Antigravity Çekirdek Becerileri:** `.agents/skills/` altında 5 uzmanlık paketi
 
 ## 3. Mimari Standartlar ve Kurallar
-- **Token Tasarrufu:** Rehberlerin ve hafıza dosyalarının tamamı asla baştan sona okunmaz; fihristten satır aralığı belirlenerek (`read_file`) okunur.
-- **Katı Alfabetik Düzen (`A-Z`):** Tüm rehberler, hafızalar ve skill dokümanlarında başlıklar alfabetik sıra ile düzenlenir.
+- **Hedefli okuma, alfabetik düzen ve bilgi yerleştirme:** [`CLAUDE.md` Bölüm 10](CLAUDE.md#10-repo-kuralları-ve-token-tasarrufu) ve [`bilgi/HARITA.md`](bilgi/HARITA.md).
+- **Commit kancası:** Her klonda bir kez `git config core.hooksPath .githooks` çalıştırılır; her commit'te `tools/denetim.py` çalışır.
 - **Sarman Kalite Denetimi:** Her kod, dosya ve kritik çıktıda `📋 Sarman Denetim Makbuzu` zorunludur.
 - **Güvenlik ve Veri Gizliliği:** `.env`, API anahtarı, şifre ve kişisel veriler asla repoya yazılmaz; kaynak dosyalar korunur.
 

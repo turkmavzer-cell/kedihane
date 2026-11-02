@@ -6,9 +6,9 @@
 ## Alfabetik Bölüm Fihristi (A-Z)
 | Başlık | Satır Aralığı | İçerik Özeti |
 | :--- | :--- | :--- |
-| [A. Çıktı Türü ve Teslimat Eşikleri](#a-çıktı-türü-ve-teslimat-eşikleri) | L16-L22 | Sohbet, dosya ve artifact teslimat sınırları |
-| [B. Eylem Odaklı İletişim (`i-have-adhd`)](#b-eylem-odaklı-iletişim-i-have-adhd) | L24-L37 | 10 altın iletişim ve odak kuralı |
-| [C. Mühendislik ve Kodlama İlkeleri (`karpathy-guidelines`)](#c-mühendislik-ve-kodlama-ilkeleri-karpathy-guidelines) | L39-L46 | Sadelik, cerrahi değişiklik ve hedef doğrulama |
+| [A. Çıktı Türü ve Teslimat Eşikleri](#a-çıktı-türü-ve-teslimat-eşikleri) | L16-L20 | Sohbet, dosya ve artifact teslimat sınırları |
+| [B. Eylem Odaklı İletişim (`i-have-adhd`)](#b-eylem-odaklı-iletişim-i-have-adhd) | L24-L35 | 10 altın iletişim ve odak kuralı |
+| [C. Mühendislik ve Kodlama İlkeleri (`karpathy-guidelines`)](#c-mühendislik-ve-kodlama-ilkeleri-karpathy-guidelines) | L39-L44 | Sadelik, cerrahi değişiklik ve hedef doğrulama |
 | [D. Yapay Zekâ Klişesi Yasağı (`no-ai-slop` & `stop-slop`)](#d-yapay-zekâ-klişesi-yasağı-no-ai-slop--stop-slop) | L48-L55 | Yasaklı kalıplar, boğaz temizleme ve sahte derinlik engeli |
 
 ---
