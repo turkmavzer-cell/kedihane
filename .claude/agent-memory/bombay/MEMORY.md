@@ -11,7 +11,7 @@
 
 ### Görüntü İşleme ve PSD
 - 2026-10-19: Color to Alpha kendi zemininde her zaman hata 0 verir (yanıltıcı); doğruluğu koyu bir zemine bindirerek ölç.
-- 2026-10-19: psd-tools 1.25'te RGBA katmanlı PSD için `PSDImage.new("RGBA", ...)` kullan; `"RGB"` ile alfa katman maskesine gider.
+- 2026-10-19: psd-tools RGBA katman tuzağı → bilgi/katman-ayirma.md §G
 - 2026-10-19: Alfalı görseli yalnız premultiplied uzayda ölç/ölçekle/bulanıklaştır; straight alfayla kenarda 49 seviyeye kadar hale oluşur.
 - 2026-10-20: Büyük PSD'de kanalları RLE satır tablosundan seyrek oku, tam tuvali belleğe açma; PPI = ham değer/65536.
 - 2026-10-20: Tram frekansı/açısı kırpmanın FFT tepe noktasından ölçülür (lpi = PPI × frekans).

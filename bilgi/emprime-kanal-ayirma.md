@@ -10,16 +10,16 @@
 | [C. Atölye Standartları ve Makine Kısıtları](#c-atölye-standartları-ve-makine-kısıtları) | L54-L58 | Maksimum 6 kafa, zıt renk kısıtları ve kurutma süreleri |
 | [D. Dithering ve Difüzyon Yöntemleri](#d-dithering-ve-difüzyon-yöntemleri) | L62-L66 | Index color, 254 DPI dither + 2x büyütme standardı |
 | [E. Doğrulanmayanlar ve Sınırlar](#e-doğrulanmayanlar-ve-sınırlar) | L70-L78 | Fiziksel film, elek tutma, gerçek moiré ve ölçüm sınırları |
-| [F. Film Çıktısı Standartları](#f-film-çıktısı-standartları) | L82-L87 | 1-bit bitmap, pHYs etiketi ve dosya adlandırma |
-| [G. İş Akışı: Tek Aşamalı vs İki Aşamalı Yöntem](#g-iş-akışı-tek-aşamalı-vs-iki-aşamalı-yöntem) | L91-L105 | bolge_am.py vs hibrit2.py adım adım yürütme |
-| [H. Kalite Kontrol ve Hata Ölçümü](#h-kalite-kontrol-ve-hata-ölçümü) | L109-L118 | ΔE ≤ 12, kenar pürüzlülüğü ≤ 0.03 ve kalite_kontrol.py |
-| [I. Kaynaklar ve Literatür](#i-kaynaklar-ve-literatür) | L122-L134 | MYK, Ryonet, Fresener, Anatol ve ISO-13660 standartları |
-| [J. Tonlu Nesne ve Alt Taban Çalışma Stili](#j-tonlu-nesne-ve-alt-taban-çalışma-stili) | L138-L142 | Ton dilimli spot kanallar, sert alt taban ve şablon mantığı |
-| [K. Önerilen Boru Hattı ve Ön Analiz Karar Eşikleri](#k-önerilen-boru-hattı-ve-ön-analiz-karar-eşikleri) | L146-L198 | 5 adımlı Python pipeline kodu ve analiz.py karar eşikleri |
-| [L. Photoshop JSX Otomasyon Araçları](#l-photoshop-jsx-otomasyon-araçları) | L202-L209 | psd_olustur_tek_adim.jsx ile tek tıkla Multichannel PSD |
-| [M. Sınama Sonuçları (Sentetik 2000×2000 px, 508 PPI)](#m-sınama-sonuçları-sentetik-20002000-px-508-ppi) | L213-L228 | Raggedness, sahte saçak, choke ve dither sentetik test tablosu |
-| [N. Terimler Sözlüğü](#n-terimler-sözlüğü) | L232-L249 | MYK tanımları, mesh, tram, LPI, spot, choke/spread ve flash cure |
-| [O. Tramsız Düz Renk Ayrımı](#o-tramsız-düz-renk-ayrımı) | L253-L261 | tramsiz.py ile vektörel grafik ayrımı ve trapping |
+| [F. Film Çıktısı Standartları](#f-film-çıktısı-standartları) | L82-L88 | 1-bit bitmap, pHYs etiketi ve dosya adlandırma |
+| [G. İş Akışı: Tek Aşamalı vs İki Aşamalı Yöntem](#g-iş-akışı-tek-aşamalı-vs-iki-aşamalı-yöntem) | L92-L106 | bolge_am.py vs hibrit2.py adım adım yürütme |
+| [H. Kalite Kontrol ve Hata Ölçümü](#h-kalite-kontrol-ve-hata-ölçümü) | L110-L119 | ΔE ≤ 12, kenar pürüzlülüğü ≤ 0.03 ve kalite_kontrol.py |
+| [I. Kaynaklar ve Literatür](#i-kaynaklar-ve-literatür) | L123-L135 | MYK, Ryonet, Fresener, Anatol ve ISO-13660 standartları |
+| [J. Tonlu Nesne ve Alt Taban Çalışma Stili](#j-tonlu-nesne-ve-alt-taban-çalışma-stili) | L139-L143 | Ton dilimli spot kanallar, sert alt taban ve şablon mantığı |
+| [K. Önerilen Boru Hattı ve Ön Analiz Karar Eşikleri](#k-önerilen-boru-hattı-ve-ön-analiz-karar-eşikleri) | L147-L199 | 5 adımlı Python pipeline kodu ve analiz.py karar eşikleri |
+| [L. Photoshop JSX Otomasyon Araçları](#l-photoshop-jsx-otomasyon-araçları) | L203-L210 | psd_olustur_tek_adim.jsx ile tek tıkla Multichannel PSD |
+| [M. Sınama Sonuçları (Sentetik 2000×2000 px, 508 PPI)](#m-sınama-sonuçları-sentetik-20002000-px-508-ppi) | L214-L229 | Raggedness, sahte saçak, choke ve dither sentetik test tablosu |
+| [N. Terimler Sözlüğü](#n-terimler-sözlüğü) | L233-L250 | MYK tanımları, mesh, tram, LPI, spot, choke/spread ve flash cure |
+| [O. Tramsız Düz Renk Ayrımı](#o-tramsız-düz-renk-ayrımı) | L254-L262 | tramsiz.py ile vektörel grafik ayrımı ve trapping |
 
 ---
 
@@ -83,8 +83,9 @@
 
 1. **1-Bit Mod:** Her renk filmi `mode="1"` (siyah-beyaz bitmap) olarak kaydedilir.
 2. **Film Mantığı:** Basılacak mürekkep alanı **SİYAH (0)**, basılmayacak kumaş alanı **BEYAZ (1)** olarak yazılır.
-3. **pHYs Etiketi:** 508 PPI piksel yoğunluğu PNG header'ına `pHYs = 20000 piksel/metre` olarak işlenir; RIP yazılımları filmi doğru fiziksel boyutta açar.
+3. **pHYs Etiketi:** 508 PPI piksel yoğunluğu PNG header'ına `pHYs = 20000 piksel/metre` olarak işlenir; Pillow'da `save(..., dpi=(508,508))` bu etiketi yazar. RIP yazılımları filmi doğru fiziksel boyutta açar.
 4. **Adlandırma:** `01_altbaski_beyaz.png`, `02_kirmizi.png`, `03_sari.png` şeklinde baskı sırasına göre numaralandırılır.
+5. **Nihai tonlu film:** 1-bit AM tram (45 LPI, 15°, 508 PPI) ve ayrı sert logo kanalı; sürekli ton kanalı yalnız çalışma kopyası olarak tutulur.
 
 ---
 
