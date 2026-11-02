@@ -78,7 +78,7 @@ Rehberde "doğrulanmadı" yazan şeyi çalışıyormuş gibi sunma. Görev tanı
    - Instagram/Facebook gönderi: 1080×1080 veya 1080×1350
    - Görev tanımında başka hedef varsa onu kullan.
 5. **Çıktıyı kendin kontrol et.** Dosyanın açıldığını, süresinin ve
-   özelliklerinin doğru olduğunu doğrula. Videodan `_kareler.jpg` kanıt tablosunu alıp `read_file` ile bak;
+   özelliklerinin doğru olduğunu doğrula. Videodan `_kareler.jpg` kanıt tablosunu açıp bak;
    görselde kenar ve maske hatalarını kontrol et.
 
 ## Alana özel kurallar

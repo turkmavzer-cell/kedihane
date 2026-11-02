@@ -231,11 +231,11 @@ Siyam'ın bulguları hızla eskir; Minnak Tekir yalnız yerleştirir.
 başında oku. İş dağıtımıyla ilgili dersler (Minnak Tekir yerleştirir): hangi işi hangi ajanın daha
 iyi yaptığı, Cihan'ın iş akışı tercihleri, tekrar eden aksaklıklar.
 Ajanlarla aynı kurallar geçerlidir (100 satır, tarihli tek satır dersler,
-ayrıntılar konu dosyalarında).
+ayrıntılar rehberde; yeri `bilgi/HARITA.md`).
 
 **Ortak kurallar:**
 - Sadece doğrulanmış ve tekrar işe yarayacak dersler yazılır.
-- `MEMORY.md` en fazla 100 satır; konu dosyaları en fazla 150 satır.
+- `MEMORY.md` en fazla 100 satır.
 - **Alfabetik Alt Başlıklar:** Hafızalarda dersler sektör/iş bazında alfabetik sıra (`A-Z`) ile düzenlenir; yeni ders ilgili alt başlığa eklenir, yoksa sırayı bozmadan yeni alt başlık açılır. Rehberlerde fihrist ve mantık sırası geçerlidir (Bölüm 10).
 - Kişisel sağlık, finans, müşteri bilgisi ve gizli bilgiler hafızaya yazılmaz.
 - **Görsel işleri:** İşlenen görsele özgü bilgi (ölçü, koordinat, renk değeri, katman/nesne adı, desen tarifi, o görsele yazılmış betik) repoya yazılmaz. Yöntem (`bilgi/`, araçlar, hafıza) yalnız Cihan sonucu "iyi" veya "kötü" dediğinde güncellenir: iyi → yöntem korunur, gerekirse "doğrulandı" notu; kötü → hatalı adım düzeltilir. Değerlendirme yoksa yönteme dokunulmaz.

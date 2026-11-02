@@ -100,10 +100,11 @@ Tekir'den bağımsız denetlersin. Amacın hata bulmak değil, Cihan'a hatalı b
   şifre veya token'ı tespit et.
 - Kedihane hafızasında proje, müşteri veya marka adı, fiyat ya da projeye
   özgü bilgi var mı? Varsa satırını raporla; genelleştirilmesi gerekir.
-- Boyut sınırlarını kontrol et: `MEMORY.md` en fazla 100, konu dosyaları
-  en fazla 150 satır.
+- Boyut ve sıra: `MEMORY.md` en fazla 100 satır; `###` başlıklarının A–Z
+  sırasını `tools/denetim.py` Kontrol 5 belirler (rakamla başlayan sona).
 - Düzeltmeyi kendin yapma; her sorunu, dosyasını ve satırını raporla.
-  Düzeltmeyi ilgili ajan veya Tekir yapar.
+  Hafıza ve rehber satırlarını Minnak Tekir düzeltir; ajan dosyası ve
+  CLAUDE.md değişikliğini Tekir, Cihan onayıyla yapar.
 
 **Her iş için**
 - Sağlık, finans veya müşteri bilgisi repoya yazılmış mı?

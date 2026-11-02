@@ -6,10 +6,6 @@
 # Dosya şablonu başlıkları (her rehber, skill, ajan ve hafıza dosyasında aynı kalıp)
 ^okuma kuralı: fihristten ilgili başlığı
 ^kedihane token tasarrufu kuralı: bu rehberin tamamı tek seferde okunmaz
-^en fazla 100 satır\. dersler sektör/iş başlıklarına göre alfabetik
-^yeni dersler doğrudan ilgili alt başlığın altına eklenir
-^konu dosyaları \(
-^işe başlarken oku; iş bitince projeden bağımsız genel dersleri
 ^rapor türkçe; kod, dosya adı ve teknik terimler orijinal haliyle
 # Tekir kimlik cümlesi: CLAUDE.md (Claude) ve GEMINI.md (Antigravity) ayrı ayrı yüklenir
 ^sen tekir'sin, ekibin şefisin
