@@ -8,8 +8,8 @@
 | [A. Arapça ve RTL Tipografi, Yazı Katmanı ve Supersampling (Pillow & Cairo)](#a-arapça-ve-rtl-tipografi-yazı-katmanı-ve-supersampling-pillow--cairo) | L16-L51 | RTL harf birleştirme, 4x supersampling, emoji yasağı ve kontak sayfası |
 | [B. Çerçeveli / Dairesel Yuvalara Görsel Yerleştirme ve Bitiş Kartları](#b-çerçeveli--dairesel-yuvalara-görsel-yerleştirme-ve-bitiş-kartları) | L55-L98 | Autocrop beyaz boşluk yasağı, 4 fotoğraflı delikli şablon ve alt kanal |
 | [C. Dikey Video: Araç Dışı FFmpeg Notları ve Premiere XML Köprüsü](#c-dikey-video-araç-dışı-ffmpeg-notları-ve-premiere-xml-köprüsü) | L102-L124 | Standart video-kurgu.md'de; xfade normalizasyonu, prproj ve xmeml koordinatları |
-| [D. Meta Business Suite ve Çok Kanallı Müşteri Yanıtlama Otomasyonu](#d-meta-business-suite-ve-çok-kanallı-müşteri-yanıtlama-otomasyonu) | L128-L151 | İki aşamalı Türkçe onay, wa.me yer tutucu, DOM dosya yükleme ve spam kontrolü |
-| [E. Sosyal Medya Hesap Güvenliği ve Yerel Kayıt İzolasyonu](#e-sosyal-medya-hesap-güvenliği-ve-yerel-kayıt-izolasyonu) | L155-L163 | Profil doğrulama, git gizlilik duvarı, çift repolu iş kaydı ve global öğrenim ayrımı |
+| [D. Meta Business Suite ve Çok Kanallı Müşteri Yanıtlama Otomasyonu](#d-meta-business-suite-ve-çok-kanallı-müşteri-yanıtlama-otomasyonu) | L128-L156 | İki aşamalı Türkçe onay, wa.me yer tutucu, DOM dosya yükleme ve spam kontrolü |
+| [E. Sosyal Medya Hesap Güvenliği ve Yerel Kayıt İzolasyonu](#e-sosyal-medya-hesap-güvenliği-ve-yerel-kayıt-izolasyonu) | L160-L168 | Profil doğrulama, git gizlilik duvarı, çift repolu iş kaydı ve global öğrenim ayrımı |
 
 ---
 
@@ -149,6 +149,11 @@ Sosyal medya mesajlaşma ve yorum yanıtlama süreçlerinde kurumsal güvenlik, 
 5. **Yorum ve Spam Yönetimi:**
    - Otomatik veya önceden verilmiş yanıtlar ("1 yanıtı gör") kontrol edilir; mükerrer yanıt verilmez.
    - Uygunsuz veya spam yorumlar silinmez; sayfa itibarını korumak için "Gizle" seçeneğiyle gizlenir.
+6. **Toplu Yorumlarda Paralel Kopya Ajan ve Tek Sekme Gönderim Mimarisi:**
+   - Çok sayıda (ör. 20+) yorum veya mesaj biriktiğinde işlem "Paralel Beyin, Sıralı Parmak" hibrit akışıyla yürütülür.
+   - **Adım 1 (Tekil Okuma):** Kaliko açık sekmeden tüm yorumları DOM üzerinden tek seferde toplar ve Tekir'e iletir.
+   - **Adım 2 (Geçici Kopya Ajanlarla Paralel Cevap Üretimi):** Tekir yorumları 5–10'arlı gruplara böler ve her grup için geçici `ankara` alt ajan kopyaları (`invoke_subagent`, `Model: "flash"`, `Workspace: "inherit"`) başlatır. Kopyalar aynı anda çalışarak 5 sütunlu onay tablosunu (`# | Soru Arapça | Soru Türkçe | Hazırlanan Cevap Arapça | Cevap Türkçe & Eklenti`) üretir; görev bitince repoya hiçbir iz veya dosya bırakmadan silinirler.
+   - **Adım 3 (Tek Sekme ve Doğal Beklemeli Gönderim):** Yönetici onayından sonra **asla çoklu tarayıcı sekmesi açılmaz** (`chrome-devtools` sekme odağı çakışmasını ve Meta anti-bot/spam kilidini önlemek için). Tek bir Kaliko ajanı, tek sekmede sırayla ve her gönderim arasına 3–5 saniye doğal bekleme (jitter) koyarak yanıtları gönderir.
 
 ---
 
