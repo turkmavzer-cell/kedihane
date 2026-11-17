@@ -1,6 +1,6 @@
 # Kedihane — Antigravity & Ajan Çalışma Kuralları (`AGENTS.md`)
 
-> Bu repo `antigravity_davran-sh` v2.0.0 çok repolu çalışma sistemine bağlıdır.
+> Bu repo `antigravity_manual` çok repolu çalışma sistemine bağlıdır.
 > Projeye özel mimari kararlar ve öğrenimler `.agents/learnings/PROJECT.md` dosyasında tutulur.
 > **Detaylı Ortam Belgeleri:**
 > - Antigravity ortamında operasyon anayasası: [`GEMINI.md`](GEMINI.md)
@@ -11,17 +11,15 @@
 ## 1. Proje Amacı ve Özeti
 - **Proje Adı:** kedihane
 - **Amaç:** Cihan'ın 8 ajanlı çoklu yapay zekâ uzmanlık ekosistemi (Tekir şefliğinde Bombay, Sarman, Siyam, Ankara, Kaliko, Van; bilgi yerleştirmede Minnak Tekir).
-- **Teknoloji Yığını:** Python (psd-tools, numpy, PIL), Shell/PowerShell, Markdown, Multi-Agent Mimarisi, Antigravity Customizations (Skills, Rules, MCP).
+- **Teknoloji Yığını:** Python (psd-tools, numpy, PIL, opencv-python), Node.js, Shell/PowerShell, Markdown, Multi-Agent Mimarisi, Antigravity Customizations (Skills, Rules, MCP).
 
 ## 2. Geliştirme, Test ve Araç Komutları
-- **Emprime & Serigrafi Renk Ayrımı:** `python tools/emprime/bolge_am.py` (AM tram 45 LPI, 508 PPI), `tools/emprime/tramsiz.py` (düz spot), `tools/emprime/kalite_kontrol.py`
-- **Photoshop Multichannel PSD Otomasyonu:** `tools/photoshop/psd_olustur_tek_adim.jsx` (ExtendScript)
-- **PSD Katman Ayırma Araçları:** `tools/psd_worker/` (Node.js) ve `tools/katman/` (Python)
+- **PSD Küçük Resim ve Önizleme Aracı:** `tools/psd_worker/make_thumbs.js` (Node.js)
 - **Web App Test & Doğrulama:** `python tools/webapp_testing/with_server.py` (arka plan test sunucusu)
-- **Repo Kalite ve Gizlilik Denetimi:** `python tools/denetim.py` (Sarman denetim ve ihlal tarama betiği)
+- **Repo Kalite ve Gizlilik Denetimi:** `python -B tools/denetim.py` (Sarman denetim ve ihlal tarama betiği)
 - **Bağımlılık ve Paket Yönetimi:** `requirements.txt` (`pip install -r requirements.txt`)
-- **Video Kurgu:** `python tools/video/analiz.py <kaynak_klasor> --muzik <m>`, `python tools/video/plan_render.py _calisma/plan.json --dogrula|--onizleme|--master` (kilit, 9 maddelik denetim, Premiere XML; akış: `bilgi/video-kurgu.md`)
-- **Sosyal Medya ve Video Operasyonu:** `bilgi/sosyal-medya-ve-video-operasyonu.md`, `bilgi/tekstil-ve-sim-gorsel-promptlari.md`
+- **Video Kurgu:** `python -B tools/video/analiz.py <kaynak_klasor> --muzik <m>`, `python -B tools/video/plan_render.py _calisma/plan.json --dogrula|--onizleme|--master` (kilit, 9 maddelik denetim, Premiere XML; akış: `bilgi/video-kurgu.md`)
+- **Sosyal Medya ve Video Operasyonu:** `bilgi/sosyal-medya-ve-video-operasyonu.md`
 - **Rehber ve Bilgi Dosyaları:** `bilgi/` altında indeksli dokümanlar
 - **Antigravity Çekirdek Becerileri:** `.agents/skills/` altında 5 uzmanlık paketi
 

@@ -31,7 +31,7 @@ ajana yaptırmak varsayılan davranışındır. Tek istisna aşağıdaki
 | sarman | Kalite Kontrol | Teslimden önce denetim (bkz. Bölüm 8) |
 | siyam | Araştırmacı | Bilgi toplama: bilim, sağlık, hayvanlar, uzay, deniz, teknoloji, fiyat, ürün karşılaştırma, pazar verisi |
 | ankara | Yaratıcı Yönetmen | Fikir, senaryo, storyboard, prompt, her türlü metin, çeviri, seslendirme metni, oyun mekaniği, çok dilli sosyal medya ve katalog metinleri |
-| kaliko | Medya Operatörü | Video kurgu, fotoğraf ve görsel işleme, emprime renk ayrımı, katman ayırma, kavisli yazı ve tasarım, ses, TTS, belge üretimi |
+| kaliko | Medya Operatörü | Video kurgu, fotoğraf ve görsel işleme, katman ve renk ayrımı, kavisli yazı ve tasarım, ses, TTS, belge üretimi |
 | van | İş & Finans Stratejisti | İş kurma, iş yaptırma, fiyat, bütçe, pazarlama stratejisi, finans ve forex stratejisi, hukuk ön araştırması |
 | minnak-tekir | Bilgi Yerleştirici | Raporlarda `Ders:` satırı varsa iş sonunda; Cihan "şunu kurala ekle" dediğinde |
 
@@ -80,7 +80,7 @@ Her istekte bu sırayı izle:
 
 Tipik akış: Tekir → (Siyam) → uzman ajan(lar) → Sarman → Tekir teslim eder. Raporlarda `Ders:` varsa → Minnak Tekir → Sarman (fiş).
 
-**Model seçimi:** Ajanlar kendi dosyalarındaki modelle çalışır. Siyam ve Kaliko varsayılan olarak daha hafif modeldedir. Siyam sağlık ve derin araştırmada; Kaliko çok parçalı kurgu, ekran kontrolü veya baskıya gidecek renk ayrımında `opus`'a yükseltilir. (Antigravity ortamı model seçimi için bkz. [`GEMINI.md` Bölüm 2](GEMINI.md#2-model-seçimi-kota-geçiş-stratejisi-ve-antigravity_davran-sh-v200-protokolü).)
+**Model seçimi:** Ajanlar kendi dosyalarındaki modelle çalışır. Siyam ve Kaliko varsayılan olarak daha hafif modeldedir. Siyam sağlık ve derin araştırmada; Kaliko çok parçalı kurgu, ekran kontrolü veya baskıya gidecek renk ayrımında `opus`'a yükseltilir. (Antigravity ortamı model seçimi için bkz. [`GEMINI.md` Bölüm 2](GEMINI.md#2-model-seçimi-ve-kota-geçiş-stratejisi).)
 
 ---
 
