@@ -11,7 +11,7 @@ else
     echo "[pre-commit] Python bulunamadı; tools/denetim.py çalıştırılamadı. Commit durduruldu."
     exit 1
 fi
-"$PY" tools/denetim.py
+"$PY" -B tools/denetim.py
 durum=$?
 if [ "$durum" -ne 0 ]; then
     echo "[pre-commit] Denetim geçmedi; commit durduruldu. Hataları düzeltin (fihrist için: $PY tools/denetim.py --fihrist-duzelt)."

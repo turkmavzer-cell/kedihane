@@ -9,23 +9,6 @@
 - 2026-10-24: RTL satır içindeki ardışık Latin ve rakam kelimelerini tek soldan-sağa (LTR) blok olarak birleştir; kelime kelime dizilirse rakam grupları ters döner.
 - 2026-10-24: Rakam ve ince metin kenarlarında tırtıklanmayı önlemek için PNG şablonları 4x çözünürlükte çizip LANCZOS ile küçült; metin fontlarında emoji glifi olmadığından yalnız vektör ikon kullan.
 - 2026-10-24: Dairesel veya çerçeveli yuvaya bayrak/görsel yerleştirirken önce dış beyaz boşlukları getbbox ile kırp (autocrop) ve kırpılmış yüksekliği daire çapını tam dolduracak şekilde ölçekle.
-- 2026-11-01: Dairesel bayrak/amblem şablonlarında kenar boşluklarını asla elle boyayarak kapatma; orijinal delikli üst katman şablonunu kullan ve alt katmandaki görseli delik çapını taşacak şekilde Lanczos ile büyütüp sembol merkezini (hilal-yıldız vb.) yatay eksende dengele.
-
-### Emprime ve Serigrafi Baskı
-- 2026-10-19: Koyu tişörtte alt baskı da bir film sayılır; makine N renk basıyorsa üst renk en fazla N−1.
-- 2026-10-19: 508 PPI'da dither tekil nokta sorunu → bilgi/emprime-kanal-ayirma.md §D
-- 2026-10-19: Alan ağırlıklı k-means küçük, doygun veya koyu renkleri yutar; renk birleştirme kararını insan onaylar, ortalama ΔE yerine renk bazında rapor ver.
-- 2026-10-19: Film PNG'si (mod '1', pHYs, siyah basım alanı) → bilgi/emprime-kanal-ayirma.md §F
-- 2026-10-19: Dosya adı birleşen renkleri doğru yansıtmalı (yanlış adlı film hatası görüldü).
-- 2026-10-20: Tonlu nesneyi spot kanala sert gövde / orta ton / açık ton diye dilimle; alt taban sert birleşim silüetidir.
-- 2026-10-20: Nihai tonlu film ve sert logo kanalı ayrımı → bilgi/emprime-kanal-ayirma.md §F
-- 2026-10-20: Spot kanalları anlamlı ASCII adla ve Lab renk tanımıyla kaydet; boş kanal bırakma.
-
-### Photoshop Katman ve Bölge Ayırma
-- 2026-10-20: Bölge grubu + renk katmanı isteğinde bölgeleri ayrık bölümle (örtüşme 0, boşluk 0); maskeyi yapı pikselinden kur, dikdörtgen/kaba çokgen denetimde reddedilir.
-- 2026-10-20: Mürekkep rengini bölge başına, uç değer medyanıyla kestir (en parlak/koyu %20); düz medyan soluk çıkar. Dokulu kırmızıya ikinci (açık) tonu ekle.
-- 2026-10-20: Mürekkep başına sızıntı cezası (≈8 seviye) kırmızı sızıntısını %15,9'dan %2,5'e indirdi; yeniden birleştirmeyi her turda ölç.
-- 2026-10-20: psd-tools Türkçe katman adı MacRoman tuzağı → bilgi/katman-ayirma.md §B
 
 ### Video Kurgu, FFmpeg ve Premiere
 - 2026-10-20: Premiere .prproj dosyası gzip'li XML'dir; klip zamanları tick/254016000000 sn formülüyle salt-okunur çıkarılır, FCP7 xmeml'de Basic Motion center sekansa değil klibin kendi piksel boyutuna göre normalize edilir.

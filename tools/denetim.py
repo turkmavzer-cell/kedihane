@@ -19,7 +19,6 @@ Kullanım:
 """
 import glob
 import os
-import py_compile
 import re
 import subprocess
 import sys
@@ -74,7 +73,7 @@ def kontrol_1_gizlilik_ve_sabit_yol(files):
         r"\+[1-9]\d{0,2}[\s\-]?\(?\d{2,4}\)?[\s\-]?\d{3,4}[\s\-]?\d{2,4}|\+20\s*\d|\+90\s*\d|wa\.me/\d+"
     )
     p_sabit_yol = re.compile(
-        r"\b[A-Z]:[/\\]Users[/\\][^/\\\s]+|/sessions/[\w-]+/|/mnt/user-data|\bE:[/\\]",
+        r"\b[A-Z]:[/\\]+Users[/\\]+[^/\\\s]+|/sessions/[\w-]+/|/mnt/user-data|\bE:[/\\]",
         re.IGNORECASE,
     )
 
@@ -352,10 +351,10 @@ def kontrol_6_sozdizimi_derleme():
     hatalar = []
 
     # 1. tools/**/*.py için py_compile
-    py_files = sorted(glob.glob("tools/**/*.py", recursive=True))
+    py_files = sorted(glob.glob("tools/**/*.py", recursive=True) + glob.glob("*.py"))
     for pf in py_files:
         try:
-            py_compile.compile(pf, doraise=True)
+            compile(open(pf, "rb").read(), pf, "exec")  # bytecode (.pyc) yazmaz
         except Exception as e:
             hatalar.append(f"Python sözdizimi derleme hatası ({pf}): {e}")
 

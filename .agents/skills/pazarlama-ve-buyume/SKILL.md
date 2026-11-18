@@ -17,7 +17,7 @@ description: Ankara ve Van için dönüşüm oranı optimizasyonu (cro), metin y
 | [P. Pazarlama ve Büyüme Fikirleri (Marketing Ideas & Frameworks)](#p-pazarlama-ve-büyüme-fikirleri-marketing-ideas--frameworks) | 139 SaaS fikri, PMF testi, Bullseye kanalları, aşama/bütçe matrisi ve fikir öneri standardı | L158-L196 |
 | [R. Referans ve Viral Büyüme Programı (Referral & Viral Programs)](#r-referans-ve-viral-büyüme-programı-referral--viral-programs) | Virallik spektrumu (doğal vs sınırlı), referral vs affiliate, tetikleyiciler ve büyük rakam kuralı | L200-L223 |
 | [S. SEO ve Yapay Zekâ Arama Optimizasyonu (OpenSEO & GEO)](#s-seo-ve-yapay-zekâ-arama-optimizasyonu-openseo--geo) | OpenSEO (every-app/open-seo) araç takımı, DataForSEO MCP, klasik SEO vs GEO, llms.txt ve alıntılanabilir answer blocks | L227-L268 |
-| [T. Topluluk ve Sosyal Medya İçeriği (Social Content & Community)](#t-topluluk-ve-sosyal-medya-içeriği-social-content--community) | 5 içerik sütunu, kanca formülleri (merak/hikâye/karşıt), platform matrisi ve broetry/tell yasakları | L272-L312 |
+| [T. Topluluk ve Sosyal Medya İçeriği (Social Content & Community)](#t-topluluk-ve-sosyal-medya-içeriği-social-content--community) | 5 içerik sütunu, kanca formülleri (merak/hikâye/karşıt), platform matrisi ve broetry/tell yasakları | L272-L311 |
 
 ---
 
@@ -307,6 +307,5 @@ Sosyal medya kullanıcıları AI kokan gönderileri anında fark eder ve etkile�
   - *X (Twitter):* Teknik ekran görüntüleri, kısa kod akışları, ritmik cümleler ve tartışma açan sorular (günde 2-5 tweet veya haftalık odaklı flood).
 
 ### 4. Çok Dilli Sosyal Medya ve Müşteri Yanıtlama Yönetimi
-- **Müşteri yanıtlama (iki aşamalı onay, `{{WHATSAPP_LINK}}`, tekil ek, spam):** `bilgi/sosyal-medya-ve-video-operasyonu.md` D.
+- **Müşteri yanıtlama (iki aşamalı onay, `{{WHATSAPP_LINK}}`, paralel kopya ajan mimarisi):** `bilgi/sosyal-medya-ve-video-operasyonu.md` D.
 - **Gizlilik ve `yerel-kayitlar/`:** `bilgi/sosyal-medya-ve-video-operasyonu.md` E.
-- **Tekstil ve sim kumaş görsel promptları:** `bilgi/tekstil-ve-sim-gorsel-promptlari.md`.

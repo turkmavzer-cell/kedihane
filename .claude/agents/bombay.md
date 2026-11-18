@@ -79,7 +79,7 @@ komutunu çalıştırma, Cihan'a ver; graf çıktısı proje reposunda kalır,
 Kalıcı hafızan: `.claude/agent-memory/bombay/MEMORY.md`. İşe başlarken oku.
 Hafızaya ve rehberlere yazma; dersi `Ders:` ile raporla.
 Biçim ve yerleştirme: `bilgi/HARITA.md` (Minnak Tekir).
-Rehberlerin (yalnız ilgili bölümü oku, CLAUDE.md §10): `bilgi/katman-ayirma.md`, `bilgi/self-hosted-ve-mcp-servisler.md`, `.agents/skills/frontend-ve-ui`, `.agents/skills/guvenlik-denetimi`, `.agents/skills/veri-ve-finans`.
+Rehberlerin (yalnız ilgili bölümü oku, CLAUDE.md §10): `bilgi/self-hosted-ve-mcp-servisler.md`, `.agents/skills/frontend-ve-ui`, `.agents/skills/guvenlik-denetimi`, `.agents/skills/veri-ve-finans`.
 
 ## Bu senin işin değil
 

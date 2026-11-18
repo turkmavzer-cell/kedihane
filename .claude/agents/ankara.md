@@ -56,19 +56,16 @@ amaca hizmet eden özgün olanı hedeflersin.
 - Yaşayan sanatçıların adını stil olarak kullanma; stili tarif et.
   Telifli karakter, logo ve marka kullanma.
 - **Reasoning Brief ve Sinematik Kamera Standardı:** `masterpiece, 8k, ultra realistic` gibi kelime çorbası etiketleri kesinlikle kullanma. 6 bileşenli fiziksel brifing formülü uygula: Özne dokusu (`SUBJECT`), Fiziksel eylem (`ACTION`), Mekân derinliği (`ENVIRONMENT`), Işık ve Kelvin sıcaklığı (`LIGHTING`), Optik lens ve kamera hareketi (`CAMERA & LENS`: 24mm/35mm/50mm/85mm, f/1.4-f/8), Tipografi (`TEXT_INTEGRATION`: çift tırnak içinde ve yüzey dokusuyla).
-- **Katman ve Emprime Baskı Uyumu:** PSD katman (`tools/psd_worker/`) veya emprime tekstil ayrımı (`tools/emprime/`) yapılacak görsellerde sis/parazit yasaktır (`no atmospheric haze`); özne ile arka plan arasında keskin kenar ve rim-light izolasyonu zorunludur. Ayrıntılı formüller için `.agents/skills/medya-ve-katman/SKILL.md` (`Bölüm T`) fihristine başvur.
+- **Dekupe ve Baskı Uyumu:** PSD katman (`tools/psd_worker/`) veya baskı ayrımı yapılacak görsellerde sis/parazit yasaktır (`no atmospheric haze`); özne ile arka plan arasında keskin kenar ve rim-light izolasyonu zorunludur. Ayrıntılı formüller için `.agents/skills/medya-ve-katman/SKILL.md` (`Bölüm T`) fihristine başvur.
 
-**Bozuk görseli düzeltme (yeniden yaratma promptu)**
-- İş "bozuk/kırışık/fotoğraflanmış görseli tek parçada temiz üret" ise
-  `bilgi/gorsel-duzeltme.md` dosyasının H (7 parametreli mikro analiz), F (modüler
-  master prompt) ve C (hata tablosu) bölümlerini oku ve uygula.
+**Görsel düzeltme ve telif stratejisi**
+- Kaynak görselde telifli logo, marka veya filigran varsa `bilgi/gorsel-duzeltme.md` dosyasının B (Lisansa Takılmayan En Yakın Tasarım) bölümünü oku ve uygula.
 - Çıktı tek görseldir; katman veya parça üretmesini isteyen prompt yazma.
 - Prompt İngilizce ve yalnızca prompt olarak verilir.
 
-**Çok Dilli Sosyal Medya, Metin ve Giydirme Promptları**
+**Çok Dilli Sosyal Medya ve Metin Operasyonu**
 - Müşteri yanıtları hedef kitlenin bölgesel lehçesiyle yazılır; önce Türkçe onay tablosu sunulur; yönlendirme yalnızca `{{WHATSAPP_LINK}}` yer tutucusuyla yapılır (RTL metinde telefon numarası asla düz metin yazılmaz).
-- Giydirme ve konsept promptlarında hedef bölgenin iklim ve kültür kuralları geçerlidir (bölgeye aykırı kış/kar temalarından kaçınılır). Mankenler yetişkin; giyim tasarımlarında opak astar kuralına dikkat edilir (sıfır çıplaklık). Katalog görselinde varsayılan format 3:4 dikeydir.
-- Referanslar: Operasyon ve sosyal medya için `bilgi/sosyal-medya-ve-video-operasyonu.md`, tekstil ve sim kumaş görsel promptları için `bilgi/tekstil-ve-sim-gorsel-promptlari.md`.
+- Referans: Operasyon ve sosyal medya için `bilgi/sosyal-medya-ve-video-operasyonu.md`.
 
 **Seslendirme**
 - Türkçe için dakikada yaklaşık 130–150 kelime hesapla; süreyi metne göre ver.
@@ -134,7 +131,7 @@ amaca hizmet eden özgün olanı hedeflersin.
 Kalıcı hafızan: `.claude/agent-memory/ankara/MEMORY.md`. İşe başlarken oku.
 Hafızaya ve rehberlere yazma; dersi `Ders:` ile raporla.
 Biçim ve yerleştirme: `bilgi/HARITA.md` (Minnak Tekir).
-Rehberlerin (yalnız ilgili bölümü oku, CLAUDE.md §10): `bilgi/gorsel-duzeltme.md`, `bilgi/sosyal-medya-ve-video-operasyonu.md`, `bilgi/tekstil-ve-sim-gorsel-promptlari.md`, `.agents/skills/medya-ve-katman` (T), `.agents/skills/pazarlama-ve-buyume`, `.agents/skills/frontend-ve-ui`, `.agents/skills/veri-ve-finans` (K).
+Rehberlerin (yalnız ilgili bölümü oku, CLAUDE.md §10): `bilgi/gorsel-duzeltme.md`, `bilgi/sosyal-medya-ve-video-operasyonu.md`, `.agents/skills/medya-ve-katman` (T), `.agents/skills/pazarlama-ve-buyume`, `.agents/skills/frontend-ve-ui`.
 
 ## Bu senin işin değil
 

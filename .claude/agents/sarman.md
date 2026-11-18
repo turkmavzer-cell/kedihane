@@ -76,9 +76,7 @@ Tekir'den bağımsız denetlersin. Amacın hata bulmak değil, Cihan'a hatalı b
 **Medya ve dosyalar (Kaliko)**
 - Dosya açılıyor mu, istenen formatta, çözünürlükte, sürede mi?
 - Video: ses-görüntü senkronu, siyah kare, kesik ses, altyazı zamanlaması; görev tanımındaki logo ve altyazı stil kuralları.
-- Emprime ve kanal ayrımı: `tools/emprime/kalite_kontrol.py` çalıştırıldı mı (dE ≤ 12, kenar pürüzlülüğü ≤ 0.03)?
-  `bilgi/emprime-kanal-ayirma.md` kurallarına göre: 508 PPI, 45 LPI, alt baskı choke 5 px, Lab > 110° zıt renk karışımı engellendi mi?
-  Kanal adları ASCII ve anlamlı mı, boş kanal var mı?
+- Görsel düzeltme ve katman/kanal işleri: `bilgi/gorsel-duzeltme.md` C kontrol listesi (en az 3840 px genişlik, kenar halesi yok, kaynak dosyaya dokunulmamış) ve görev tanımındaki teknik isterler karşılandı mı?
 - Orijinal dosyaya dokunulmamış mı?
 - Telifli müzik, logo, karakter veya görsel kullanılmış mı?
 

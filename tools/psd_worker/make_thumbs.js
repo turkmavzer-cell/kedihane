@@ -15,8 +15,8 @@ function parseArgs() {
             else if (!size) size = parseInt(args[i], 10) || 800;
         }
     }
-    const defaultSrc = process.env.THUMBS_SRC_DIR || path.join(__dirname, '..', '..', 'cikti', 'girdi_gorseller');
-    const defaultOut = process.env.THUMBS_OUT_DIR || path.join(__dirname, '..', '..', 'cikti', 'onizleme_thumbs');
+    const defaultSrc = process.env.THUMBS_SRC_DIR || path.join(__dirname, '..', '..', '_calisma', 'katmanlar');
+    const defaultOut = process.env.THUMBS_OUT_DIR || path.join(__dirname, '..', '..', '_calisma', 'onizleme_thumbs');
     return {
         srcDir: input ? path.resolve(input) : defaultSrc,
         destDir: output ? path.resolve(output) : defaultOut,

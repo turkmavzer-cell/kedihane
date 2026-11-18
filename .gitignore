@@ -25,3 +25,7 @@ tools/psd_worker/node_modules/
 # Yerel yasakli desen listesi (kisisel/marka verisi)
 .denetim_yasakli.txt
 *.pdf
+
+# Gecici calisma ve test ciktilari
+_calisma/
+*.mp4

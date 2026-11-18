@@ -11,11 +11,10 @@ description: Bombay, Siyam ve Van için anti-bot web veri kazıma (Scrapling), o
 ### Alfabetik Fihrist (A-Z)
 | Başlık | Kapsam ve Odak | Satır Aralığı |
 | :--- | :--- | :--- |
-| [F. Finansal Veri ve Algoritmik Ticaret (OpenBB, Freqtrade & Lean)](#f-finansal-veri-ve-algoritmik-ticaret-openbb-freqtrade--lean) | OpenBB v4, Freqtrade IStrategy/backtest/FreqAI ve QuantConnect Lean Forex algoritmaları | L22-L223 |
-| [K. Kariyer ve İş Başvuru Otomasyonu (AI Job Search)](#k-kariyer-ve-iş-başvuru-otomasyonu-ai-job-search) | İş ilanı ayrıştırma, ATS skorlama, anahtar kelime optimizasyonu ve mülakat hazırlığı | L227-L241 |
-| [P. Paketleme ve Fiyatlandırma Stratejisi (Pricing Strategy)](#p-paketleme-ve-fiyatlandırma-stratejisi-pricing-strategy) | Değer metriği seçimi, Van Westendorp 4 fiyat sorusu, 3 katmanlı Good-Better-Best ve freemium/deneme | L245-L308 |
-| [R. Rehber, Belge (MarkItDown) ve Kitap Derleme (Book-to-Skill)](#r-rehber-belge-markitdown-ve-kitap-derleme-book-to-skill) | virgiliojr94/book-to-skill ile kitap derleme ve Microsoft MarkItDown CLI/Python dönüştürücü | L312-L384 |
-| [V. Web Veri Kazıma (Scrapling) ve Otonom Tarayıcı (Browser-Use)](#v-web-veri-kazıma-scrapling-ve-otonom-tarayıcı-browser-use) | Scrapling anti-bot/stealth kazıma ve browser-use Python asenkron tarayıcı ajanı | L388-L511 |
+| [F. Finansal Veri ve Algoritmik Ticaret (OpenBB, Freqtrade & Lean)](#f-finansal-veri-ve-algoritmik-ticaret-openbb-freqtrade--lean) | OpenBB v4, Freqtrade IStrategy/backtest/FreqAI ve QuantConnect Lean Forex algoritmaları | L21-L226 |
+| [P. Paketleme ve Fiyatlandırma Stratejisi (Pricing Strategy)](#p-paketleme-ve-fiyatlandırma-stratejisi-pricing-strategy) | Değer metriği seçimi, Van Westendorp 4 fiyat sorusu, 3 katmanlı Good-Better-Best ve freemium/deneme | L230-L293 |
+| [R. Rehber, Belge (MarkItDown) ve Kitap Derleme (Book-to-Skill)](#r-rehber-belge-markitdown-ve-kitap-derleme-book-to-skill) | virgiliojr94/book-to-skill ile kitap derleme ve Microsoft MarkItDown CLI/Python dönüştürücü | L297-L369 |
+| [V. Web Veri Kazıma (Scrapling) ve Otonom Tarayıcı (Browser-Use)](#v-web-veri-kazıma-scrapling-ve-otonom-tarayıcı-browser-use) | Scrapling anti-bot/stealth kazıma ve browser-use Python asenkron tarayıcı ajanı | L373-L496 |
 
 ---
 
@@ -221,24 +220,10 @@ class ForexMomentumStrategy(QCAlgorithm):
 - Canlı emir iletimi yapılmadan önce geriye dönük test (Backtesting) verileri Sharpe Oranı, Maksimum Düşüş (Max Drawdown) ve Kâr Faktörü (Profit Factor) kriterlerine göre incelenir.
 - Gerçek para ile işlem yapılmadan önce mutlaka Cihan'dan açık yazılı onay alınır (`GEMINI.md` Güvenlik Kuralı).
 - [doğrulanmadı] Forex botunu canlıya bağlama talebinde önce backtest ve demo raporu (işlem sayısı, en büyük düşüş, kâr faktörü) istenir; canlı test küçük sermaye ve otomatik durdurma sınırlarıyla başlar; Türkiye'de lisanslı kurumda asgari teminat şartı bu küçük testi engelleyebilir.
-
----
-
-## K. Kariyer ve İş Başvuru Otomasyonu (AI Job Search)
-
-Aday takip sistemleri (ATS - Applicant Tracking Systems) ve iş arama süreçlerinde veriye dayalı optimizasyon rehberi.
-
-### 1. İş İlanı Ayrıştırma ve Anahtar Kelime Çıkarımı
-1. İlan metnini ham olarak alın ve 3 kategoriye ayırın:
-   - **Zorunlu Beceriler (Hard Skills):** Diller, frameworkler, araçlar (ör. TypeScript, Docker, PostgreSQL).
-   - **Metodolojiler:** Agile, CI/CD, TDD, mikroservis mimarisi.
-   - **Yumuşak Beceriler (Soft Skills):** Çapraz ekip iletişimi, liderlik, problem çözme.
-2. ATS puanını maksimize etmek için adayın özgeçmişinde bu anahtar kelimelerin birebir (aynı harf biçimiyle) ve deneyim bağlamı içinde geçmesi sağlanır.
-
-### 2. Özelleştirilmiş CV ve Kapak Mektubu Standardı
-- Jenerik tek bir CV asla tüm pozisyonlara gönderilmez.
-- Her başvuru için ilanın öncelik sırasına göre deneyim maddeleri yeniden sıralanır; kanıtlanabilir başarı metrikleri (rakamlar, yüzdeler, ölçek büyüklükleri) öne çıkarılır.
-- Kapak mektubu şirketin mevcut teknik problemlerine doğrudan çözüm öneren kısa, net ve iddiasız profesyonel tonda hazırlanır.
+- BIST fiyat serilerinde Yahoo Finance v8/finance/chart günlük verisinde sermaye artırımı/bölünme düzeltmesi eksik kalabildiğinden ve yabancı para raporlayan şirketlerde oranlar bozulduğundan, taramalarda |1G getiri| > %13 bölünme kontrolü ve ikinci kaynak çapraz doğrulaması zorunludur.
+- TMS 29 enflasyon muhasebesi ve dönem içi sermaye artırımı dönemlerinde nicel taramalardaki TTM F/K ve PD/DD oranları yanıltıcı olabildiğinden, sonuçlar mutlaka son çeyrek KAP net kârı, net parasal pozisyon kalemi, net borç/FAVÖK ve SPK ek süre bildirimleriyle çapraz doğrulanmalıdır.
+- Yüksek mağaza kira sözleşmesi barındıran perakende gibi sektörlerde net borç/nakit pozisyonu değerlendirilirken TFRS 16 kira yükümlülükleri dahil net borç ile TFRS 16 hariç net nakit ayrı ayrı doğrulanmalıdır.
+- Seans içi piyasa raporlarında dosya veya sistem yerel saati yerine mutlaka UTC kaydından hedef borsa saat dilimine (BIST/TRT için UTC+3) çevrim yaparak saat yaz.
 
 ---
 

@@ -46,10 +46,7 @@ Uygulayan: Minnak Tekir (`.claude/agents/minnak-tekir.md`). Elle ekleme yapan he
 | Antigravity model ve kota | kota geçiş | `GEMINI.md` | §2 | Tekir |
 | Kedihane mimari kararları | proje kararları | `.agents/learnings/PROJECT.md` | tümü | Tekir |
 | Teslimat ve kodlama ilkeleri | no-ai-slop, karpathy | `bilgi/teslimat-ve-kodlama-ilkeleri.md` | tümü | herkes |
-| Emprime / serigrafi kanal ayırma | kanal ayırma, tramlama, alt baskı | `bilgi/emprime-kanal-ayirma.md` | tümü | Kaliko |
-| Katman ayırma ve PSD | bölge grupları | `bilgi/katman-ayirma.md` | tümü | Kaliko, Bombay |
-| Bozuk görseli yeniden yaratma promptu | mikro analiz, mechi | `bilgi/gorsel-duzeltme.md` | tümü | Ankara, Kaliko |
-| Tekstil ve sim kumaş promptları | glitter, giydirme | `bilgi/tekstil-ve-sim-gorsel-promptlari.md` | tümü | Ankara |
+| Görsel düzeltme iş akışı, telif stratejisi ve kalite kontrol | lisansa takılmayan | `bilgi/gorsel-duzeltme.md` | A, B, C | Ankara, Kaliko |
 | Video kurgu akışı, çıktı standardı, denetim | plan.json, kurgu dili | `bilgi/video-kurgu.md` | A, B, C, D, E | Kaliko |
 | Araç dışı FFmpeg ve Premiere XML | premiere, xfade | `bilgi/sosyal-medya-ve-video-operasyonu.md` | C | Kaliko |
 | Arapça / RTL tipografi | rtl | `bilgi/sosyal-medya-ve-video-operasyonu.md` | A | Kaliko |
@@ -66,7 +63,6 @@ Uygulayan: Minnak Tekir (`.claude/agents/minnak-tekir.md`). Elle ekleme yapan he
 | Finans verisi, algoritmik ticaret | openbb, freqtrade | `.agents/skills/veri-ve-finans/SKILL.md` | F | Bombay, Van |
 | Fiyatlandırma stratejisi | fiyatlandırma | `.agents/skills/veri-ve-finans/SKILL.md` | P | Van |
 | Web veri kazıma, belge dönüştürme | scrapling, markitdown | `.agents/skills/veri-ve-finans/SKILL.md` | V, R | Bombay, Siyam |
-| Kariyer ve iş başvuru otomasyonu | ats | `.agents/skills/veri-ve-finans/SKILL.md` | K | Ankara, Bombay |
 
 ## Sayısal Standartlar
 
@@ -76,5 +72,3 @@ Bağlam deseni (regex) eşleşen bir satırda aynı birimden farklı bir değer 
 |---|---|---|---|---|
 | Dikey video master | çözünürlük | 1080x1920 | `dikey master\|master çıktı\|reels\|shorts\|tiktok` | `bilgi/video-kurgu.md` |
 | Kısa video müzik yüksekliği | lufs | -14 | `müzik\|reels\|shorts\|tiktok\|youtube` | `bilgi/video-kurgu.md` |
-| Emprime tram frekansı | lpi | 45 | `tram\|moiré\|film` | `bilgi/emprime-kanal-ayirma.md` |
-| Emprime film çözünürlüğü | ppi | 508 | `tram\|film\|emprime\|dither` | `bilgi/emprime-kanal-ayirma.md` |

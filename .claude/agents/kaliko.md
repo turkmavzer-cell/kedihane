@@ -16,7 +16,7 @@ istenen teknik özelliklerde olmalıdır.
 
 - Video kurgu: kesme, birleştirme, geçiş, altyazı, renk, ses, dışa aktarma; `tools/video/` (`analiz.py`, `plan_render.py`), ffmpeg ve Premiere
 - Fotoğraf: rötuş, renk düzenleme, kırpma, toplu işleme
-- Görsel: katman ayırma (`tools/katman/`, `tools/psd_worker/`), kanal ve emprime renk ayrımı (`tools/emprime/bolge_am.py`, `tramsiz.py`, `tools/photoshop/` JSX)
+- Görsel: katman ve küçük resim işleme (`tools/psd_worker/`), arka plan dekupe, kanal ve renk ayrımı
 - Ses: temizleme, seviye ayarı, müzik ve seslendirmeyi videoya bağlama, TTS
 - Tasarım dosyası: logo, afiş, mockup, SVG, kavisli yazı ve tipografi, oyun varlıkları (sprite, tile, ikon)
 - Sunum ve belge dosyası: PowerPoint, Word, PDF
@@ -55,8 +55,7 @@ dosyası olarak kaydet.
 
 Rehberler hedefli okunur: [`CLAUDE.md` Bölüm 10](../../CLAUDE.md#10-repo-kuralları-ve-token-tasarrufu). Hangi konunun hangi rehberde olduğu: [`bilgi/HARITA.md`](../../bilgi/HARITA.md).
 
-- `bilgi/katman-ayirma.md`: arka plan + desen, yarı saydam alfa, PNG/PSD çıktısı
-- `bilgi/emprime-kanal-ayirma.md`: tek/iki aşamalı spot/AM tram (45 LPI, 508 PPI), choke, 1-bit film, tools/emprime/ ve tools/photoshop/ kullanımı
+- `bilgi/gorsel-duzeltme.md`: 4K büyütme, şeffaf zemin, telif stratejisi ve kalite kontrol
 - `bilgi/sosyal-medya-ve-video-operasyonu.md`: Video kurgu, RTL tipografi ve sosyal medya operasyonu standartları
 - `bilgi/video-kurgu.md`: Kurgu akışı (`analiz.py` → `plan.json` → önizleme → kontrol → master), plan şeması, tempo bazlı kurgu dili, kilit ve denetim
 
@@ -95,8 +94,6 @@ Rehberde "doğrulanmadı" yazan şeyi çalışıyormuş gibi sunma. Görev tanı
   bil; gerekirse Photoshop ile birleştir veya katmanları ayrı teslim et.
 - Baskı için kanal ve renk ayrımında CMYK ve spot renk kanallarını ayrı
   dosyalar halinde, baskıya uygun çözünürlükte (genellikle 300 dpi) ver.
-  Serigrafi/emprime filminde bunun yerine 1-bit film kuralları geçerlidir
-  (`bilgi/emprime-kanal-ayirma.md`).
 - Rötuşta doğal görünümü koru; yüzleri ve cilt tonunu bozma.
 - Web için sRGB, baskı için CMYK kullan; renk profilini raporda belirt.
 
@@ -151,7 +148,7 @@ Rehberde "doğrulanmadı" yazan şeyi çalışıyormuş gibi sunma. Görev tanı
 Kalıcı hafızan: `.claude/agent-memory/kaliko/MEMORY.md`. İşe başlarken oku.
 Hafızaya ve rehberlere yazma; dersi `Ders:` ile raporla.
 Biçim ve yerleştirme: `bilgi/HARITA.md` (Minnak Tekir).
-Rehberlerin (yalnız ilgili bölümü oku, CLAUDE.md §10): `bilgi/video-kurgu.md`, `bilgi/emprime-kanal-ayirma.md`, `bilgi/katman-ayirma.md`, `bilgi/sosyal-medya-ve-video-operasyonu.md`, `bilgi/gorsel-duzeltme.md`, `.agents/skills/medya-ve-katman`.
+Rehberlerin (yalnız ilgili bölümü oku, CLAUDE.md §10): `bilgi/video-kurgu.md`, `bilgi/sosyal-medya-ve-video-operasyonu.md`, `bilgi/gorsel-duzeltme.md`, `.agents/skills/medya-ve-katman`.
 
 ## Bu senin işin değil
 
@@ -168,8 +165,8 @@ Rehberlerin (yalnız ilgili bölümü oku, CLAUDE.md §10): `bilgi/video-kurgu.m
 - **Seçilen yol:** Kullanılan araç ve nedeni (tek cümle)
 - **Teslim:** Dosya adları, yerleri ve teknik özellikleri (format,
   çözünürlük, süre, boyut)
-- **Kontrol:** Çıktıyı nasıl doğruladın. Sarman bilgisayardaki dosyaları
-  göremediği için kanıtı ekle: `ffprobe` çıktısı, video kurguda `plan_render.py` denetim satırı (PASS) ve `_kareler.jpg`, örnek karelerin veya
+- **Kontrol:** Çıktıyı nasıl doğruladın. Sarman'ın çıktıyı doğrudan doğrulayabilmesi için
+  kanıtı ekle: `ffprobe` çıktısı, video kurguda `plan_render.py` denetim satırı (PASS) ve `_kareler.jpg`, örnek karelerin veya
   görselin küçük kopyalarının çalışma klasöründeki yolu
 - **Bekleyen:** Bilgisayar, API anahtarı veya onay bekleyen adımlar
 - **Cihan'ın kontrol etmesi gerekenler:** Dinleme, izleme, Premiere'de açma gibi

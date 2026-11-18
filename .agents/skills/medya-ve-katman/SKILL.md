@@ -1,9 +1,9 @@
 ---
 name: medya-ve-katman
-description: Kaliko için Photoshop katman ayırma (psd_worker), emprime renk ayrımı, görsel düzeltme, ffmpeg video/ses analizi ve OpenVoice ses klonlama rehberi.
+description: Kaliko için Photoshop katman ve küçük resim (psd_worker), görsel düzeltme, ffmpeg video/ses analizi ve OpenVoice ses klonlama rehberi.
 ---
 
-# Medya, Katman Ayırma ve Ses/Video İşleme Rehberi
+# Medya, Katman ve Ses/Video İşleme Rehberi
 
 > [!IMPORTANT]
 > **Kedihane Token Tasarrufu Kuralı:** Bu rehberin tamamı tek seferde okunmaz. Yapacağınız işleme göre aşağıdaki alfabetik fihristten ilgili satır aralığını tespit edip yalnızca o aralığı okuyun. Ayrıca `bilgi/*.md` dosyalarının tamamını asla okumayın, sadece fihristten tespit edilen ilgili satır aralıklarını çekin.
@@ -11,37 +11,12 @@ description: Kaliko için Photoshop katman ayırma (psd_worker), emprime renk ay
 ### Alfabetik Fihrist (A-Z)
 | Başlık | Kapsam ve Odak | Satır Aralığı |
 | :--- | :--- | :--- |
-| [E. Emprime ve Tekstil Kanal Ayırma](#e-emprime-ve-tekstil-kanal-ayırma) | tools/emprime/, tools/photoshop/ ve bilgi/emprime-kanal-ayirma.md | L24-L44 |
-| [G. Görsel Düzeltme, Rötuş ve Otomatik Dekupe (Rembg)](#g-görsel-düzeltme-rötuş-ve-otomatik-dekupe-rembg) | Non-destructive rötuş, danielgatis/rembg CLI/Python BiRefNet/ISNet otomatik dekupe | L48-L113 |
-| [K. Katman Ayırma ve PSD Worker Aracı](#k-katman-ayırma-ve-psd-worker-aracı) | tools/psd_worker/, tools/katman/ Python/JSX, bilgi/katman-ayirma.md | L117-L140 |
-| [R. React ile Programatik Video Üretimi (Remotion)](#r-react-ile-programatik-video-üretimi-remotion) | remotion-dev/remotion mimarisi, Composition, spring/interpolate, CLI render komutları | L144-L222 |
-| [S. Ses Klonlama ve Dublaj (OpenVoice V2 & MeloTTS)](#s-ses-klonlama-ve-dublaj-openvoice-v2--melotts) | myshell-ai/OpenVoice V2 ve MeloTTS ile çok dilli ve duygusal ses klonlama | L226-L282 |
-| [T. Tasarım, Sinematik Kamera ve Reasoning Brief Mimarisi (Ankara & Kaliko)](#t-tasarım-sinematik-kamera-ve-reasoning-brief-mimarisi-ankara--kaliko) | Reasoning Brief, sinematik optik/lens, katman-dostu prompt, Kling/Veo stabilite ve TEXT_INTEGRATION | L286-L322 |
-| [V. Video/Ses Analizi (FFmpeg) ve Vektörleştirme (VTracer)](#v-videoses-analizi-ffmpeg-ve-vektörleştirme-vtracer) | ffprobe, ebur128 LUFS ve visioncortex/vtracer | L326-L402 |
-
----
-
-## E. Emprime ve Tekstil Kanal Ayırma
-
-Tekstil ve serigrafi baskı süreçlerinde görsel doğrudan CMYK basılamaz; kumaş rengine ve tram limitlerine göre spot kanallara ayrıştırılmalıdır.
-
-### 1. Detaylı Metot Yönlendirmesi
-Bu konunun tam teknik detayları, Photoshop Curves değerleri ve film çıkış açıları için `bilgi/emprime-kanal-ayirma.md` dosyasına başvurun.
-- **Kural:** Dosyanın tamamını okumayın! `bilgi/emprime-kanal-ayirma.md` başındaki fihrist tablosundan sadece ilgili yöntemin satır aralığını okuyun.
-
-### 2. Temel Ayrım İlkeleri ve Kontrol Listesi
-- **Beyaz Altlık (Underbase):** Koyu kumaşlarda tüm renklerin altına %100 beyaz astar atılmalı, kenarlardan 5 piksel boğma (choke), ince çizgilerde 1 px choke (veya 2 px spread) yapılmalıdır.
-- **Tram Açıları (Moiré Önleme):** 45 LPI, 508 PPI, 15° veya 22.5° elips nokta standardı korunmalı; 0°, 45° ve 90° moiré yarattığı için asla kullanılmamalıdır.
-- **Simüle Proses ve Bölge Saflığı:** 6 kafa makine sınırı gözetilmeli; Lab ton farkı > 110° olan zıt renklerin karışımı engellenmelidir.
-
-### 3. Çalıştırılabilir Ayrım Araçları (`tools/emprime/` ve `tools/photoshop/`)
-- **Bölge Saflıklı AM Tramlama (`bolge_am.py`):**
-  - Tek aşamalı: `python tools/emprime/bolge_am.py girdi.png cikti_klasoru 6 5`
-  - İki aşamalı önizleme: `ASAMA=onizleme python tools/emprime/bolge_am.py girdi.png cikti_klasoru 6 5`
-- **Önizlemeden Film Ayrımı (`onizlemeden_ayir.py`):** `python tools/emprime/onizlemeden_ayir.py onayli_onizleme.png cikti_klasoru acik cikti/onizleme_palet.json`
-- **Tramsız Düz Spot Ayrım (`tramsiz.py`):** `python tools/emprime/tramsiz.py girdi.jpg cikti_klasoru`
-- **Ayrım Kalite Kontrolü (`kalite_kontrol.py`):** `python tools/emprime/kalite_kontrol.py cikti_klasoru kaynak.png` (dE <= 12, pürüzlülük <= 0.03)
-- **Photoshop Multichannel PSD Üretimi (`tools/photoshop/`):** `psd_olustur_tek_adim.jsx` ile `kanallar_hibrit.json`'dan otomatik PSD üretimi.
+| [G. Görsel Düzeltme, Rötuş ve Otomatik Dekupe (Rembg)](#g-görsel-düzeltme-rötuş-ve-otomatik-dekupe-rembg) | Non-destructive rötuş, danielgatis/rembg CLI/Python BiRefNet/ISNet otomatik dekupe | L23-L88 |
+| [K. Katman Küçük Resim ve PSD Worker Aracı](#k-katman-küçük-resim-ve-psd-worker-aracı) | tools/psd_worker/make_thumbs.js ile hızlı katman/görsel önizleme | L92-L104 |
+| [R. React ile Programatik Video Üretimi (Remotion)](#r-react-ile-programatik-video-üretimi-remotion) | remotion-dev/remotion mimarisi, Composition, spring/interpolate, CLI render komutları | L108-L186 |
+| [S. Ses Klonlama ve Dublaj (OpenVoice V2 & MeloTTS)](#s-ses-klonlama-ve-dublaj-openvoice-v2--melotts) | myshell-ai/OpenVoice V2 ve MeloTTS ile çok dilli ve duygusal ses klonlama | L190-L246 |
+| [T. Tasarım, Sinematik Kamera ve Reasoning Brief Mimarisi (Ankara & Kaliko)](#t-tasarım-sinematik-kamera-ve-reasoning-brief-mimarisi-ankara--kaliko) | Reasoning Brief, sinematik optik/lens, katman-dostu prompt, Kling/Veo stabilite ve TEXT_INTEGRATION | L250-L286 |
+| [V. Video/Ses Analizi (FFmpeg) ve Vektörleştirme (VTracer)](#v-videoses-analizi-ffmpeg-ve-vektörleştirme-vtracer) | ffprobe, ebur128 LUFS ve visioncortex/vtracer | L290-L366 |
 
 ---
 
@@ -49,8 +24,8 @@ Bu konunun tam teknik detayları, Photoshop Curves değerleri ve film çıkış 
 
 Kaliko tarafından yürütülen görsel işleme süreçlerinde yıkıcı (destructive) düzenlemeler kesinlikle yasaktır. Ayrıca `danielgatis/rembg` motoru ile yüksek kaliteli otomatik dekupe uygulanır.
 
-### 1. Detaylı Metot Yönlendirmesi (MeChi 3.3 — Nano Banana Pro)
-Bozuk kumaş desenlerinin adli referans mantığıyla idealize düz tuvalde yeniden yaratılması, 7 parametreli mikro analiz, modüler master prompt ve desen ihya protokolleri için `bilgi/gorsel-duzeltme.md` rehberine başvurun.
+### 1. Detaylı Metot Yönlendirmesi
+Görsel düzeltme iş akışı, telif stratejisi ve Sarman kalite kontrol protokolleri için `bilgi/gorsel-duzeltme.md` rehberine başvurun.
 - **Kural:** Dosyanın tamamını okumayın; fihrist tablosundan yalnızca ilgili satır aralığını çekin.
 
 ### 2. Temel İlkeler ve Kaynak Beyanı
@@ -114,30 +89,19 @@ with open('portre.jpg', 'rb') as i:
 
 ---
 
-## K. Katman Ayırma ve PSD Worker Aracı
+## K. Katman Küçük Resim ve PSD Worker Aracı
 
-Kedihane çalışma alanında `tools/psd_worker/` dizini altında görselleri ve Photoshop PSD dosyalarını otomasyonla katmanlarına ayıran Node.js araçları hazır bulunmaktadır.
+Kedihane çalışma alanında `tools/psd_worker/` dizini altında görsel ve katman klasörlerinden hızlı küçük resim (thumbnail) üreten Node.js aracı bulunmaktadır.
 
 ### 1. PSD Worker Aracı
 `tools/psd_worker/make_thumbs.js` katman veya görsel klasöründen hızlı küçük resim (thumbnail) üretir (`canvas`):
 
 ```bash
 cd tools/psd_worker
-node make_thumbs.js --input "../../cikti/katmanlar/" --size 300
+node make_thumbs.js --input "../../_calisma/katmanlar/" --size 300
 ```
 
 Görsele özel katman ayırma betiği yazılırsa repoya eklenmez (`CLAUDE.md` Bölüm 14, Görsel işleri).
-
-### 2. İleri Düzey Matematiksel Katman Ayırma Araçları (`tools/katman/`)
-Kedihane bünyesine eklenen Python ve ExtendScript (JSX) araçları:
-- `bolge_murekkep_katman.py`: Bölge bazlı mürekkep katman ayrımı (simplex_ls).
-- `katman_birlestir.jsx`: Photoshop ExtendScript ile ayrılmış katmanları kurallı birleştirme betiği.
-- `renk_alfa_katman.py` & `uc_renk_katman.py`: Yumuşak alfa geçişli 3 katmanlı ayırma.
-- `zemin_desen_katman.py`: Zemin ve tek renk desen ayrımı.
-
-### 3. `bilgi/katman-ayirma.md` Yönlendirmesi
-Yumuşak alfa matematiksel formülasyonu (`C = αF + (1−α)B`), Color-to-Alpha farkları, kısıtlı en küçük kareler (`simplex_ls`) bölge grupları ve az mürekkepli baskı katmanları için `bilgi/katman-ayirma.md` rehberine başvurun.
-- **Kural:** Dosyanın tamamını okumayın; fihrist tablosundan ilgili bölümün satır aralığını tespit edip okuyun.
 
 ---
 
@@ -297,11 +261,11 @@ Modeli yanıltan ve kaliteyi düşüren `masterpiece, 8k, ultra realistic, trend
 5. **CAMERA & LENS (Optik ve Hareket):** Odak uzaklığı (`24mm / 35mm / 50mm / 85mm`), diyafram değeri (`f/1.4 - f/8`) ve kamera hareketi (`static, dolly-in, horizontal tracking`).
 6. **TEXT_INTEGRATION (Tipografi Uyumu):** Görsel içine gömülecek metin, font stili ve yüzey fiziği entegrasyonu (ör. `"KEDIHANE" screen-printed in bold geometric sans-serif across the chest`).
 
-### 2. Emprime ve PSD Katman Ayrımına Hazır Görsel Üretim Standardı
-Görsel üretiminin amacı tek başına dijital sergileme değil; `tools/katman/` veya `tools/emprime/` araçlarıyla baskıya veya katmanlara dönüştürmektir:
+### 2. Dekupe ve Katman Ayrımına Hazır Görsel Üretim Standardı
+Görsel üretiminin amacı tek başına dijital sergileme değil; baskıya veya katmanlara dönüştürülebilir temiz çıktı elde etmektir:
 - **Net Kontrast ve Rim-Light İzolasyonu:** Özne ile arka plan arasında en az 2 durak (EV) kontrast farkı ve kenar ayırıcı kontur ışığı (`strong edge backlighting`) verilerek dekupe motorlarının (`rembg`, BiRefNet) pürüzsüz maske üretmesi sağlanır.
-- **Emprime/Serigrafi için Bölge Saflığı:** Tekstil baskısı hedefleniyorsa atmosferik sis, duman ve parazit gradyanlar yasaktır (`no atmospheric haze, no volumetric smoke, clean sharp edges, isolated subject, solid flat background`).
-- **Antigravity Yerleşik Üretim Akışı:** Görsel üretimi için pahalı harici API'ler yerine Antigravity'nin yerleşik `image-generator` alt ajanı devreye sokulur; üretilen PNG doğrudan Kaliko'ya iletilerek `tools/emprime/bolge_am.py` veya `tools/photoshop/psd_olustur_tek_adim.jsx` akışına verilir.
+- **Baskı için Bölge Saflığı:** Baskı hedefleniyorsa atmosferik sis, duman ve parazit gradyanlar yasaktır (`no atmospheric haze, no volumetric smoke, clean sharp edges, isolated subject, solid flat background`).
+- **Antigravity Yerleşik Üretim Akışı:** Görsel üretimi için pahalı harici API'ler yerine Antigravity'nin yerleşik `image-generator` alt ajanı devreye sokulur; üretilen PNG doğrudan Kaliko'ya iletilerek işleme alınır.
 
 ### 3. Video Üretiminde (Kling / Sora / Veo / Runway) Kamera ve Hareket Kararlılığı
 Video modellerinde uzuv erimesi (morphing), mekân bükülmesi ve titremeyi önleyen katı stabilite kuralları:
@@ -357,7 +321,7 @@ Hedef LUFS Standartları:
 
 ### 3. Dikey Video Kurgu Standartları
 - **İşlev:** Ses dosyasının RMS sessizlik analizine göre altyazı ve video kesimlerini senkronize etmek; RTL altyazıda harf şekillendirme ve LTR bloklama.
-- **Standartlar ve Araçlar:** `tools/video/analiz.py` (ön analiz + kontak sayfası) ve `tools/video/plan_render.py` (`--dogrula`, `--onizleme`, `--master`; kilit ve denetim) kullanılır; ayrıntılar için `bilgi/video-kurgu.md`, `bilgi/sosyal-medya-ve-video-operasyonu.md` ve `bilgi/tekstil-ve-sim-gorsel-promptlari.md` fihristini okuyun.
+- **Standartlar ve Araçlar:** `tools/video/analiz.py` (ön analiz + kontak sayfası) ve `tools/video/plan_render.py` (`--dogrula`, `--onizleme`, `--master`; kilit ve denetim) kullanılır; ayrıntılar için `bilgi/video-kurgu.md` ve `bilgi/sosyal-medya-ve-video-operasyonu.md` fihristini okuyun.
 
 ### 4. `visioncortex/vtracer` ile Raster Görüntüleri Vektöre (SVG) Dönüştürme
 `visioncortex/vtracer`, raster görüntüleri (PNG, JPG) katmanlı, temiz SVG vektör grafiklerine dönüştüren yüksek hızlı açık kaynak motorumuzdur. Potrace'e göre renkli ve degradeli görselleri başarıyla işler; Adobe Illustrator'ın Image Trace aracına kıyasla delikli şekiller yerine boşluksuz üst üste yığma (stacking) stratejisiyle çok daha kompakt ve hafif SVG üretir.

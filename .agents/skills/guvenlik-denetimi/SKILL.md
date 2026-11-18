@@ -118,8 +118,8 @@ NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE
 ```
 Eğer geçerli mesaj veya tur içinde doğrulama komutunu bizzat çalıştırıp terminal çıktısını görmediyseniz, kodun çalıştığını veya testlerin geçtiğini kesinlikle iddia edemezsiniz.
 
-### 2. Emprime ve Medya Kalite Doğrulaması
-- Eşikler ve kanıt kendi rehberindedir: emprime `bilgi/emprime-kanal-ayirma.md` H (`tools/emprime/kalite_kontrol.py`), video `bilgi/video-kurgu.md` C ve E (`plan_render.py` denetimi PASS; ayrıca görev tanımındaki logo/altyazı kuralları). Kanıt makbuza eklenmeden iş teslim edilmez.
+### 2. Medya ve Video Kalite Doğrulaması
+- Eşikler ve kanıt kendi rehberindedir: video kurgu `bilgi/video-kurgu.md` C ve E (`plan_render.py` denetimi PASS; ayrıca görev tanımındaki logo/altyazı kuralları) ve görsel düzeltme `bilgi/gorsel-duzeltme.md` C. Kanıt makbuza eklenmeden iş teslim edilmez.
 
 ### 3. Beş Adımlı Doğrulama Kapısı (The Gate Function)
 Herhangi bir teslimat veya başarı bildiriminde bulunmadan önce sırasıyla şu 5 adım zorunludur:

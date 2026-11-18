@@ -14,10 +14,10 @@ description: Bombay ve Ankara için özgün arayüz tasarımı (frontend-design)
 | [A. Antigravity & 21st.dev Bileşen İş Akışı](#a-antigravity--21stdev-bileşen-iş-akışı) | 21st.dev, shadcn/ui, Magic UI, Aceternity entegrasyon ve modülerlik kuralları | L24-L85 |
 | [B. Boşluk, Grid ve Görsel Hiyerarşi](#b-boşluk-grid-ve-görsel-hiyerarşi) | Asimetrik denge, negatif alan, bento grid, z-index ölçeği ve responsive kırılımlar | L89-L133 |
 | [K. Klişe Yasağı (Anti-AI Slop UI)](#k-klişe-yasağı-anti-ai-slop-ui) | Anthropic frontend-design 5 AI klişe kümesi, mor gradyan ve tipografik tell yasakları | L137-L153 |
-| [M. Mikro Etkileşimler ve MCP Sunucu Geliştirme (MCP Builder)](#m-mikro-etkileşimler-ve-mcp-sunucu-geliştirme-mcp-builder) | Animasyon easing/timing, prefers-reduced-motion ve Anthropic mcp-builder 4 fazlı protokol | L157-L213 |
-| [R. Renk, Kontrast ve Tema Sistemi](#r-renk-kontrast-ve-tema-sistemi) | 60-30-10 kuralı, CSS değişkenleri/tokens, WCAG AA/AAA ve gerçek koyu tema | L217-L265 |
-| [T. Tipografi, İki Aşamalı Süreç (2-Pass) ve Tasarımda Metin](#t-tipografi-iki-aşamalı-süreç-2-pass-ve-tasarımda-metin) | 2-Pass tasarım planı, ASCII wireframe, akıcı tipografi ve arayüz içi metin kuralları | L269-L292 |
-| [W. Web Uygulaması Testi ve Doğrulama (Playwright & Webapp-Testing)](#w-web-uygulaması-testi-ve-doğrulama-playwright--webapp-testing) | Anthropic webapp-testing karar ağacı, with_server.py, networkidle ve görsel kanıt | L296-L373 |
+| [M. Mikro Etkileşimler, Animasyon ve Yükleme Durumları](#m-mikro-etkileşimler-animasyon-ve-yükleme-durumları) | Animasyon easing/timing, prefers-reduced-motion ve Skeleton tasarım kuralları | L157-L182 |
+| [R. Renk, Kontrast ve Tema Sistemi](#r-renk-kontrast-ve-tema-sistemi) | 60-30-10 kuralı, CSS değişkenleri/tokens, WCAG AA/AAA ve gerçek koyu tema | L186-L234 |
+| [T. Tipografi, İki Aşamalı Süreç (2-Pass) ve Tasarımda Metin](#t-tipografi-iki-aşamalı-süreç-2-pass-ve-tasarımda-metin) | 2-Pass tasarım planı, ASCII wireframe, akıcı tipografi ve arayüz içi metin kuralları | L238-L261 |
+| [W. Web Uygulaması Testi ve Doğrulama (Playwright & Webapp-Testing)](#w-web-uygulaması-testi-ve-doğrulama-playwright--webapp-testing) | Anthropic webapp-testing karar ağacı, with_server.py, networkidle ve görsel kanıt | L265-L342 |
 
 ---
 
@@ -154,9 +154,9 @@ Kedihane arayüzlerinde yapay zekâ tarafından üretildiği ilk bakışta anla�
 
 ---
 
-## M. Mikro Etkileşimler ve MCP Sunucu Geliştirme (MCP Builder)
+## M. Mikro Etkileşimler, Animasyon ve Yükleme Durumları
 
-Arayüz animasyonları "göz boyamak" için değil; kullanıcının yaptığı eylemin sonucunu doğrulamak ve mekânsal devamlılık sağlamak içindir. Aynı zamanda Anthropic MCP standardı (`anthropics/skills/mcp-builder`) ile ajanlar arası iletişim köprüleri tasarlanır.
+Arayüz animasyonları "göz boyamak" için değil; kullanıcının yaptığı eylemin sonucunu doğrulamak ve mekânsal devamlılık sağlamak içindir.
 
 ### 1. Zamanlama ve Easing Standartları
 - **Mikro Etkileşim (Hover, Focus, Tıklama):** 150ms – 200ms. Easing: `cubic-bezier(0.4, 0, 0.2, 1)` (ease-out).
@@ -180,37 +180,6 @@ Hareket hassasiyeti olan kullanıcılar için animasyonlar otomatik olarak devre
 ### 3. Yükleme Durumları ve İskelet (Skeleton) Tasarımı
 - Dönen spinner'lar yerine içeriğin nihai şeklini taklit eden **Skeleton Loading** blokları kullanılmalıdır.
 - Skeleton animasyonunda soluk gri gradyan (`pulse` veya `shimmer`) akışı kullanılır; görsel gürültü yaratmayacak hızda (1.5s - 2s döngü) ayarlanır.
-
-### 4. Anthropic MCP Sunucu Geliştirme Protokolü (MCP Builder)
-LLM'lerin dış sistemler ve arayüz servisleriyle konuşması için yüksek kaliteli MCP (Model Context Protocol) sunucuları 4 fazlı protokolle geliştirilir:
-
-1. **Faz 1: Derin Araştırma ve Planlama:**
-   - **API Kapsamı vs İş Akışı Araçları:** Kapsamlı API endpoint desteği önceliklidir; ancak sık tekrarlanan karmaşık operasyonlar için birleşik iş akışı araçları da tasarlanmalıdır.
-   - **Tutarlı ve Eylem Odaklı Araç İsimlendirme:** Araç isimleri net, açıklayıcı ve tutarlı öneklerle adlandırılmalıdır (ör. `github_create_issue`, `github_list_repos`).
-   - **Bağlam ve Karakter Sınırı Yönetimi:** LLM'in bağlam penceresini tıkamamak için araç açıklamaları öz olmalı; büyük çıktılarda filtreleme ve sayfalama zorunlu tutulmalıdır.
-   - **Eyleme Dönük Hata Mesajları:** Bir hata fırlatıldığında yalnızca "hata oluştu" denilmez; ajanın bir sonraki adımda ne yapması gerektiğini bildiren yönlendirici mesajlar verilir.
-
-2. **Faz 2: Uygulama (TypeScript SDK v2 & FastMCP):**
-   - **Önerilen Yığın:** TypeScript SDK v2 (`@modelcontextprotocol/server`) veya Python tarafında `mcp` / `fastmcp`.
-   - **Şema Doğrulama:** Giriş parametreleri TypeScript'te Zod, Python'da Pydantic ile sıkı doğrulanmalıdır.
-   - **Yapılandırılmış Çıktı:** Araç dönüşlerinde serbest metin yerine `structuredContent` ve `outputSchema` tanımlanmalıdır.
-   - **Açıklama İpuçları (Tool Annotations):** Güvenlik için `readOnlyHint`, `destructiveHint`, `idempotentHint` ve `openWorldHint` bayrakları belirtilmelidir.
-   - **Sayfalama (Pagination):** 20'den fazla öğe döndürebilecek listelerde `limit` (varsayılan 20, maks 100) ve `cursor` parametresi uygulanmalıdır.
-
-3. **Faz 3: Kod İncelemesi ve Test:**
-   - DRY kuralına tam uyum ve merkezi hata yönetimi.
-   - `npx @modelcontextprotocol/inspector` ile stdio ve HTTP taşıyıcıları üzerinden canlı test.
-
-4. **Faz 4: Kapsamlı Değerlendirmeler (Evaluations):**
-   - MCP sunucusunun kalitesini ölçmek için 10 adet bağımsız, salt okunur (read-only), karmaşık ve doğrulanabilir XML QA değerlendirme senaryosu hazırlanır:
-   ```xml
-   <evaluation>
-     <qa_pair>
-       <question>Sistemdeki en yüksek öncelikli açık bildiriminin ID'si nedir?</question>
-       <answer>SEC-409</answer>
-     </qa_pair>
-   </evaluation>
-   ```
 
 ---
 

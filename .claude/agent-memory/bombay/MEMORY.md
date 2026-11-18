@@ -6,19 +6,18 @@
 
 ### Algoritmalar ve Optimizasyon
 - 2026-10-19: Mürekkep renkleri biliniyorsa alfayı palet izdüşümüyle hesapla (α=⟨c−b,Fk−b⟩/|Fk−b|²); Color to Alpha en küçük alfayı seçtiği için düz mürekkepte α<1 kalır.
-- 2026-10-20: Kısıtlı en küçük kareler (w≥0, Σw=1) için alt küme sayımı + ceza yöntemi 3–4 mürekkepte hızlı ve kararlı; kod `bilgi/katman-ayirma.md` B ve H bölümleri.
+- 2026-10-20: Kısıtlı en küçük kareler (w≥0, Σw=1) için alt küme sayımı + ceza yöntemi 3–4 mürekkepte hızlı ve kararlıdır.
 - 2026-10-20: Kontur oturtma yarıçapını morfolojik konturdan değil geçişin %50 noktalarından ölç.
+
+### Donanım ve Sunucu Mimarisi
+- 2026-11-11: Çoklu tüketici GPU kurulumlarında NVLink olmadığı için VRAM havuzlama değil, bağımsız paralel iş kuyruğu ve çoklu ajan iş bölümü mimarisiyle verim alınır.
 
 ### Görüntü İşleme ve PSD
 - 2026-10-19: Color to Alpha kendi zemininde her zaman hata 0 verir (yanıltıcı); doğruluğu koyu bir zemine bindirerek ölç.
-- 2026-10-19: psd-tools RGBA katman tuzağı → bilgi/katman-ayirma.md §G
+- 2026-10-19: psd-tools frompil(RGBA) arkaplan piksellerinde RGB=(255,255,255) yazar; katman oluştururken piksel kanallarını doğrudan ata.
 - 2026-10-19: Alfalı görseli yalnız premultiplied uzayda ölç/ölçekle/bulanıklaştır; straight alfayla kenarda 49 seviyeye kadar hale oluşur.
 - 2026-10-20: Büyük PSD'de kanalları RLE satır tablosundan seyrek oku, tam tuvali belleğe açma; PPI = ham değer/65536.
 - 2026-10-20: Tram frekansı/açısı kırpmanın FFT tepe noktasından ölçülür (lpi = PPI × frekans).
 
 ### Ortam ve Paket Yönetimi
 - 2026-10-19: Sandbox'ta `pip install --break-system-packages <paket>` çalışır; ağ yalnız paket kayıtlarına açık.
-
-### Tarayıcı ve Web Otomasyonu
-- 2026-10-21: DOM'da input[type=file] açmayan ataç butonlarında HTMLInputElement.prototype.click metodunu yamalayarak geçici file input'u DOM'a ekle ve işlem öncesi eski input'ları temizle.
-- 2026-10-24: Çoklu mesaj/ek otomasyonunda sol listeden konuşmaya tıkladıktan sonra üst başlık (header) adını doğrula; ek kutusunda dosya zaten varsa tekrar ekleme ve Gönder butonu aktif/siyah olmadan tıklama.

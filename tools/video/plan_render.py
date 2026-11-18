@@ -26,6 +26,12 @@ import secrets
 import shutil
 import subprocess
 import sys
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
 import xml.etree.ElementTree as ET
 from io import BytesIO
 from pathlib import Path
@@ -35,7 +41,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 IMZA = "kedihane-plan_render v2"
-GORSEL = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
+GORSEL = {".jpg", ".jpeg", ".png", ".webp", ".bmp", ".jfif"}
 GECISLER = {"kesme", "fade", "fadeblack"}
 KADRAJLAR = {"orta": 0.5, "ust": 0.0, "alt": 1.0}
 SIGDIR = {"sigdir": "siyah", "bulanik": "bulanik", "sigdir_bulanik_arka": "bulanik"}
@@ -368,12 +374,13 @@ def komut_kur(plan, cikti_yolu, onizleme):
 
     for i, p in enumerate(planlar):
         d = cizelge[i]["sure"]
+        d_in = d + (1.0 / F if p["_gorsel"] else 0.0)
         if p["_gorsel"]:
-            girdiler += ["-loop", "1", "-framerate", str(F), "-t", f"{d:.3f}", "-i", p["_yol"]]
+            girdiler += ["-loop", "1", "-framerate", str(F), "-t", f"{d_in:.3f}", "-i", p["_yol"]]
         else:
             girdiler += ["-ss", f"{p['_giris']:.3f}", "-t", f"{p['_cikis'] - p['_giris']:.3f}", "-i", p["_yol"]]
         ks = ",unsharp=5:5:0.6:5:5:0.0" if (keskin or p.get("keskinlestir")) else ""
-        son = f"{ks},fps={F},trim=duration={d:.3f},setpts=PTS-STARTPTS,settb=1/{F},format=yuv420p,setsar=1[v{i}]"
+        son = f"{ks},trim=duration={d_in:.3f},setpts=PTS-STARTPTS,format=yuv420p,setsar=1,fps={F},settb=1/{F}[v{i}]"
         if SIGDIR.get(p.get("kadraj")) == "bulanik":
             filtre.append(f"[{i}:v]setpts=(PTS-STARTPTS)/{p['_hiz']},split[ba{i}][on{i}]")
             filtre.append(f"[ba{i}]scale={W // 4}:{H // 4}:force_original_aspect_ratio=increase,"
@@ -390,25 +397,34 @@ def komut_kur(plan, cikti_yolu, onizleme):
             else:
                 filtre.append(f"anullsrc=r=48000:cl=stereo,atrim=duration={d:.3f}[a{i}]")
 
-    v, a = "v0", "a0"
-    for i in range(1, len(planlar)):
-        z, g = cizelge[i], planlar[i]["_gecis"]
-        if g == "kesme":
-            filtre.append(f"[{v}][v{i}]concat=n=2:v=1:a=0,settb=1/{F}[vx{i}]")
-            if orj_ses:
-                filtre.append(f"[{a}][a{i}]concat=n=2:v=0:a=1[ax{i}]")
-        else:
-            filtre.append(f"[{v}][v{i}]xfade=transition={g}:duration={z['D']:.3f}:"
-                          f"offset={z['bas']:.3f},settb=1/{F}[vx{i}]")
-            if orj_ses:
-                filtre.append(f"[{a}][a{i}]acrossfade=d={z['D']:.3f}[ax{i}]")
-        v, a = f"vx{i}", f"ax{i}"
+    if all(p.get("_gecis", "kesme") == "kesme" for p in planlar[1:]):
+        inputs_v = "".join(f"[v{i}]" for i in range(len(planlar)))
+        filtre.append(f"{inputs_v}concat=n={len(planlar)}:v=1:a=0,fps={F},settb=1/{F}[vx]")
+        v = "vx"
+        if orj_ses:
+            inputs_a = "".join(f"[a{i}]" for i in range(len(planlar)))
+            filtre.append(f"{inputs_a}concat=n={len(planlar)}:v=0:a=1[ax]")
+            a = "ax"
+    else:
+        v, a = "v0", "a0"
+        for i in range(1, len(planlar)):
+            z, g = cizelge[i], planlar[i]["_gecis"]
+            if g == "kesme":
+                filtre.append(f"[{v}][v{i}]concat=n=2:v=1:a=0,fps={F},settb=1/{F}[vx{i}]")
+                if orj_ses:
+                    filtre.append(f"[{a}][a{i}]concat=n=2:v=0:a=1[ax{i}]")
+            else:
+                filtre.append(f"[{v}][v{i}]xfade=transition={g}:duration={z['D']:.3f}:"
+                              f"offset={z['bas']:.3f},fps={F},settb=1/{F}[vx{i}]")
+                if orj_ses:
+                    filtre.append(f"[{a}][a{i}]acrossfade=d={z['D']:.3f}[ax{i}]")
+            v, a = f"vx{i}", f"ax{i}"
 
     n = len(planlar)
     for j, y in enumerate(plan.get("yazilar", [])):
         girdiler += ["-i", coz(plan["_klasor"], y["png"])]
         filtre.append(f"[{n}:v]scale={W}:{H}[p{j}]")
-        filtre.append(f"[{v}][p{j}]overlay=0:0:enable='between(t,{y['bas']},{y['bit']})'[vy{j}]")
+        filtre.append(f"[{v}][p{j}]overlay=0:0:enable='between(t,{y['bas']},{y['bit']})':eof_action=pass[vy{j}]")
         v, n = f"vy{j}", n + 1
 
     kf = plan["cikti"].get("kapanis_fade", 0)

@@ -32,7 +32,7 @@ if sys.platform == "win32":
         pass
 
 VIDEO_EXTS = {".mp4", ".mov", ".mkv", ".avi", ".webm", ".m4v"}
-IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp"}
+IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".jfif"}
 AUDIO_EXTS = {".mp3", ".wav", ".m4a", ".aac", ".flac", ".ogg"}
 
 
@@ -379,16 +379,21 @@ def main():
     ffmpeg_exe = get_ffmpeg_exe()
     videos, images, audios = [], [], []
 
-    for entry in sorted(src_dir.iterdir()):
-        if not entry.is_file() or entry.name.startswith("."):
-            continue
-        ext = entry.suffix.lower()
-        if ext in VIDEO_EXTS:
-            videos.append(entry)
-        elif ext in IMAGE_EXTS:
-            images.append(entry)
-        elif ext in AUDIO_EXTS:
-            audios.append(entry)
+    def _tara(d: Path):
+        for entry in sorted(d.iterdir()):
+            if entry.name.startswith(".") or entry.name == "_calisma":
+                continue
+            if entry.is_dir():
+                _tara(entry)
+            elif entry.is_file():
+                ext = entry.suffix.lower()
+                if ext in VIDEO_EXTS:
+                    videos.append(entry)
+                elif ext in IMAGE_EXTS:
+                    images.append(entry)
+                elif ext in AUDIO_EXTS:
+                    audios.append(entry)
+    _tara(src_dir)
 
     if args.muzik:
         m_path = Path(args.muzik).resolve()

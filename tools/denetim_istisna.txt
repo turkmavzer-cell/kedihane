@@ -10,6 +10,6 @@
 # Tekir kimlik cümlesi: CLAUDE.md (Claude) ve GEMINI.md (Antigravity) ayrı ayrı yüklenir
 ^sen tekir'sin, ekibin şefisin
 # Kontrol 8: asıl rehbere yönlendiren atıf bölümlerinin başlıkları
-^\.agents/skills/medya-ve-katman/SKILL\.md: (## [EG]\.|### 1\. Detaylı Metot Yönlendirmesi)
+^\.agents/skills/medya-ve-katman/SKILL\.md: (## G\.|### 1\. Detaylı Metot Yönlendirmesi)
 ^\.agents/skills/pazarlama-ve-buyume/SKILL\.md: ### 4\. Çok Dilli Sosyal Medya ve Müşteri Yanıtlama
 Çapraz Referans
