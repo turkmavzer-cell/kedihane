@@ -1,5 +1,8 @@
 # Değişiklik Günlüğü
 
+## 2026-11-19
+- **`antigravity_manual` bağlantısı kaldırıldı:** `AGENTS.md`, `GEMINI.md` ve `.agents/learnings/PROJECT.md` içindeki `antigravity_manual` çok repolu sistem bağlantıları, `Katman 3` / `core repo` ifadeleri ve manuel iki aşamalı Argon→Hydrogen devir kuralı temizlendi; Kedihane bağımsız kendi anayasasıyla çalışacak şekilde sadeleştirildi. Neden: Cihan talebiyle bu projede `antigravity_manual` artık kullanılmayacak.
+
 ## 2026-11-16
 - **`antigravity_davran-sh` v2.1.0 Uyumu:** `AGENTS.md`, `GEMINI.md`, `CLAUDE.md` ve `.agents/learnings/PROJECT.md` dosyaları `antigravity_davran-sh` v2.1.0 protokolüne güncellendi; `Gemini 4 Hydrogen` (planlı kodlama/uygulama ve test/CI modeli) ile karmaşık işlerde iki aşamalı **Plan: `Gemini 4 Argon` → İş: `Gemini 4 Hydrogen`** devir akışı eklendi.
 

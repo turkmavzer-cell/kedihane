@@ -1,8 +1,8 @@
 # Projeye Özel Öğrenimler ve Mimari Hafıza (`PROJECT.md`)
 
-> **Kapsam:** Katman 3 — Kedihane Çoklu Ajan ve Uzmanlık Ekosistemi
+> **Kapsam:** Kedihane Çoklu Ajan ve Uzmanlık Ekosistemi
 > **Yerel Konum:** `.`
-> **Kayıt Tarihi:** 2026-10-31 · **Commit Politikası:** `sor`
+> **Kayıt Tarihi:** 2026-10-31 · **Commit Onayı:** Cihan onayıyla
 
 ---
 
@@ -35,4 +35,5 @@
 | 2026-11-15 | mimari | Emprime/katman araçları ve rehberleri `PS-Desemp` (eski adı: `PS-Kanal-Ayirimi`) reposuna, tekstil/sim promptları ve Meta DOM detayları harici sosyal medya işletme reposuna (`dis-isletme-reposu`) ayrıştırıldı; Kedihane'de yalnız genel/global çoklu ajan mimarisi, metodolojiler ve ortak çekirdek araçlar (`tools/denetim.py`, `tools/video/`, `tools/psd_worker/`, `tools/webapp_testing/`) bırakıldı. | `bilgi/HARITA.md`, `AGENTS.md`, `GEMINI.md` | aktif |
 | 2026-11-19 | tuzak | 3D kumaş kıvrımı üzerindeki el çizimi/fırça yazı ve kutular fotoğraftan piksel/maske olarak çıkarılıp 1D dikey kaydırmayla düzeltilemez (yatay sıkışma ve dalgalanma kalır); Sarman kontrol listesine (`bilgi/gorsel-duzeltme.md` §C) yatay sıkışma/dalgalı çerçeve FAIL kuralı eklendi, `PS-Desemp` Modül C4 ile sıfırdan geometrik kurulum zorunlu kılındı. | `bilgi/gorsel-duzeltme.md` | aktif |
 | 2026-11-16 | mimari | `antigravity_davran-sh` v2.1.0 entegrasyonu güncellendi: `Gemini 4 Hydrogen` uygulama/test modeli eklendi ve karmaşık işlerde iki aşamalı `Argon (plan) → Hydrogen (uygulama)` devir protokolü `AGENTS.md`, `GEMINI.md` ve `CLAUDE.md`'ye işlendi. | `AGENTS.md`, `GEMINI.md`, `CLAUDE.md` | değiştirildi |
-| 2026-11-17 | mimari | `antigravity_davran-sh` bağlantısı projeden kaldırıldı; `antigravity_manual` çok repolu sistemine geçildi. | `AGENTS.md`, `GEMINI.md`, `CLAUDE.md` | aktif |
+| 2026-11-17 | mimari | `antigravity_davran-sh` bağlantısı projeden kaldırıldı; `antigravity_manual` çok repolu sistemine geçildi. | `AGENTS.md`, `GEMINI.md`, `CLAUDE.md` | kaldırıldı |
+| 2026-11-19 | mimari | `antigravity_manual` bağlantısı ve iki aşamalı manuel Argon→Hydrogen geçiş kuralı projeden kaldırıldı; Kedihane kendi anayasasıyla bağımsız çalışır. | `AGENTS.md`, `GEMINI.md`, `.agents/learnings/PROJECT.md` | aktif |

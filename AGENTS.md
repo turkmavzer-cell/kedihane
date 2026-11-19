@@ -1,6 +1,5 @@
 # Kedihane — Antigravity & Ajan Çalışma Kuralları (`AGENTS.md`)
 
-> Bu repo `antigravity_manual` çok repolu çalışma sistemine bağlıdır.
 > Projeye özel mimari kararlar ve öğrenimler `.agents/learnings/PROJECT.md` dosyasında tutulur.
 > **Detaylı Ortam Belgeleri:**
 > - Antigravity ortamında operasyon anayasası: [`GEMINI.md`](GEMINI.md)
@@ -29,10 +28,7 @@
 - **Sarman Kalite Denetimi:** Her kod, dosya ve kritik çıktıda `📋 Sarman Denetim Makbuzu` zorunludur.
 - **Güvenlik ve Veri Gizliliği:** `.env`, API anahtarı, şifre ve kişisel veriler asla repoya yazılmaz; kaynak dosyalar korunur.
 
-## 4. Projeye Özel Hafıza ve Öğrenme Kuralı (Katman 3)
+## 4. Projeye Özel Hafıza ve Öğrenme Kuralı
 1. Görev başında `.agents/learnings/PROJECT.md` dosyasını kontrol et ve oradaki mimari kararlara/tuzaklara dikkat et.
-2. Bu projeye özgü yeni bir bilgi keşfettiğinde veya kullanıcı projeye özel bir düzeltme yaptığında:
-   - Bunu core repoya değil, bu projedeki `.agents/learnings/PROJECT.md` tablosuna tarihli olarak ekle.
-   - Projeden bağımsız genel dersler `bilgi/HARITA.md` Ekleme Prosedürü'yle yerleştirilir (Minnak Tekir).
-3. **Commit Politikası (`sor`):**
-   - `.agents/learnings/PROJECT.md` dosyasını güncelledikten sonra ayrı bir `docs(learnings): ...` commit'i hazırlamayı teklif et; **kullanıcı onaylamadan bu proje reposunda commit/push yapma**.
+2. Kedihane'ye özgü yeni bir mimari karar veya tuzak keşfettiğinde bunu `.agents/learnings/PROJECT.md` tablosuna tarihli olarak ekle; projeden bağımsız genel dersler `bilgi/HARITA.md` Ekleme Prosedürü'yle yerleştirilir (Minnak Tekir).
+3. **Commit Onayı:** `.agents/learnings/PROJECT.md` veya kural dosyaları güncellendikten sonra **kullanıcı onaylamadan bu proje reposunda commit/push yapma**.
