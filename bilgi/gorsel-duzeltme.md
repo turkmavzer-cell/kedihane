@@ -38,7 +38,7 @@ Sarman görsel düzeltme teslimatlarını şu kontrol listesiyle denetler:
 - [ ] Tek parça mı? Katman, panel, varyant yok mu?
 - [ ] Orijinalle yan yana kıyasta eksik veya fazla motif var mı?
 - [ ] Kumaş izi, kırışıklık, gölge, yansıma, silüet kalmış mı?
-- [ ] Yazılar düz taban çizgisinde mi, orijinalin şekline sadık mı?
+- [ ] Yazılar düz taban çizgisinde mi, orijinalin şekline sadık mı? 3D kumaş kıvrımından kalan yatay sıkışma (daralmış harf), harf eğimi veya dalgalı çerçeve kenarı var mı? (Varsa FAIL — piksel kopyalama yerine sıfırdan ortografik geometrik kurulum şart.)
 - [ ] Renkler orijinal paletle uyuşuyor mu?
 - [ ] Çözünürlük en az 3840 px genişlik mi, kenarlar keskin mi?
 - [ ] Zemin kurala uygun mu, istenmişse şeffaflık temiz mi (halo yok)?
