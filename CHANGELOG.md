@@ -1,5 +1,8 @@
 # Değişiklik Günlüğü
 
+## 2026-11-21
+- **Otomatik Araç/Beceri Yönlendirme ve Swarm Kota Kalkanı (`GEMINI.md` §2, §5 ve `PROJECT.md`):** `GEMINI.md` §2 model tablosuna `Gemini 4 Neon` eklendi. `GEMINI.md` §5 eklendi: Tekir Otopilot ile tüm tekil araç/beceriler (5 Kedihane becerisi, Google Workspace, Chrome DevTools, yerleşik beceriler, `browser`, `schedule`, `ask_question` ve hafif/araç-odaklı `run_workflow` akışları) `/` komutu yazılmadan otomatik kullanılır; kalan kota yüzdesi ajanlarca okunamadığı için kotayı hızlı tüketen `swarm` ve çoklu ajanlı `run_workflow` betikleri tek satır onay ve model havuzu seçimiyle (Kota Kalkanı) Kedihane rolleri ve `@sarman` (`@verifier`) üzerinden çalıştırılır; yalnızca arayüzden açılan 8 komutta ise eşikli tek satır öneri verilir. Aynı karar `.agents/learnings/PROJECT.md` tablosuna işlendi. Neden: Cihan talebiyle komut/beceri kullanımını otomatikleştirmek ve yalnız hızlı kota tüketen paralel çoklu ajan çalıştırmalarında onay koruması sağlamak.
+
 ## 2026-11-19
 - **`antigravity_manual` bağlantısı kaldırıldı:** `AGENTS.md`, `GEMINI.md` ve `.agents/learnings/PROJECT.md` içindeki `antigravity_manual` çok repolu sistem bağlantıları, `Katman 3` / `core repo` ifadeleri ve manuel iki aşamalı Argon→Hydrogen devir kuralı temizlendi; Kedihane bağımsız kendi anayasasıyla çalışacak şekilde sadeleştirildi. Neden: Cihan talebiyle bu projede `antigravity_manual` artık kullanılmayacak.
 
