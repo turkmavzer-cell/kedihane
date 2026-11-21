@@ -12,11 +12,11 @@ description: Kaliko için Photoshop katman ve küçük resim (psd_worker), görs
 | Başlık | Kapsam ve Odak | Satır Aralığı |
 | :--- | :--- | :--- |
 | [G. Görsel Düzeltme, Rötuş ve Otomatik Dekupe (Rembg)](#g-görsel-düzeltme-rötuş-ve-otomatik-dekupe-rembg) | Non-destructive rötuş, danielgatis/rembg CLI/Python BiRefNet/ISNet otomatik dekupe | L23-L88 |
-| [K. Katman Küçük Resim ve PSD Worker Aracı](#k-katman-küçük-resim-ve-psd-worker-aracı) | tools/psd_worker/make_thumbs.js ile hızlı katman/görsel önizleme | L92-L104 |
-| [R. React ile Programatik Video Üretimi (Remotion)](#r-react-ile-programatik-video-üretimi-remotion) | remotion-dev/remotion mimarisi, Composition, spring/interpolate, CLI render komutları | L108-L186 |
-| [S. Ses Klonlama ve Dublaj (OpenVoice V2 & MeloTTS)](#s-ses-klonlama-ve-dublaj-openvoice-v2--melotts) | myshell-ai/OpenVoice V2 ve MeloTTS ile çok dilli ve duygusal ses klonlama | L190-L246 |
-| [T. Tasarım, Sinematik Kamera ve Reasoning Brief Mimarisi (Ankara & Kaliko)](#t-tasarım-sinematik-kamera-ve-reasoning-brief-mimarisi-ankara--kaliko) | Reasoning Brief, sinematik optik/lens, katman-dostu prompt, Kling/Veo stabilite ve TEXT_INTEGRATION | L250-L286 |
-| [V. Video/Ses Analizi (FFmpeg) ve Vektörleştirme (VTracer)](#v-videoses-analizi-ffmpeg-ve-vektörleştirme-vtracer) | ffprobe, ebur128 LUFS ve visioncortex/vtracer | L290-L366 |
+| [K. Katman Küçük Resim ve PSD Worker Aracı](#k-katman-küçük-resim-ve-psd-worker-aracı) | tools/psd_worker/make_thumbs.js ile hızlı katman/görsel önizleme | L92-L105 |
+| [R. React ile Programatik Video Üretimi (Remotion)](#r-react-ile-programatik-video-üretimi-remotion) | remotion-dev/remotion mimarisi, Composition, spring/interpolate, CLI render komutları | L109-L187 |
+| [S. Ses Klonlama ve Dublaj (OpenVoice V2 & MeloTTS)](#s-ses-klonlama-ve-dublaj-openvoice-v2--melotts) | myshell-ai/OpenVoice V2 ve MeloTTS ile çok dilli ve duygusal ses klonlama | L191-L247 |
+| [T. Tasarım, Sinematik Kamera ve Reasoning Brief Mimarisi (Ankara & Kaliko)](#t-tasarım-sinematik-kamera-ve-reasoning-brief-mimarisi-ankara--kaliko) | Reasoning Brief, sinematik optik/lens, katman-dostu prompt, Kling/Veo stabilite ve TEXT_INTEGRATION | L251-L287 |
+| [V. Video/Ses Analizi (FFmpeg) ve Vektörleştirme (VTracer)](#v-videoses-analizi-ffmpeg-ve-vektörleştirme-vtracer) | ffprobe, ebur128 LUFS ve visioncortex/vtracer | L291-L367 |
 
 ---
 
@@ -102,6 +102,7 @@ node make_thumbs.js --input "../../_calisma/katmanlar/" --size 300
 ```
 
 Görsele özel katman ayırma betiği yazılırsa repoya eklenmez (`CLAUDE.md` Bölüm 14, Görsel işleri).
+> Emprime renk ayrımı, LAP + dot-on-dot AM tram, spot kanal Solidity/kumaş kanalı ve çok kanallı PSD denetimi ayrı `PS-Desemp` reposunda (`emprime-kanal-ayirma.md`, `lap_overprint_am.py`, `psd_incele.py`) yürütülür.
 
 ---
 

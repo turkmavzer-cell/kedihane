@@ -2,6 +2,7 @@
 
 > **Ne zaman okunur:** Yalnız repoya yeni bilgi yazılırken veya bir konunun yeri aranırken. Her oturumda yüklenmez.
 > **Tek kaynak kuralı:** Bir bilgi yalnız asıl yerine yazılır; başka her yerde en fazla tek satır atıf olur. `tools/denetim.py` Kontrol 7 ve 8 bunu her commit'te denetler.
+> **Harici Uzmanlık Reposu (`PS-Desemp`):** Emprime/serigrafi renk ayrımı, LAP + dot-on-dot AM tramlama, spot kanal Solidity, kayıt krosu/etiket ve çok kanallı PSD denetimi ayrı `PS-Desemp` reposunda (`emprime-kanal-ayirma.md`, `lap_overprint_am.py`, `psd_incele.py`) tutulur; Kedihane'ye kopyalanmaz.
 
 ## Yerleştirme Karar Ağacı
 
